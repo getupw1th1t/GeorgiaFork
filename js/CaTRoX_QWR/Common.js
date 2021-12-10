@@ -261,7 +261,7 @@ function _alpha_timer(items_arg, hover_predicate_arg) {
 
 // TODO: why do these still exist?
 const g_theme = {};
-g_theme.script_folder = 'georgia\\';
+g_theme.script_folder = 'georgiaFork\\';
 g_theme.colors = {};
 g_theme.colors.pss_back = RGB(25, 25, 25);
 g_theme.colors.panel_back = RGB(30, 30, 30);

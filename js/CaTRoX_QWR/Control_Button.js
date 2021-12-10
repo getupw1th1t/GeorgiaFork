@@ -1,10 +1,10 @@
-
 /** @type {Button} */
 let oldButton;
 /** @type {Button} */
 let downButton;
 var buttonTimer = null;
 var mainMenuOpen = false;
+var playButtonPressed = false;
 
 /** @type {Button} */
 let lastOverButton = null;
@@ -15,12 +15,11 @@ let activatedBtns = [];
 const ButtonState = {
 	Default: 0,
 	Hovered: 1,
-	Down: 2,	// happens on click
-	Enabled: 3
-}
+	Down: 2, // happens on click
+	Enabled: 3,
+};
 
 function buttonEventHandler(x, y, m) {
-
 	// var CtrlKeyPressed = utils.IsKeyPressed(VK_CONTROL);
 	// var ShiftKeyPressed = utils.IsKeyPressed(VK_SHIFT);
 
@@ -30,7 +29,7 @@ function buttonEventHandler(x, y, m) {
 	let thisButton = null;
 
 	for (var i in btns) {
-		if (typeof btns[i] === 'object' && btns[i].mouseInThis(x, y)) {
+		if (typeof btns[i] === "object" && btns[i].mouseInThis(x, y)) {
 			thisButton = btns[i];
 			break;
 		}
@@ -41,8 +40,7 @@ function buttonEventHandler(x, y, m) {
 	lastOverButton = thisButton;
 
 	switch (c) {
-
-		case 'on_mouse_move':
+		case "on_mouse_move":
 			if (downButton) return;
 
 			if (oldButton && oldButton != thisButton) {
@@ -55,15 +53,15 @@ function buttonEventHandler(x, y, m) {
 			if (lastOverButton) {
 				if (lastOverButton.tooltip) {
 					tt.showDelayed(lastOverButton.tooltip);
-				} else if (lastOverButton.id === 'Volume' && !volume_btn.show_volume_bar) {
-					tt.showDelayed(fb.Volume.toFixed(2) + ' dB');
+				} else if (lastOverButton.id === "Volume" && !volume_btn.show_volume_bar) {
+					tt.showDelayed(fb.Volume.toFixed(2) + " dB");
 				}
 			}
 
 			oldButton = thisButton;
 			break;
 
-		case 'on_mouse_lbtn_dblclk':
+		case "on_mouse_lbtn_dblclk":
 			if (thisButton) {
 				thisButton.changeState(ButtonState.Down);
 				downButton = thisButton;
@@ -71,14 +69,14 @@ function buttonEventHandler(x, y, m) {
 			}
 			break;
 
-		case 'on_mouse_lbtn_down':
+		case "on_mouse_lbtn_down":
 			if (thisButton) {
 				thisButton.changeState(ButtonState.Down);
 				downButton = thisButton;
 			}
 			break;
 
-		case 'on_mouse_lbtn_up':
+		case "on_mouse_lbtn_up":
 			if (downButton) {
 				downButton.onClick();
 
@@ -87,17 +85,19 @@ function buttonEventHandler(x, y, m) {
 					mainMenuOpen = false;
 				}
 				if (thisButton) {
+					console.log("thisButton");
 					thisButton.changeState(thisButton.enabled ? ButtonState.Enabled : ButtonState.Hovered);
 				} else {
+					console.log("downButton");
 					downButton.changeState(downButton.enabled ? ButtonState.Enabled : ButtonState.Default);
 				}
-				// thisButton ? thisButton.changeState(ButtonState.Hovered) : downButton.changeState(ButtonState.Default);
+				//thisButton ? thisButton.changeState(ButtonState.Hovered) : downButton.changeState(ButtonState.Default);
 
 				downButton = undefined;
 			}
 			break;
 
-		case 'on_mouse_leave':
+		case "on_mouse_leave":
 			oldButton = undefined;
 			if (downButton) return; // for menu buttons
 
@@ -115,8 +115,8 @@ function buttonEventHandler(x, y, m) {
 const WindowState = {
 	Normal: 0,
 	Minimized: 1,
-	Maximized: 2
-}
+	Maximized: 2,
+};
 
 class Button {
 	constructor(x, y, w, h, id, img, tip = undefined) {
@@ -126,15 +126,24 @@ class Button {
 		this.h = h;
 		this.id = id;
 		this.img = img;
-		this.tooltip = typeof tip !== 'undefined' ? tip : '';
+		this.tooltip = typeof tip !== "undefined" ? tip : "";
 		this.state = 0;
 		this.hoverAlpha = 0;
 		this.downAlpha = 0;
 		this.enabled = false;
+		if (
+			id === "Shuffle" ||
+			id === "Play/Pause" ||
+			id === "Previous" ||
+			id === "Previous" ||
+			id === "Next" ||
+			id === "Repeat"
+		)
+			console.log(`id: ${id}, x: ${x}, y: ${y}, w: ${w}, h: ${h}`);
 	}
 
 	mouseInThis(x, y) {
-		return (this.x <= x) && (x <= this.x + this.w) && (this.y <= y) && (y <= this.y + this.h);
+		return this.x <= x && x <= this.x + this.w && this.y <= y && y <= this.y + this.h;
 	}
 
 	set enable(val) {
@@ -157,7 +166,7 @@ class Button {
 	}
 
 	onClick() {
-		btnActionHandler(this);	// really just need id and x, y, w
+		btnActionHandler(this); // really just need id and x, y, w
 	}
 
 	onDblClick() {
@@ -170,20 +179,23 @@ class Button {
  */
 function btnActionHandler(btn) {
 	switch (btn.id) {
-		case 'Stop':
+		case "Stop":
 			fb.Stop();
 			break;
-		case 'Previous':
+		case "Previous":
 			fb.Prev();
+			playButtonPressed = true;
 			break;
-		case 'Play/Pause':
+		case "Play/Pause":
 			fb.PlayOrPause();
+			playButtonPressed = true;
 			break;
-		case 'Next':
+		case "Next":
 			fb.Next();
+			playButtonPressed = true;
 			break;
-		case 'Playback/Random':
-			fb.RunMainMenuCommand('Edit/Sort/Randomize');
+		case "Playback/Random":
+			fb.RunMainMenuCommand("Edit/Sort/Randomize");
 			if (fb.IsPlaying) {
 				var playing_location = plman.GetPlayingItemLocation();
 				if (playing_location.IsValid) {
@@ -205,82 +217,86 @@ function btnActionHandler(btn) {
 				plman.ClearPlaylistSelection(pl);
 				plman.SetPlaylistSelection(pl, [0], true);
 				plman.AddPlaylistItemToPlaybackQueue(pl, 0);
-				fb.RunMainMenuCommand('Playback/Play');
+				fb.RunMainMenuCommand("Playback/Play");
 			}
 			break;
-		case 'Volume':
+		case "Volume":
 			volume_btn.toggleVolumeBar();
 			break;
-		case 'Reload':
+		case "Reload":
 			window.Reload();
 			break;
-		case 'Console':
+		case "Console":
 			fb.RunMainMenuCommand("View/Console");
 			break;
-		case 'Minimize':
+		case "Minimize":
 			fb.RunMainMenuCommand("View/Hide");
 			break;
-		case 'Maximize':
+		case "Maximize":
 			const maximizeToFullScreen = false; // TODO to clear the error. Test this stuff eventually
 			if (maximizeToFullScreen ? !utils.IsKeyPressed(VK_CONTROL) : utils.IsKeyPressed(VK_CONTROL)) {
 				UIHacks.FullScreen = !UIHacks.FullScreen;
 			} else {
-				if (UIHacks.MainWindowState == WindowState.Maximized)
-					UIHacks.MainWindowState = WindowState.Normal;
-				else
-					UIHacks.MainWindowState = WindowState.Maximized;
+				if (UIHacks.MainWindowState == WindowState.Maximized) UIHacks.MainWindowState = WindowState.Normal;
+				else UIHacks.MainWindowState = WindowState.Maximized;
 			}
 			break;
-		case 'Close':
+		case "Close":
 			fb.Exit();
 			break;
-		case 'File':
-		case 'Edit':
-		case 'View':
-		case 'Playback':
-		case 'Library':
-		case 'Help':
+		case "File":
+		case "Edit":
+		case "View":
+		case "Playback":
+		case "Library":
+		case "Help":
 			onMainMenu(btn.x, btn.y + btn.h, btn.id);
 			break;
-		case 'Playlists':
+		case "Playlists":
 			onPlaylistsMenu(btn.x, btn.y + btn.h);
 			break;
-		case 'Options':
+		case "Options":
 			onOptionsMenu(btn.x, btn.y + btn.h);
 			break;
-		case 'Repeat':
-			var pbo = fb.PlaybackOrder;
+		case "Repeat":
+			var pbo = plman.PlaybackOrder;
 			if (pbo == PlaybackOrder.Default) {
-				fb.PlaybackOrder = PlaybackOrder.RepeatPlaylist;
+				plman.PlaybackOrder = PlaybackOrder.RepeatPlaylist;
 			} else if (pbo == PlaybackOrder.RepeatPlaylist) {
-				fb.PlaybackOrder = PlaybackOrder.RepeatTrack;
+				plman.PlaybackOrder = PlaybackOrder.RepeatTrack;
 			} else if (pbo == PlaybackOrder.RepeatTrack) {
-				fb.PlaybackOrder = PlaybackOrder.Default;
+				plman.PlaybackOrder = PlaybackOrder.Default;
 			} else {
-				fb.PlaybackOrder = PlaybackOrder.RepeatPlaylist;
+				plman.PlaybackOrder = PlaybackOrder.RepeatPlaylist;
 			}
+			window.Repaint();
 			break;
-		case 'Shuffle':
-			var pbo = fb.PlaybackOrder;
-			if (pbo != PlaybackOrder.ShuffleTracks) {
-				fb.PlaybackOrder = PlaybackOrder.ShuffleTracks;
+		case "Shuffle":
+			var pbo = plman.PlaybackOrder;
+			if (pbo == PlaybackOrder.ShuffleTracks) {
+				plman.PlaybackOrder = PlaybackOrder.ShuffleAlbums;
+			} else if (pbo == PlaybackOrder.ShuffleAlbums) {
+				plman.PlaybackOrder = PlaybackOrder.ShuffleFolders;
+			} else if (pbo == PlaybackOrder.ShuffleFolders) {
+				plman.PlaybackOrder = PlaybackOrder.Default;
 			} else {
-				fb.PlaybackOrder = PlaybackOrder.Default;
+				plman.PlaybackOrder = PlaybackOrder.ShuffleTracks;
 			}
+			window.Repaint();
 			break;
-		case 'Mute':
+		case "Mute":
 			fb.VolumeMute();
 			break;
-		case 'Settings':
+		case "Settings":
 			fb.ShowPreferences();
 			break;
-		case 'Properties':
+		case "Properties":
 			fb.RunContextCommand("Properties");
 			break;
-		case 'Rating':
+		case "Rating":
 			onRatingMenu(btn.x, btn.y + btn.h);
 			break;
-		case 'Lyrics':
+		case "Lyrics":
 			pref.displayLyrics = !pref.displayLyrics;
 			btn.enable = pref.displayLyrics;
 			if ((fb.IsPlaying || fb.IsPaused) && albumart_scaled) {
@@ -291,7 +307,7 @@ function btnActionHandler(btn) {
 			}
 			btn.repaint();
 			break;
-		case 'ShowLibrary':
+		case "ShowLibrary":
 			displayLibrary = !displayLibrary;
 			if (displayLibrary) {
 				initLibraryPanel();
@@ -302,12 +318,12 @@ function btnActionHandler(btn) {
 			} else {
 				ResizeArtwork(false);
 			}
-			setupRotationTimer();	// clear or start cdRotation if required
+			setupRotationTimer(); // clear or start cdRotation if required
 			btn.enable = displayLibrary;
 			btns.playlist.enable = false;
 			window.Repaint();
 			break;
-		case 'Playlist':
+		case "Playlist":
 			displayPlaylist = !displayPlaylist;
 			if (displayPlaylist) {
 				playlist.on_size(ww, wh);
@@ -317,7 +333,7 @@ function btnActionHandler(btn) {
 			} else {
 				ResizeArtwork(false);
 			}
-			setupRotationTimer();	// clear or start cdRotation if required
+			setupRotationTimer(); // clear or start cdRotation if required
 			btn.enable = displayPlaylist;
 			btns.library.enable = false;
 			window.Repaint();
@@ -326,7 +342,6 @@ function btnActionHandler(btn) {
 }
 
 function onPlaylistsMenu(x, y) {
-
 	mainMenuOpen = true;
 	menu_down = true;
 	var lists = window.CreatePopupMenu();
@@ -337,7 +352,16 @@ function onPlaylistsMenu(x, y) {
 	lists.AppendMenuItem(MF_STRING, 2, "Create New Playlist");
 	lists.AppendMenuSeparator();
 	for (var i = 0; i != playlistCount; i++) {
-		lists.AppendMenuItem(MF_STRING, playlistId + i, plman.GetPlaylistName(i).replace(/\&/g, '&&') + ' [' + plman.PlaylistItemCount(i) + ']' + (plman.IsAutoPlaylist(i) ? ' (Auto)' : '') + (i === plman.PlayingPlaylist ? ' (Now Playing)' : ''));
+		lists.AppendMenuItem(
+			MF_STRING,
+			playlistId + i,
+			plman.GetPlaylistName(i).replace(/\&/g, "&&") +
+				" [" +
+				plman.PlaylistItemCount(i) +
+				"]" +
+				(plman.IsAutoPlaylist(i) ? " (Auto)" : "") +
+				(i === plman.PlayingPlaylist ? " (Now Playing)" : "")
+		);
 	}
 
 	var id = lists.TrackPopupMenu(x, y);
@@ -352,7 +376,7 @@ function onPlaylistsMenu(x, y) {
 			break;
 	}
 	for (var i = 0; i != playlistCount; i++) {
-		if (id == (playlistId + i)) plman.ActivePlaylist = i; // playlist switch
+		if (id == playlistId + i) plman.ActivePlaylist = i; // playlist switch
 	}
 	menu_down = false;
 	return true;
@@ -360,28 +384,42 @@ function onPlaylistsMenu(x, y) {
 // =================================================== //
 
 function onMainMenu(x, y, name) {
-
 	mainMenuOpen = true;
 	menu_down = true;
 
 	if (name) {
 		var menu = new Menu(name);
 
-		if (name === 'Help') {
-			var statusMenu = new Menu('Georgia Theme Status');
+		if (name === "Help") {
+			var statusMenu = new Menu("Georgia Theme Status");
 
-			statusMenu.addItem('All fonts installed', fontsInstalled, undefined, true);
-			statusMenu.addItem('Artist logos found', IsFile(paths.artistlogos + 'Metallica.png'), undefined, true);
-			statusMenu.addItem('Record label logos found', IsFile(paths.labelsBase + 'Republic.png'), undefined, true);
-			statusMenu.addItem('Flag images found', IsFile(paths.flagsBase + (is_4k ? '64\\' : '32\\') + 'United-States.png'), undefined, true);
-			statusMenu.addItem('foo_enhanced_playcount installed', componentEnhancedPlaycount, function() { _.runCmd('https://www.foobar2000.org/components/view/foo_enhanced_playcount') });
+			statusMenu.addItem("All fonts installed", fontsInstalled, undefined, true);
+			statusMenu.addItem("Artist logos found", IsFile(paths.artistlogos + "Metallica.png"), undefined, true);
+			statusMenu.addItem("Record label logos found", IsFile(paths.labelsBase + "Republic.png"), undefined, true);
+			statusMenu.addItem(
+				"Flag images found",
+				IsFile(paths.flagsBase + (is_4k ? "64\\" : "32\\") + "United-States.png"),
+				undefined,
+				true
+			);
+			statusMenu.addItem("foo_enhanced_playcount installed", componentEnhancedPlaycount, function () {
+				_.runCmd("https://www.foobar2000.org/components/view/foo_enhanced_playcount");
+			});
 
 			statusMenu.appendTo(menu);
 
-			menu.addItem('Georgia releases', false, function() { _.runCmd('https://github.com/kbuffington/Georgia/releases') });
-			menu.addItem('Georgia changelog', false, function() { _.runCmd('https://github.com/kbuffington/Georgia/blob/master/changelog.md') });
-			menu.addItem('Check for updated version of Georgia', false, function() { checkForUpdates(true); });
-			menu.addItem('Report an issue with Georgia', false, function() { _.runCmd('https://github.com/kbuffington/Georgia/issues') });
+			menu.addItem("Georgia releases", false, function () {
+				_.runCmd("https://github.com/kbuffington/Georgia/releases");
+			});
+			menu.addItem("Georgia changelog", false, function () {
+				_.runCmd("https://github.com/kbuffington/Georgia/blob/master/changelog.md");
+			});
+			menu.addItem("Check for updated version of Georgia", false, function () {
+				checkForUpdates(true);
+			});
+			menu.addItem("Report an issue with Georgia", false, function () {
+				_.runCmd("https://github.com/kbuffington/Georgia/issues");
+			});
 		}
 		menu.initFoobarMenu(name);
 
@@ -390,7 +428,6 @@ function onMainMenu(x, y, name) {
 	}
 
 	menu_down = false;
-
 }
 // =================================================== //
 
@@ -403,34 +440,38 @@ function refreshPlayButton() {
 
 // =================================================== //
 function buttonAlphaTimer() {
-
 	var trace = false;
 
-	var buttonHoverInStep = 40,
-		buttonHoverOutStep = 15,
-		buttonDownInStep = 100,
-		buttonDownOutStep = 50,
+	var buttonHoverInStep = 60,
+		buttonHoverOutStep = 40,
+		buttonDownInStep = 180,
+		buttonDownOutStep = 180,
 		buttonTimerDelay = 25;
+	if (playButtonPressed) {
+		buttonHoverInStep = 180;
+		playButtonPressed = false;
+	}
 
 	if (!buttonTimer) {
-
 		buttonTimer = setInterval(() => {
-
 			for (var i in activatedBtns) {
 				switch (activatedBtns[i].state) {
 					case 0:
-						activatedBtns[i].hoverAlpha = Math.max(0, activatedBtns[i].hoverAlpha -= buttonHoverOutStep);
-						activatedBtns[i].downAlpha = Math.max(0, activatedBtns[i].downAlpha -= Math.max(0, buttonDownOutStep));
+						activatedBtns[i].hoverAlpha = Math.max(0, (activatedBtns[i].hoverAlpha -= buttonHoverOutStep));
+						activatedBtns[i].downAlpha = Math.max(
+							0,
+							(activatedBtns[i].downAlpha -= Math.max(0, buttonDownOutStep))
+						);
 						activatedBtns[i].repaint();
 						break;
 					case 1:
-						activatedBtns[i].hoverAlpha = Math.min(255, activatedBtns[i].hoverAlpha += buttonHoverInStep);
-						activatedBtns[i].downAlpha = Math.max(0, activatedBtns[i].downAlpha -= buttonDownOutStep);
+						activatedBtns[i].hoverAlpha = Math.min(255, (activatedBtns[i].hoverAlpha += buttonHoverInStep));
+						activatedBtns[i].downAlpha = Math.max(0, (activatedBtns[i].downAlpha -= buttonDownOutStep));
 						activatedBtns[i].repaint();
 						break;
 					case 2:
-						activatedBtns[i].downAlpha = Math.min(255, activatedBtns[i].downAlpha += buttonDownInStep);
-						activatedBtns[i].hoverAlpha = Math.max(0, activatedBtns[i].hoverAlpha -= buttonDownInStep);
+						activatedBtns[i].downAlpha = Math.min(255, (activatedBtns[i].downAlpha += buttonDownInStep));
+						activatedBtns[i].hoverAlpha = Math.max(0, (activatedBtns[i].hoverAlpha -= buttonDownInStep));
 						activatedBtns[i].repaint();
 						break;
 				}
@@ -438,8 +479,11 @@ function buttonAlphaTimer() {
 
 			//---> Test button alpha values and turn button timer off when it's not required;
 			for (let i = activatedBtns.length - 1; i >= 0; i--) {
-				if ((!activatedBtns[i].hoverAlpha && !activatedBtns[i].downAlpha) ||
-					activatedBtns[i].hoverAlpha === 255 || activatedBtns[i].downAlpha === 255) {
+				if (
+					(!activatedBtns[i].hoverAlpha && !activatedBtns[i].downAlpha) ||
+					activatedBtns[i].hoverAlpha === 255 ||
+					activatedBtns[i].downAlpha === 255
+				) {
 					activatedBtns.splice(i, 1);
 				}
 			}
@@ -449,7 +493,6 @@ function buttonAlphaTimer() {
 				buttonTimer = null;
 				trace && console.log("buttonTimerStarted = false");
 			}
-
 		}, buttonTimerDelay);
 
 		trace && console.log("buttonTimerStarted = true");

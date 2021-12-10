@@ -110,7 +110,7 @@ $puts(AF,$ifgreater($meta_num(ArtistFilter),1,$puts(mArtist,$meta(ArtistFilter,0
 */
 
 
-const configPath = fb.ProfilePath + 'georgia\\georgia-config.jsonc';
+const configPath = fb.ProfilePath + 'georgiaFork\\georgia-config.jsonc';
 const config = new Configuration(configPath);
 let titleformat = {};
 if (!config.fileExists) {
@@ -249,7 +249,7 @@ function migrateCheck(version, storedVersion) {
 
 				// this block should appear after all previous versions have fallen through
 				console.log('> Upgrading Georgia Theme settings from', storedVersion);
-				const fileName = `georgia\\georgia-config-${storedVersion}.jsonc`;
+				const fileName = `georgiaFork\\georgia-config-${storedVersion}.jsonc`;
 				console.log(`> Backing up Georgia Configuration file to ${fileName}`);
 				fso.CopyFile(configPath, fb.ProfilePath + fileName);
 				config.writeConfiguration();

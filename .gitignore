@@ -2,7 +2,7 @@
 *.sublime-project
 *.code-workspace
 /.vscode/*
-
+/.idea
 *.fcl
 georgia-main.backup.js
 *Scratch Pad.txt
@@ -11,3 +11,5 @@ georgia-main.backup.js
 # foo_spider_monkey_panel/
 jsconfig.json
 georgia-*.json*
+
+/images/unused
