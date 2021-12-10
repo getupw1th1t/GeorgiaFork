@@ -1389,6 +1389,7 @@ function draw_ui(gr) {
 		);
 		repaintRects = [];
 	}
+	gr.FillSolidRect(ww / 2 - 5, (wh - geo.top_bg_h) / 2, 10, (wh - geo.top_bg_h) / 2, rgb(255, 255, 255));
 }
 
 let repaintRectCount = 0;
@@ -3596,60 +3597,42 @@ function createButtonObjects(ww, wh) {
 		createButtonImages();
 	}
 
-	var buttonSizeSm = 30;
-	var buttonSize = 60;
+	const btSizeLg = 60;
+	const btSizeSm = 30;
+	const btPad = scaleForDisplay(15);
+	const btPad2 = (btPad * 2) / 3;
+	const smY = wh - geo.lower_bar_h - scaleForDisplay(30) - btSizeSm / 2;
+	const lgY = wh - geo.lower_bar_h - scaleForDisplay(30) - btSizeLg / 2;
+
+	let wPad = ww / 10;
+	let adjW = wPad * 8;
+
+	let btPlayX = adjW / 2 - btSizeLg / 2 + wPad;
+	let btPlayX2 = adjW / 2 + btSizeLg / 2 + wPad;
+	let btPrevX = btPlayX - btPad2 - btSizeSm;
+	let btNextX = btPlayX2 + btPad2;
+	let btShuffleX = btPrevX - btPad - btSizeSm;
+	let btRepeatX = btNextX + btPad + btSizeSm;
 	//---> Transport buttons
 	if (transport.enableTransportControls) {
-		let count = 0;
-		let plImg = btnImg.Shuffle;
-		let y = transport.displayBelowArtwork
-			? wh - geo.lower_bar_h - scaleForDisplay(20) - plImg[0].Height / 2
-			: scaleForDisplay(10) + (showingMinMaxButtons ? scaleForDisplay(5) : 0);
-		const w = buttonSize;
-		const h = w;
-		const p = scaleForDisplay(pref.transport_buttons_spacing); // space between buttons
-		let x = (ww - plImg[0].Width * count - p * (count - 1)) / 2;
-
-		const calcX = (index) => {
-			return x + (w + p) * index;
-		};
-		btns.shuffle = new Button(x, y, plImg[0].Width, plImg[0].Height, "Shuffle", plImg);
-		plImg = btnImg.Previous;
-		y = transport.displayBelowArtwork
-			? wh - geo.lower_bar_h - scaleForDisplay(20) - plImg[0].Height / 2
-			: scaleForDisplay(10) + (showingMinMaxButtons ? scaleForDisplay(5) : 0);
-		btns.prev = new Button(
-			calcX(++count),
-			y,
-			plImg[0].Width,
-			plImg[0].Height,
-			"Previous",
-			btnImg.Previous,
-			"Previous"
-		);
-		plImg = btnImg.Play;
-		y = transport.displayBelowArtwork
-			? wh - geo.lower_bar_h - scaleForDisplay(20) - plImg[0].Height / 2
-			: scaleForDisplay(10) + (showingMinMaxButtons ? scaleForDisplay(5) : 0);
+		let plImg = btnImg.Play;
 		btns.play = new Button(
-			calcX(++count),
-			y,
+			btPlayX,
+			lgY,
 			plImg[0].Width,
 			plImg[0].Height,
 			"Play/Pause",
 			!fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause,
 			"Play"
 		);
+		plImg = btnImg.Previous;
+		btns.prev = new Button(btPrevX, smY, plImg[0].Width, plImg[0].Height, "Previous", btnImg.Previous, "Previous");
+		plImg = btnImg.Shuffle;
+		btns.shuffle = new Button(btShuffleX, smY, plImg[0].Width, plImg[0].Height, "Shuffle", plImg);
 		plImg = btnImg.Next;
-		y = transport.displayBelowArtwork
-			? wh - geo.lower_bar_h - scaleForDisplay(20) - plImg[0].Height / 2
-			: scaleForDisplay(10) + (showingMinMaxButtons ? scaleForDisplay(5) : 0);
-		btns.next = new Button(calcX(++count), y, plImg[0].Width, plImg[0].Height, "Next", btnImg.Next, "Next");
+		btns.next = new Button(btNextX, smY, plImg[0].Width, plImg[0].Height, "Next", btnImg.Next, "Next");
 		plImg = btnImg.Repeat;
-		y = transport.displayBelowArtwork
-			? wh - geo.lower_bar_h - scaleForDisplay(20) - plImg[0].Height / 2
-			: scaleForDisplay(10) + (showingMinMaxButtons ? scaleForDisplay(5) : 0);
-		btns.repeat = new Button(calcX(++count), y, plImg[0].Width, plImg[0].Height, "Repeat", plImg);
+		btns.repeat = new Button(btRepeatX, smY, plImg[0].Width, plImg[0].Height, "Repeat", plImg);
 	}
 
 	//---> Caption buttons
