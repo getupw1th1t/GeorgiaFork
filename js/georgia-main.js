@@ -68,6 +68,8 @@ var useNeue = false;
 var fontsCreated = null;
 
 function createFonts() {
+	debugLog("createFonts called");
+	//debugLog(heartX);
 	g_tooltip = window.Tooltip;
 	g_tooltip.Text = ""; // just in case
 	g_tooltip.SetFont("Segoe UI", scaleForDisplay(15));
@@ -133,6 +135,8 @@ function createFonts() {
 }
 
 function initColors() {
+	debugLog("initColors called");
+	//debugLog(heartX);
 	col.artist = RGB(255, 255, 255);
 
 	if (pref.darkMode) {
@@ -159,6 +163,8 @@ function initColors() {
 initColors();
 
 function setGeometry() {
+	debugLog("setGeometry called");
+	//debugLog(heartX);
 	const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false;
 	geo.aa_shadow = scaleForDisplay(8); // size of albumart shadow
 	geo.pause_size = scaleForDisplay(150);
@@ -173,8 +179,10 @@ function setGeometry() {
 
 	const basePath = `${paths.iconsBase}${settings.iconSet}/`;
 	const forkPath = `${paths.iconsBase}mine/`;
-	heartImg = gdi.Image(`${forkPath}${paths.heartIcon}`);
+	heartOffImg = gdi.Image(`${forkPath}${paths.heartOffIcon}`);
 	heartOnImg = gdi.Image(`${forkPath}${paths.heartOnIcon}`);
+	heartImgs = [heartOffImg, heartOnImg];
+	heartImg = heartOffImg;
 	plShuffleOffImg = gdi.Image(`${forkPath}${paths.shuffleOffIcon}`);
 	plShuffleOnImg = gdi.Image(`${forkPath}${paths.shuffleOnIcon}`);
 	plShuffleOn2Img = gdi.Image(`${forkPath}${paths.shuffleAlbumsIcon}`);
@@ -223,7 +231,15 @@ function setGeometry() {
 		lyricsImg = gdi.Image(`${basePath}32/${paths.lyricsIcon}`);
 	}
 }
-
+/*
+function evalHeart() {
+	debugLog("evalHeart called");
+	heartImg = loved ? heartOnImg : heartOffImg;
+	createButtonImages();
+	createButtonObjects(ww, wh);
+	window.RepaintRect(heartX + 30, wh - geo.lower_bar_h, 30, 36);
+}
+*/
 var playedTimesRatios = [];
 
 // PATHS
@@ -237,7 +253,7 @@ paths.libraryIcon = "library.png";
 paths.lyricsIcon = "lyrics.png";
 paths.ratingIcon = "star.png";
 
-paths.heartIcon = "heart.png";
+paths.heartOffIcon = "heart.png";
 paths.heartOnIcon = "heartfilled.png";
 paths.shuffleOffIcon = "shuffle.png";
 paths.shuffleOnIcon = "shuffleon.png";
@@ -293,7 +309,8 @@ var bandLogo = null; // band logo image
 var invertedBandLogo = null; // inverted band logo image
 var heartImg = null; // heart for Last.fm loved tracks
 var heartOnImg = null; // heart for Last.fm loved tracks
-var heartImgs = [heartImg, heartOnImg];
+var heartOffImg = null; // heart for Last.fm loved tracks
+var heartImgs = [heartOffImg, heartOnImg];
 var plShuffleImg = null; // playback - shuffle
 var plShuffleOffImg = null; // playback - shuffle on
 var plShuffleOnImg = null; // playback - shuffle on
@@ -350,7 +367,8 @@ var themeColorSet = false; // when no artwork, don't set themeColor every redraw
 var playCountVerifiedByLastFm = false; // show Last.fm image when we %lastfm_play_count% > 0
 var art_off_center = false; // if true, album art has been shifted 40 pixels to the right
 var loadFromCache = true; // always load art from cache unless this is set
-
+var heartX = null;
+var oldheartX = null;
 /**
  * @typedef {Object} MetadataGridObj
  * @property {boolean=} age Should the age of the field also be calculated (i.e. add the "(3y 5m 11d)" to `val`)
@@ -398,8 +416,9 @@ let lastLeftEdge = 0; // the left edge of the record labels. Saved so we don't h
 let lastLabelHeight = 0;
 let displayPlaylist = false;
 let displayLibrary = false;
-
-let heartOn = false;
+var track_is_loved = null;
+var old_track_is_loved = null;
+var heartAlpha = track_is_loved ? 255 : 140;
 var shuffleAlpha = plman.PlaybackOrder >= 4 ? 255 : 140;
 var repeatAlpha = plman.PlaybackOrder == 1 || plman.PlaybackOrder == 2 ? 255 : 140;
 
@@ -421,6 +440,9 @@ let menu_down = false;
 
 ///////// OBJECTS
 
+var panel = new _panel(true);
+var lastfm = new _lastfm();
+
 const artCache = new ArtCache(15);
 
 var pauseBtn = new PauseButton();
@@ -437,6 +459,8 @@ let repaintRects = [];
  * @param {GdiGraphics} gr
  */
 function draw_ui(gr) {
+	//debugLog("draw_ui called");
+	//debugLog(heartX);
 	let topBarProfiler = null;
 	if (timings.showExtraDrawTiming) {
 		topBarProfiler = fb.CreateProfiler("on_paint -> top bar");
@@ -1286,6 +1310,7 @@ function draw_ui(gr) {
 		titleMeasurements.Height,
 		StringFormat(0, 0, 4, 0x00001000)
 	);
+	heartX = progressBar.x + trackNumWidth + titleMeasurements.Width;
 	bottomTextWidth += Math.ceil(titleMeasurements.Width);
 	if (str.original_artist && bottomTextWidth < 0.95 * ww) {
 		var h_spacing = 0;
@@ -1389,15 +1414,24 @@ function draw_ui(gr) {
 		);
 		repaintRects = [];
 	}
+	//debugLog(heartX);
+	if (oldheartX !== heartX) {
+		createButtonObjects(ww, wh);
+		window.RepaintRect(0, wh - geo.lower_bar_h, ww, 36);
+	}
+	oldheartX = heartX;
 	//gr.FillSolidRect(ww / 2 - 5, (wh - geo.top_bg_h) / 2, 10, (wh - geo.top_bg_h) / 2, rgb(255, 255, 255));
 }
 
 let repaintRectCount = 0;
 window.oldRepaintRect = window.RepaintRect;
 window.RepaintRect = (x, y, w, h, force = undefined) => {
+	//debugLog("RepaintRect called");
+	//debugLog(heartX);
 	if (timings.drawRepaintRects) {
 		repaintRects.push({ x, y, w, h });
 		window.Repaint();
+		debugLog("window.Repaint called");
 	} else {
 		repaintRectCount++;
 		window.oldRepaintRect(x, y, w, h, force);
@@ -1406,6 +1440,8 @@ window.RepaintRect = (x, y, w, h, force = undefined) => {
 
 let rotatedCdIndex = 0; // global index of current cdartArray img to draw
 function setupRotationTimer() {
+	debugLog("setupRotationTimer called");
+	//debugLog(heartX);
 	clearInterval(cdartRotationTimer);
 	if (
 		pref.display_cdart &&
@@ -1444,6 +1480,8 @@ function setupRotationTimer() {
 }
 
 function drawCdArt(gr) {
+	debugLog("drawCdArt called");
+	//debugLog(heartX);
 	if (pref.display_cdart && cdart_size.y >= albumart_size.y && cdart_size.h <= albumart_size.h) {
 		// if (timings.showExtraDrawTiming) drawCdProfiler = fb.CreateProfiler('on_paint -> cdart');
 		const cdImg = cdartArray[rotatedCdIndex] || rotatedCD;
@@ -1453,6 +1491,8 @@ function drawCdArt(gr) {
 }
 
 function on_paint(gr) {
+	//debugLog("on_paint called");
+	//debugLog(heartX);
 	const start = new Date();
 	draw_ui(gr);
 	if (transport.showVolume) {
@@ -1478,6 +1518,8 @@ function on_paint(gr) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function onRatingMenu(x, y) {
+	debugLog("onRatingMenu called");
+	//debugLog(heartX);
 	menu_down = true;
 
 	var rating = fb.TitleFormat("$if2(%rating%,0)").Eval();
@@ -1503,6 +1545,8 @@ function onRatingMenu(x, y) {
 }
 
 function onOptionsMenu(x, y) {
+	debugLog("onOptionsMenu called");
+	//debugLog(heartX);
 	menu_down = true;
 
 	const menu = new Menu(); // helper class for creating simple menu items. See helpers.js
@@ -1800,6 +1844,7 @@ function onOptionsMenu(x, y) {
 	var playlistCallback = function () {
 		playlist.on_size(ww, wh);
 		window.Repaint();
+		debugLog("window.Repaint called");
 	};
 	playlistMenu.addToggleItem("Display playlist on startup", pref, "startPlaylist");
 	playlistMenu.addToggleItem("Show group header", g_properties, "show_header", playlistCallback);
@@ -1826,12 +1871,14 @@ function onOptionsMenu(x, y) {
 			createPlaylistFonts();
 			playlist.on_size(ww, wh);
 			window.Repaint();
+			debugLog("window.Repaint called");
 		}
 	);
 
 	playlistMenu.addToggleItem("Show full date in header", pref, "showPlaylistFulldate", () => {
 		playlist.on_size(ww, wh);
 		window.Repaint();
+		debugLog("window.Repaint called");
 	});
 	var rowsMenu = new Menu("Rows");
 	rowsMenu.createRadioSubMenu(
@@ -1851,6 +1898,7 @@ function onOptionsMenu(x, y) {
 			createPlaylistFonts();
 			playlist.on_size(ww, wh);
 			window.Repaint();
+			debugLog("window.Repaint called");
 		}
 	);
 	rowsMenu.addToggleItem("Alternate row color", g_properties, "alternate_row_color", playlistCallback);
@@ -1936,6 +1984,7 @@ function onOptionsMenu(x, y) {
 			createFonts();
 			pref.displayLyrics && initLyrics();
 			// window.Repaint();
+			debugLog("window.Repaint called");
 		}
 	);
 	lyricsMenu.appendTo(menu);
@@ -1958,6 +2007,7 @@ function onOptionsMenu(x, y) {
 		if (!val) {
 			repaintRects = [];
 			window.Repaint();
+			debugLog("window.Repaint called");
 		}
 	});
 	debugMenu.addToggleItem("Show reload button", pref, "show_reload_button", () => {
@@ -1993,6 +2043,8 @@ function onOptionsMenu(x, y) {
 
 // custom initialisation function, called once after variable declarations
 function on_init() {
+	debugLog("on_init called");
+	//debugLog(heartX);
 	console.log("in on_init()");
 
 	str = clearUIVariables();
@@ -2009,18 +2061,21 @@ function on_init() {
 	}
 	setGeometry();
 	progressBar = new ProgressBar(ww, wh);
+	debugLog("progressBar called");
+	//debugLog(heartX);
+	//debugLog(heartX);
 	setTheme(blueTheme.colors);
 	themeColorSet = true;
 
 	if (fb.IsPlaying && fb.GetNowPlaying()) {
 		on_playback_new_track(fb.GetNowPlaying());
 	}
-	window.Repaint(); // needed when loading async, otherwise superfluous
+	window.Repaint();
+	debugLog("window.Repaint called"); // needed when loading async, otherwise superfluous
 
 	/** Workaround so we can use the Edit menu or run fb.RunMainMenuCommand("Edit/Something...")
 		when the panel has focus and a dedicated playlist viewer doesn't. */
 	plman.SetActivePlaylistContext(); // once on startup
-
 	if (pref.startPlaylist) {
 		displayPlaylist = false;
 		setTimeout(() => {
@@ -2040,6 +2095,9 @@ function on_init() {
 
 // window size changed
 function on_size() {
+	panel.size();
+	debugLog("on_size called");
+	//debugLog(heartX);
 	ww = window.Width;
 	wh = window.Height;
 	console.log(`in on_size() => width: ${ww}, height: ${wh}`);
@@ -2047,7 +2105,6 @@ function on_size() {
 	if (ww <= 0 || wh <= 0) return;
 
 	checkFor4k(ww, wh);
-
 	if (!sizeInitialized) {
 		createFonts();
 		setGeometry();
@@ -2064,9 +2121,11 @@ function on_size() {
 		}
 	}
 	progressBar && progressBar.on_size(ww, wh);
-
+	debugLog("progressBar called");
+	//debugLog(heartX);
 	lastLeftEdge = 0;
-
+	debugLog("lastLeftEdge called");
+	//debugLog(heartX);
 	ResizeArtwork(true);
 	createButtonImages();
 	createButtonObjects(ww, wh);
@@ -2081,6 +2140,8 @@ function on_size() {
 }
 
 function setLibrarySize() {
+	debugLog("setLibrarySize called");
+	//debugLog(heartX);
 	if (typeof libraryPanel !== "undefined") {
 		var x = Math.round(ww * 0.5);
 		var y = btns[30].y + btns[30].h + scaleForDisplay(16) + 2;
@@ -2099,6 +2160,9 @@ function setLibrarySize() {
 }
 
 function on_playback_dynamic_info_track() {
+	panel.item_focus_change();
+	debugLog("on_playback_dynamic_info_track called");
+	//debugLog(heartX);
 	// how frequently does this get called?
 	const metadb = fb.IsPlaying ? fb.GetNowPlaying() : null;
 	on_playback_new_track(metadb);
@@ -2117,6 +2181,9 @@ function on_playback_dynamic_info_track() {
  * @param {FbMetadbHandle} metadb
  */
 function on_playback_new_track(metadb) {
+	panel.item_focus_change();
+	debugLog("on_playback_new_track called");
+	//debugLog(heartX);
 	if (!metadb) return; // solve weird corner case
 	let newTrackProfiler = null;
 	debugLog("in on_playback_new_track()");
@@ -2267,6 +2334,8 @@ function on_playback_new_track(metadb) {
  * @param {boolean=} fromhook
  */
 function on_metadb_changed(handle_list, fromhook) {
+	debugLog("on_metadb_changed called");
+	//debugLog(heartX);
 	console.log(`on_metadb_changed(): ${handle_list ? handle_list.Count : "0"} handles, fromhook: ${fromhook}`);
 	if (fb.IsPlaying) {
 		var nowPlayingUpdated = !handle_list; // if we don't have a handle_list we called this manually from on_playback_new_track
@@ -2376,7 +2445,21 @@ function on_metadb_changed(handle_list, fromhook) {
 					lp.val += " (" + calcAgeDateString(lp.val) + ")";
 				}
 			}
-
+			track_is_loved = parseInt($("%SMP_LOVED%")) === 1;
+			if (track_is_loved) {
+				heartImg = heartImgs[1];
+				heartAlpha = 255;
+			} else {
+				heartImg = heartImgs[0];
+				heartAlpha = 140;
+			}
+			//debugLog(`old_track_is_loved: ${old_track_is_loved}, track_is_loved: ${track_is_loved}`);
+			if (old_track_is_loved !== track_is_loved) {
+				createButtonImages();
+				createButtonObjects(ww, wh);
+				window.RepaintRect(heartX + 30, wh - geo.lower_bar_h, 30, 36);
+			}
+			old_track_is_loved = track_is_loved;
 			if (pref.show_flags) {
 				loadCountryFlags();
 			}
@@ -2400,6 +2483,8 @@ function on_metadb_changed(handle_list, fromhook) {
 // User activity
 
 function on_playback_order_changed(this_pb) {
+	debugLog("on_playback_order_changed called");
+	//debugLog(heartX);
 	// Repaint playback order
 	if (this_pb != last_pb) {
 		debugLog("Repainting on_playback_order_changed");
@@ -2415,6 +2500,8 @@ function on_playback_order_changed(this_pb) {
 }
 
 function on_playback_seek() {
+	debugLog("on_playback_seek called");
+	//debugLog(heartX);
 	progressBar.progressMoved = true;
 	if (pref.displayLyrics) {
 		gLyrics.seek();
@@ -2424,6 +2511,8 @@ function on_playback_seek() {
 }
 
 function on_mouse_lbtn_down(x, y, m) {
+	//debugLog("on_mouse_lbtn_down called");
+	//debugLog(heartX);
 	window.SetCursor(32512); // arrow
 	if (progressBar.mouseInThis(x, y)) {
 		progressBar.on_mouse_lbtn_down(x, y);
@@ -2461,6 +2550,8 @@ function on_mouse_lbtn_down(x, y, m) {
 }
 
 function on_mouse_lbtn_up(x, y, m) {
+	//debugLog("on_mouse_lbtn_up called");
+	//debugLog(heartX);
 	progressBar.on_mouse_lbtn_up(x, y);
 
 	if (!volume_btn.on_mouse_lbtn_up(x, y, m)) {
@@ -2504,6 +2595,8 @@ function on_mouse_lbtn_up(x, y, m) {
 }
 
 function on_mouse_lbtn_dblclk(x, y, m) {
+	//debugLog("on_mouse_lbtn_dblclk called");
+	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_mouse_lbtn_dblclk(x, y, m);
@@ -2524,6 +2617,8 @@ function on_mouse_lbtn_dblclk(x, y, m) {
 }
 
 function on_mouse_rbtn_down(x, y, m) {
+	//debugLog("on_mouse_rbtn_down called");
+	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_mouse_rbtn_down(x, y, m);
@@ -2534,6 +2629,8 @@ function on_mouse_rbtn_down(x, y, m) {
 }
 
 function on_mouse_rbtn_up(x, y, m) {
+	//debugLog("on_mouse_rbtn_up called");
+	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
 		return playlist.on_mouse_rbtn_up(x, y, m);
@@ -2544,6 +2641,8 @@ function on_mouse_rbtn_up(x, y, m) {
 }
 
 function on_mouse_move(x, y, m) {
+	//debugLog("on_mouse_move called");
+	//debugLog(heartX);
 	if (x != state.mouse_x || y != state.mouse_y) {
 		window.SetCursor(32512); // arrow
 		progressBar.on_mouse_move(x, y);
@@ -2622,6 +2721,8 @@ function on_mouse_leave() {
 }
 
 function on_playlists_changed() {
+	debugLog("on_playlists_changed called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlists_changed();
@@ -2629,6 +2730,9 @@ function on_playlists_changed() {
 }
 
 function on_playlist_switch() {
+	panel.item_focus_change();
+	debugLog("on_playlist_switch called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_switch();
@@ -2636,6 +2740,8 @@ function on_playlist_switch() {
 }
 
 function on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex) {
+	debugLog("on_playlist_item_ensure_visible called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex);
@@ -2643,6 +2749,8 @@ function on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex) {
 }
 
 function on_playlist_items_added(playlistIndex) {
+	debugLog("on_playlist_items_added called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_items_added(playlistIndex);
@@ -2650,6 +2758,8 @@ function on_playlist_items_added(playlistIndex) {
 }
 
 function on_playlist_items_reordered(playlistIndex) {
+	debugLog("on_playlist_items_reordered called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_items_reordered(playlistIndex);
@@ -2657,6 +2767,8 @@ function on_playlist_items_reordered(playlistIndex) {
 }
 
 function on_playlist_items_removed(playlistIndex) {
+	debugLog("on_playlist_items_removed called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_items_removed(playlistIndex);
@@ -2664,6 +2776,8 @@ function on_playlist_items_removed(playlistIndex) {
 }
 
 function on_playlist_items_selection_change() {
+	debugLog("on_playlist_items_selection_change called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_playlist_items_selection_change();
@@ -2671,6 +2785,8 @@ function on_playlist_items_selection_change() {
 }
 
 function on_library_items_added(handle_list) {
+	debugLog("on_library_items_added called");
+	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
 		library.on_library_items_added(handle_list);
@@ -2678,6 +2794,8 @@ function on_library_items_added(handle_list) {
 }
 
 function on_library_items_removed(handle_list) {
+	debugLog("on_library_items_removed called");
+	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
 		library.on_library_items_removed(handle_list);
@@ -2685,6 +2803,8 @@ function on_library_items_removed(handle_list) {
 }
 
 function on_library_items_changed(handle_list) {
+	debugLog("on_library_items_changed called");
+	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
 		library.on_library_items_changed(handle_list);
@@ -2692,6 +2812,9 @@ function on_library_items_changed(handle_list) {
 }
 
 function on_item_focus_change(playlist_arg, from, to) {
+	panel.item_focus_change();
+	debugLog("on_item_focus_change called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_item_focus_change(playlist_arg, from, to);
@@ -2755,11 +2878,15 @@ function on_key_up(vkey) {
 }
 
 function on_playback_queue_changed(origin) {
+	debugLog("on_playback_queue_changed called");
+	//debugLog(heartX);
 	trace_call && console.log(qwr_utils.function_name());
 	playlist.on_playback_queue_changed(origin);
 }
 
 function on_playback_pause(pausing) {
+	debugLog("on_playback_pause called");
+	//debugLog(heartX);
 	refreshPlayButton();
 	if (pausing) {
 		clearInterval(progressBarTimer);
@@ -2792,6 +2919,8 @@ function on_playback_pause(pausing) {
 }
 
 function on_playback_stop(reason) {
+	debugLog("on_playback_stop called");
+	//debugLog(heartX);
 	if (reason !== 2) {
 		// 2 = starting_another
 		// clear all variables and repaint
@@ -2828,6 +2957,7 @@ function on_playback_stop(reason) {
 		cdart = disposeCDImg(cdart);
 		cdartArray = []; // clear Images
 		window.Repaint();
+		debugLog("window.Repaint called");
 	}
 	if (displayPlaylist) {
 		playlist.on_playback_stop(reason);
@@ -2835,6 +2965,8 @@ function on_playback_stop(reason) {
 }
 
 function on_playback_starting(cmd, is_paused) {
+	debugLog("on_playback_starting called");
+	//debugLog(heartX);
 	if (settings.hideCursor) {
 		window.SetCursor(-1); // hide cursor
 	}
@@ -2863,6 +2995,8 @@ function on_drag_drop(action, x, y, mask) {
 }
 
 function on_focus(is_focused) {
+	debugLog("on_focus called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_focus(is_focused);
@@ -2875,6 +3009,8 @@ function on_focus(is_focused) {
 }
 
 function on_notify_data(name, info) {
+	debugLog("on_notify_data called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_notify_data(name, info);
@@ -2901,6 +3037,8 @@ var debounced_init_playlist = _.debounce(
 // =================================================== //
 
 function clearUIVariables() {
+	debugLog("clearUIVariables called");
+	//debugLog(heartX);
 	return {
 		artist: "",
 		tracknum: $(settings.stoppedString1, undefined, true),
@@ -2913,6 +3051,8 @@ function clearUIVariables() {
 
 // album art retrieved from GetAlbumArtAsync
 function on_get_album_art_done(metadb, art_id, image, image_path) {
+	debugLog("on_get_album_art_done called");
+	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
 		playlist.on_get_album_art_done(metadb, art_id, image, image_path);
@@ -2923,6 +3063,8 @@ function on_get_album_art_done(metadb, art_id, image, image_path) {
 }
 
 function on_script_unload() {
+	debugLog("on_script_unload called");
+	//debugLog(heartX);
 	console.log("Unloading Script");
 	// it appears we don't need to dispose the images which we loaded using gdi.Image in their declaration for some reason. Attempting to dispose them causes a script error.
 }
@@ -2930,11 +3072,15 @@ function on_script_unload() {
 // Timed events
 
 function on_playback_time() {
+	debugLog("on_playback_time called");
+	//debugLog(heartX);
 	// Refresh playback time
 	str.time = $("%playback_time%");
 }
 
 function refresh_seekbar() {
+	debugLog("refresh_seekbar called");
+	//debugLog(heartX);
 	window.RepaintRect(
 		0.025 * ww,
 		wh - geo.lower_bar_h,
@@ -2946,6 +3092,8 @@ function refresh_seekbar() {
 
 // TIMER Callback functions
 function displayNextImage() {
+	debugLog("displayNextImage called");
+	//debugLog(heartX);
 	debugLog("Repainting in displayNextImage: " + albumArtIndex);
 	albumArtIndex = (albumArtIndex + 1) % aa_list.length;
 	loadImageFromAlbumArtList(albumArtIndex, true);
@@ -2957,6 +3105,8 @@ function displayNextImage() {
 }
 
 function createShadowRect(width, height) {
+	debugLog("createShadowRect called");
+	//debugLog(heartX);
 	var shadow = gdi.CreateImage(width + 2 * geo.aa_shadow, height + 2 * geo.aa_shadow);
 	var shimg = shadow.GetGraphics();
 	shimg.FillRoundRect(
@@ -2976,6 +3126,8 @@ function createShadowRect(width, height) {
 
 // HELPER FUNCTIONS
 function createDropShadow() {
+	debugLog("createDropShadow called");
+	//debugLog(heartX);
 	let shadowProfiler = null;
 	if (timings.showDebugTiming) shadowProfiler = fb.CreateProfiler("createDropShadow");
 	if ((albumart && albumart_size.w > 0) || (cdart && pref.display_cdart && cdart_size.w > 0)) {
@@ -3033,7 +3185,8 @@ function createDropShadow() {
 }
 
 function SetProgressBarRefresh() {
-	debugLog("SetProgressBarRefresh()");
+	debugLog("SetProgressBarRefresh called");
+	//debugLog(heartX);
 	if (fb.PlaybackLength > 0) {
 		if (pref.freq_update) {
 			t_interval = Math.abs(Math.ceil(1000 / ((0.95 * ww) / fb.PlaybackLength))); // we want to update the progress bar for every pixel so divide total time by number of pixels in progress bar
@@ -3064,6 +3217,8 @@ function SetProgressBarRefresh() {
 }
 
 function parseJson(json, label, log) {
+	debugLog("parseJson called");
+	//debugLog(heartX);
 	var parsed = [];
 	try {
 		if (log) {
@@ -3081,6 +3236,8 @@ var lfmPlayedTimesJsonLast = "";
 var playedTimesJsonLast = "";
 
 function calcDateRatios(dontUpdateLastPlayed, currentLastPlayed) {
+	debugLog("calcDateRatios called");
+	//debugLog(heartX);
 	var newDate = new Date();
 	dontUpdateLastPlayed = dontUpdateLastPlayed || false;
 
@@ -3170,6 +3327,8 @@ function calcDateRatios(dontUpdateLastPlayed, currentLastPlayed) {
  * @param {boolean} loadFromCache Retrieve image from cache instead of reading from disc.
  */
 function loadImageFromAlbumArtList(index, loadFromCache) {
+	debugLog("loadImageFromAlbumArtList called");
+	//debugLog(heartX);
 	let tempAlbumArt;
 	if (loadFromCache) {
 		tempAlbumArt = artCache.getImage(aa_list[index]);
@@ -3200,6 +3359,8 @@ function loadImageFromAlbumArtList(index, loadFromCache) {
 }
 
 function disposeCDImg(cdImage) {
+	debugLog("disposeCDImg called");
+	//debugLog(heartX);
 	cdart_size = new ImageSize(0, 0, 0, 0);
 	cdImage = null;
 	return null;
@@ -3213,6 +3374,8 @@ function disposeCDImg(cdImage) {
  * @param {number} degrees
  */
 function rotateImg(img, w, h, degrees) {
+	debugLog("rotateImg called");
+	//debugLog(heartX);
 	/** @type {GdiBitmap} */ let rotatedImg;
 	if (degrees === 0) {
 		rotatedImg = img.Clone(0, 0, img.Width, img.Height).Resize(w, h);
@@ -3228,6 +3391,8 @@ function rotateImg(img, w, h, degrees) {
 // TODO: Once spinning art is done, scrap this and the rotation amount crap and just use indexes into the cdartArray when needed
 // IDEA: Smooth rotation to new position?
 function CreateRotatedCDImage() {
+	debugLog("CreateRotatedCDImage called");
+	//debugLog(heartX);
 	if (pref.display_cdart) {
 		// drawing cdArt rotated is slow, so first draw it rotated into the rotatedCD image, and then draw rotatedCD image unrotated in on_paint
 		if (cdart && cdart_size.w > 0) {
@@ -3251,12 +3416,16 @@ function CreateRotatedCDImage() {
 }
 
 function calcLowerSpace() {
+	debugLog("calcLowerSpace called");
+	//debugLog(heartX);
 	return transport.displayBelowArtwork
 		? geo.lower_bar_h + scaleForDisplay(pref.transport_buttons_size + 10)
 		: geo.lower_bar_h + scaleForDisplay(16);
 }
 
 function ResizeArtwork(resetCDPosition) {
+	debugLog("ResizeArtwork called");
+	//debugLog(heartX);
 	debugLog("Resizing artwork");
 	var hasArtwork = false;
 	var lowerSpace = calcLowerSpace();
@@ -3393,12 +3562,16 @@ function ResizeArtwork(resetCDPosition) {
 }
 
 function loadFlagImage(country) {
+	debugLog("loadFlagImage called");
+	//debugLog(heartX);
 	const countryName = convertIsoCountryCodeToFull(country) || country; // in case we have a 2-digit country code
 	const path = $(paths.flagsBase) + (is_4k ? "64\\" : "32\\") + countryName.trim().replace(/ /g, "-") + ".png";
 	return gdi.Image(path);
 }
 
 function loadCountryFlags() {
+	debugLog("loadCountryFlags called");
+	//debugLog(heartX);
 	flagImgs = [];
 	getMetaValues(tf.artist_country).forEach((country) => {
 		const flagImage = loadFlagImage(country);
@@ -3407,10 +3580,14 @@ function loadCountryFlags() {
 }
 
 function loadReleaseCountryFlag() {
+	debugLog("loadReleaseCountryFlag called");
+	//debugLog(heartX);
 	releaseFlagImg = loadFlagImage($(tf.releaseCountry));
 }
 
 function replaceFileChars(s) {
+	debugLog("replaceFileChars called");
+	//debugLog(heartX);
 	return s
 		.replace(/:/g, "_")
 		.replace(/\\/g, "-")
@@ -3424,6 +3601,8 @@ function replaceFileChars(s) {
 }
 
 function LoadLabelImage(publisherString) {
+	debugLog("LoadLabelImage called");
+	//debugLog(heartX);
 	let recordLabel = null;
 	const d = new Date();
 	let labelStr = replaceFileChars(publisherString);
@@ -3481,6 +3660,8 @@ function LoadLabelImage(publisherString) {
 }
 
 function fetchNewArtwork(metadb) {
+	debugLog("fetchNewArtwork called");
+	//debugLog(heartX);
 	let fetchArtworkProfiler = null;
 	let cdartPath;
 	if (timings.showDebugTiming) fetchArtworkProfiler = fb.CreateProfiler("fetchNewArtwork");
@@ -3585,9 +3766,20 @@ function fetchNewArtwork(metadb) {
 function RepaintWindow() {
 	debugLog("Repainting from RepaintWindow()");
 	window.Repaint();
+	debugLog("window.Repaint called");
+}
+
+function updateHeart(country) {
+	debugLog("updateHeart called");
+	//debugLog(heartX);
+	const countryName = convertIsoCountryCodeToFull(country) || country; // in case we have a 2-digit country code
+	const path = $(paths.flagsBase) + (is_4k ? "64\\" : "32\\") + countryName.trim().replace(/ /g, "-") + ".png";
+	return gdi.Image(path);
 }
 
 function createButtonObjects(ww, wh) {
+	debugLog("createButtonObjects called");
+	//debugLog(heartX);
 	btns = [];
 	const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false;
 
@@ -3613,6 +3805,9 @@ function createButtonObjects(ww, wh) {
 	let btNextX = btPlayX2 + btPad2;
 	let btShuffleX = btPrevX - btPad - btSizeSm;
 	let btRepeatX = btNextX + btPad + btSizeSm;
+
+	let btHeartX = heartX + btSizeSm;
+	let btHeartY = wh - geo.lower_bar_h + 4;
 	//---> Transport buttons
 	if (transport.enableTransportControls) {
 		let plImg = btnImg.Play;
@@ -3633,6 +3828,8 @@ function createButtonObjects(ww, wh) {
 		btns.next = new Button(btNextX, smY, plImg[0].Width, plImg[0].Height, "Next", btnImg.Next, "Next");
 		plImg = btnImg.Repeat;
 		btns.repeat = new Button(btRepeatX, smY, plImg[0].Width, plImg[0].Height, "Repeat", plImg);
+		plImg = btnImg.LastFmHeart;
+		btns.heart = new Button(btHeartX, btHeartY, plImg[0].Width, plImg[0].Height, "Heart", plImg);
 	}
 
 	//---> Caption buttons
@@ -3723,6 +3920,8 @@ function createButtonObjects(ww, wh) {
 // =================================================== //
 
 function createButtonImages() {
+	debugLog("createButtonImages called");
+	//debugLog(heartX);
 	let createButtonProfiler = null;
 	if (timings.showExtraDrawTiming) createButtonProfiler = fb.CreateProfiler("createButtonImages");
 	const transportCircleSize = Math.round(pref.transport_buttons_size * 0.93333);
@@ -3984,6 +4183,7 @@ function createButtonImages() {
 				default:
 					if (i == "Shuffle") iconAlpha = shuffleAlpha;
 					if (i == "Repeat") iconAlpha = repeatAlpha;
+					if (i == "LastFmHeart") iconAlpha = heartAlpha;
 					break;
 			}
 

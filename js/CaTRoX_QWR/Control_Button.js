@@ -18,7 +18,6 @@ const ButtonState = {
 	Down: 2, // happens on click
 	Enabled: 3,
 };
-
 function buttonEventHandler(x, y, m) {
 	// var CtrlKeyPressed = utils.IsKeyPressed(VK_CONTROL);
 	// var ShiftKeyPressed = utils.IsKeyPressed(VK_SHIFT);
@@ -131,6 +130,7 @@ class Button {
 		this.hoverAlpha = 0;
 		this.downAlpha = 0;
 		this.enabled = false;
+		/*
 		if (
 			id === "Shuffle" ||
 			id === "Play/Pause" ||
@@ -140,6 +140,8 @@ class Button {
 			id === "Repeat"
 		)
 			console.log(`id: ${id}, x: ${x}, y: ${y}, w: ${w}, h: ${h}`);
+
+		 */
 	}
 
 	mouseInThis(x, y) {
@@ -337,6 +339,20 @@ function btnActionHandler(btn) {
 			btn.enable = displayPlaylist;
 			btns.library.enable = false;
 			window.Repaint();
+			break;
+		case "Heart":
+			switch (true) {
+				case lastfm.username.length === 0 || lastfm.sk.length != 32:
+					break;
+				case !panel.metadb:
+					break;
+				case parseInt(panel.tf("%SMP_LOVED%")) == 1:
+					lastfm.post("track.unlove", null, panel.metadb);
+					break;
+				default:
+					lastfm.post("track.love", null, panel.metadb);
+					break;
+			}
 			break;
 	}
 }
