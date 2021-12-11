@@ -342,7 +342,11 @@ function btnActionHandler(btn) {
 			break;
 		case "Heart":
 			switch (true) {
-				case lastfm.username.length === 0 || lastfm.sk.length != 32:
+				case lastfm.username.length === 0:
+					lastfm.update_username();
+					break;
+				case lastfm.sk.length != 32:
+					lastfm.post("auth.getToken");
 					break;
 				case !panel.metadb:
 					break;

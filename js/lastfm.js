@@ -31,9 +31,6 @@ function _panel(custom_background = false) {
 				this.metadb = fb.GetFocusItem();
 			}
 			on_metadb_changed();
-			if (!this.metadb) {
-				_tt("");
-			}
 		}
 	};
 
@@ -359,6 +356,7 @@ function _lastfm() {
 			this.write_ini("username", username);
 			this.update_sk("");
 		}
+		this.post("auth.getToken");
 	};
 
 	this.get_base_url = () => {

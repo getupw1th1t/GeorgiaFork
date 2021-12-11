@@ -5,6 +5,16 @@ folders.data = fb.ProfilePath + "js_data\\";
 folders.artists = folders.data + "artists\\";
 folders.lastfm = folders.data + "lastfm\\";
 
+let popup = {
+	ok: 0,
+	yes_no: 4,
+	yes: 6,
+	no: 7,
+	stop: 16,
+	question: 32,
+	info: 64,
+};
+
 function _q(value) {
 	return '"' + value + '"';
 }
