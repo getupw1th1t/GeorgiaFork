@@ -242,7 +242,7 @@ const lastfmDefaults = {
 };
 
 const lastfmSchema = new ConfigurationObjectSchema(
-	"last.fm",
+	"lfm",
 	ConfigurationObjectType.Object,
 	undefined,
 	"Config for Last.fm Love Tracks button"

@@ -42,9 +42,11 @@ function _tagged(value) {
 function _lastfm() {
 	this.post = (method, token, metadb) => {
 		let api_sig, data;
+		this.username = lfm.username;
+		this.sk = lfm.sk;
 		switch (method) {
 			case "auth.getToken":
-				config.updateConfigObjValues("lfm", { sk: "" }, true);
+				lfm.sk = "";
 				api_sig = md5("api_key" + this.api_key + "method" + method + this.secret);
 				data = "format=json&method=" + method + "&api_key=" + this.api_key + "&api_sig=" + api_sig;
 				break;
@@ -121,6 +123,8 @@ function _lastfm() {
 	};
 
 	this.get_loved_tracks = (p) => {
+		this.username = lfm.username;
+		this.sk = lfm.sk;
 		if (!this.username.length) {
 			return console.log(N, "Last.fm Username not set.");
 		}
@@ -140,22 +144,24 @@ function _lastfm() {
 
 	this.done = (method, metadb) => {
 		let data;
+		this.username = lfm.username;
+		this.sk = lfm.sk;
 		switch (method) {
 			case "user.getLovedTracks":
-				data = parseJson(this.xmlhttp.responseText);
+				data = JSON.parse(this.xmlhttp.responseText);
 				if (this.page == 1) {
 					fb.ShowConsole();
 					if (data.error) {
 						return console.log(N, "Last.fm server error:", data.message);
 					}
 					this.loved_tracks = [];
-					this.pages = _.get(data, 'lovedtracks["@attr"].totalPages', 0);
+					this.pages = LD.get(data, 'lovedtracks["@attr"].totalPages', 0);
 				}
-				data = _.get(data, "lovedtracks.track", []);
+				data = LD.get(data, "lovedtracks.track", []);
 				if (data.length) {
 					this.loved_tracks = [
 						...this.loved_tracks,
-						..._.map(data, (item) => {
+						...LD.map(data, (item) => {
 							const artist = item.artist.name.toLowerCase();
 							const title = item.name.toLowerCase();
 							return artist + " - " + title;
@@ -174,7 +180,7 @@ function _lastfm() {
 					for (let i = 0; i < items.Count; i++) {
 						let m = items[i];
 						let current = this.tfo.key.EvalWithMetadb(m);
-						let idx = _.indexOf(this.loved_tracks, current);
+						let idx = LD.indexOf(this.loved_tracks, current);
 						if (idx > -1) {
 							this.loved_tracks.splice(idx, 1);
 							m.SetLoved(1);
@@ -190,7 +196,7 @@ function _lastfm() {
 					);
 					if (this.loved_tracks.length) {
 						console.log("The following tracks were not matched:");
-						_.forEach(this.loved_tracks, (item) => {
+						LD.forEach(this.loved_tracks, (item) => {
 							console.log(item);
 						});
 					}
@@ -214,7 +220,7 @@ function _lastfm() {
 				}
 				break;
 			case "auth.getToken":
-				data = parseJson(this.xmlhttp.responseText);
+				data = _jsonParse(this.xmlhttp.responseText);
 				if (data.token) {
 					_run("https://last.fm/api/auth/?api_key=" + this.api_key + "&token=" + data.token);
 					if (
@@ -231,9 +237,9 @@ function _lastfm() {
 				}
 				break;
 			case "auth.getSession":
-				data = parseJson(this.xmlhttp.responseText);
+				data = _jsonParse(this.xmlhttp.responseText);
 				if (data.session && data.session.key) {
-					config.updateConfigObjValues("lfm", { sk: data.session.key }, true);
+					lfm.sk = data.session.key;
 					if (
 						WshShell.Popup(
 							"Import Loved Tracks now?",
@@ -249,10 +255,12 @@ function _lastfm() {
 				break;
 		}
 		// display response text/error if we get here, any success returned early
-		console.log(N, this.xmlhttp.responseText || this.xmlhttp.status);
+		debugLog(N, this.xmlhttp.responseText || this.xmlhttp.status);
 	};
 
 	this.update_username = () => {
+		this.username = lfm.username;
+		this.sk = lfm.sk;
 		const username = utils.InputBox(
 			window.ID,
 			"Enter your Last.fm username",
@@ -260,7 +268,7 @@ function _lastfm() {
 			this.username
 		);
 		if (username != this.username) {
-			config.updateConfigObjValues("lfm", { username: username, sk: "" }, true);
+			lfm.username = username;
 		}
 		this.post("auth.getToken");
 	};

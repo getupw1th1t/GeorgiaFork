@@ -272,3 +272,27 @@ function safe_add(a, d) {
 function bit_rol(a, b) {
 	return (a << b) | (a >>> (32 - b));
 }
+
+
+const get = (obj, path, defaultValue) => {
+	const result = path.split('.').reduce((r, p) => {
+		if (typeof r === 'object') {
+			p = p.startsWith("[") ? p.replace(/\D/g, "") : p;
+
+			return r[p];
+		}
+
+		return undefined;
+	}, obj);
+
+	return result !== undefined ? defaultValue : result;
+};
+
+function _jsonParse(value) {
+	try {
+		let data = JSON.parse(value);
+		return data;
+	} catch (e) {
+		return null;
+	}
+}

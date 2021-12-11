@@ -134,7 +134,7 @@ if (config.fileExists) {
 	 **/
 	settings = config.addConfigurationObject(settingsSchema, Object.assign({}, settingsDefaults, prefs.settings), settingsComments);
 	transport = config.addConfigurationObject(transportSchema, Object.assign({}, transportDefaults, prefs.transport), transportComments);
-	lfm = config.addConfigurationObject(lastfmSchema, Object.assign({}, lastfmDefaults));
+	lfm = config.addConfigurationObject(lastfmSchema, Object.assign({}, lastfmDefaults, prefs.lfm));
 	tf = config.addConfigurationObject(titleFormatSchema, Object.assign({}, defaultTitleFormatStrings, prefs.title_format_strings), titleFormatComments);
 	prefs.metadataGrid.forEach(entry => {
 		// copy comments over to existing object so they aren't lost

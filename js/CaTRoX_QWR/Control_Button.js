@@ -342,19 +342,21 @@ function btnActionHandler(btn) {
 			break;
 		case "Heart":
 			switch (true) {
-				case lastfm.username.length === 0:
+				case lfm.username.length === 0:
 					lastfm.update_username();
 					break;
-				case lastfm.sk.length != 32:
+				case lfm.sk.length != 32:
 					lastfm.post("auth.getToken");
 					break;
 				case !panel.metadb:
 					break;
 				case parseInt(panel.tf("%SMP_LOVED%")) == 1:
-					lastfm.post("track.unlove", null, panel.metadb);
+					lastfm.get_loved_tracks(1);
+					//lastfm.post("track.unlove", null, panel.metadb);
 					break;
 				default:
-					lastfm.post("track.love", null, panel.metadb);
+					lastfm.get_loved_tracks(1);
+					//lastfm.post("track.love", null, panel.metadb);
 					break;
 			}
 			break;
