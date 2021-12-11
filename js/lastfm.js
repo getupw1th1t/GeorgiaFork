@@ -2,93 +2,12 @@
 
 "use strict";
 
-function _p(a, b) {
-	Object.defineProperty(this, _.isBoolean(b) ? "enabled" : "value", {
-		get() {
-			return this.b;
-		},
-		set(value) {
-			this.b = value;
-			window.SetProperty(this.a, this.b);
-		},
-	});
-
-	this.toggle = () => {
-		this.b = !this.b;
-		window.SetProperty(this.a, this.b);
-	};
-
-	this.a = a;
-	this.b = window.GetProperty(a, b);
-}
-
-function _panel(custom_background = false) {
+function _panel() {
 	this.item_focus_change = () => {
 		if (this.metadb_func) {
-			if (this.selection.value == 0) {
-				this.metadb = fb.IsPlaying ? fb.GetNowPlaying() : fb.GetFocusItem();
-			} else {
-				this.metadb = fb.GetFocusItem();
-			}
+			this.metadb = fb.IsPlaying ? fb.GetNowPlaying() : fb.GetFocusItem();
 			on_metadb_changed();
 		}
-	};
-
-	this.size = () => {
-		this.w = window.Width;
-		this.h = window.Height;
-	};
-
-	this.rbtn_up = (x, y, object) => {
-		this.m = window.CreatePopupMenu();
-		this.s1 = window.CreatePopupMenu();
-		this.s2 = window.CreatePopupMenu();
-		this.s3 = window.CreatePopupMenu();
-		this.s10 = window.CreatePopupMenu();
-		this.s11 = window.CreatePopupMenu();
-		this.s12 = window.CreatePopupMenu();
-		this.s13 = window.CreatePopupMenu();
-		// panel 1-999
-		// object 1000+
-		if (object) {
-			object.rbtn_up(x, y);
-		}
-		if (this.list_objects.length || this.text_objects.length) {
-			_.forEach(this.fonts.sizes, (item) => {
-				this.s1.AppendMenuItem(MF_STRING, item, item);
-			});
-			this.s1.CheckMenuRadioItem(_.first(this.fonts.sizes), _.last(this.fonts.sizes), this.fonts.size.value);
-			this.s1.AppendTo(this.m, MF_STRING, "Font size");
-			this.m.AppendMenuSeparator();
-		}
-		if (this.metadb_func) {
-			this.s3.AppendMenuItem(MF_STRING, 110, "Prefer now playing");
-			this.s3.AppendMenuItem(MF_STRING, 111, "Follow selected track (playlist)");
-			this.s3.CheckMenuRadioItem(110, 111, this.selection.value + 110);
-			this.s3.AppendTo(this.m, MF_STRING, "Selection mode");
-			this.m.AppendMenuSeparator();
-		}
-		this.m.AppendMenuItem(MF_STRING, 120, "Configure...");
-		const idx = this.m.TrackPopupMenu(x, y);
-		switch (true) {
-			case idx == 0:
-				break;
-			case idx == 100:
-			case idx == 101:
-			case idx == 102:
-				this.colours.mode.value = idx - 100;
-				window.Repaint();
-				break;
-			case idx == 110:
-			case idx == 111:
-				this.selection.value = idx - 110;
-				this.item_focus_change();
-				break;
-			case idx == 120:
-				window.ShowConfigure();
-				break;
-		}
-		return true;
 	};
 
 	this.tf = (t) => {
@@ -107,17 +26,8 @@ function _panel(custom_background = false) {
 	};
 
 	window.DlgCode = 0x0004;
-	this.fonts = {};
-	this.colours = {};
-	this.w = 0;
-	this.h = 0;
 	this.metadb = fb.GetFocusItem();
 	this.metadb_func = typeof on_metadb_changed == "function";
-	if (this.metadb_func) {
-		this.selection = new _p("2K3.PANEL.SELECTION", 0);
-	}
-	this.list_objects = [];
-	this.text_objects = [];
 	this.tfo = {
 		"$if2(%__@%,%path%)": fb.TitleFormat("$if2(%__@%,%path%)"),
 	};
@@ -130,24 +40,11 @@ function _tagged(value) {
 }
 
 function _lastfm() {
-	this.notify_data = (name, data) => {
-		if (name == "2K3.NOTIFY.LASTFM") {
-			this.username = this.read_ini("username");
-			this.sk = this.read_ini("sk");
-			window.Repaint();
-			_.forEach(panel.list_objects, (item) => {
-				if (item.mode == "lastfm_info" && item.properties.mode.value > 0) {
-					item.update();
-				}
-			});
-		}
-	};
-
 	this.post = (method, token, metadb) => {
 		let api_sig, data;
 		switch (method) {
 			case "auth.getToken":
-				this.update_sk("");
+				config.updateConfigObjValues("lfm", { sk: "" }, true);
 				api_sig = md5("api_key" + this.api_key + "method" + method + this.secret);
 				data = "format=json&method=" + method + "&api_key=" + this.api_key + "&api_sig=" + api_sig;
 				break;
@@ -214,7 +111,7 @@ function _lastfm() {
 		}
 		this.xmlhttp.open("POST", "https://ws.audioscrobbler.com/2.0/", true);
 		this.xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		this.xmlhttp.setRequestHeader("User-Agent", this.ua);
+		this.xmlhttp.setRequestHeader("User-Agent", "foo_spider_monkey_georgia");
 		this.xmlhttp.send(data);
 		this.xmlhttp.onreadystatechange = () => {
 			if (this.xmlhttp.readyState == 4) {
@@ -231,7 +128,7 @@ function _lastfm() {
 		const url =
 			this.get_base_url() + "&method=user.getLovedTracks&limit=200&user=" + this.username + "&page=" + this.page;
 		this.xmlhttp.open("GET", url, true);
-		this.xmlhttp.setRequestHeader("User-Agent", this.ua);
+		this.xmlhttp.setRequestHeader("User-Agent", "foo_spider_monkey_georgia");
 		this.xmlhttp.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
 		this.xmlhttp.send();
 		this.xmlhttp.onreadystatechange = () => {
@@ -336,7 +233,17 @@ function _lastfm() {
 			case "auth.getSession":
 				data = parseJson(this.xmlhttp.responseText);
 				if (data.session && data.session.key) {
-					this.update_sk(data.session.key);
+					config.updateConfigObjValues("lfm", { sk: data.session.key }, true);
+					if (
+						WshShell.Popup(
+							"Import Loved Tracks now?",
+							0,
+							window.ScriptInfo.Name,
+							popup.question + popup.yes_no
+						) == popup.yes
+					) {
+						this.get_loved_tracks(1);
+					}
 					return;
 				}
 				break;
@@ -353,28 +260,13 @@ function _lastfm() {
 			this.username
 		);
 		if (username != this.username) {
-			this.write_ini("username", username);
-			this.update_sk("");
+			config.updateConfigObjValues("lfm", { username: username, sk: "" }, true);
 		}
 		this.post("auth.getToken");
 	};
 
 	this.get_base_url = () => {
 		return "http://ws.audioscrobbler.com/2.0/?format=json&api_key=" + this.api_key;
-	};
-
-	this.read_ini = (k) => {
-		return utils.ReadINI(this.ini_file, "Last.fm", k);
-	};
-
-	this.write_ini = (k, v) => {
-		utils.WriteINI(this.ini_file, "Last.fm", k, v);
-	};
-
-	this.update_sk = (sk) => {
-		this.write_ini("sk", sk);
-		window.NotifyOthers("2K3.NOTIFY.LASTFM", "update");
-		this.notify_data("2K3.NOTIFY.LASTFM", "update");
 	};
 
 	this.tfo = {
@@ -387,21 +279,9 @@ function _lastfm() {
 		first_played: fb.TitleFormat("%SMP_FIRST_PLAYED%"),
 	};
 
-	_createFolder(folders.data);
-	this.ini_file = folders.data + "lastfm.ini";
 	this.api_key = "1f078d9e59cb34909f7ed56d7fc64aba";
 	this.secret = "a8b4adc5de20242f585b12ef08a464a9";
-	this.username = this.read_ini("username");
-	this.sk = this.read_ini("sk");
-	this.ua = "foo_jscript_panel_lastfm2";
+	this.username = lfm.username;
+	this.sk = lfm.sk;
 	this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 }
-
-/*
- * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
- * Digest Algorithm, as defined in RFC 1321.
- * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
- * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
- * Distributed under the BSD License
- * See http://pajhome.org.uk/crypt/md5 for more info.
- */

@@ -2095,7 +2095,6 @@ function on_init() {
 
 // window size changed
 function on_size() {
-	panel.size();
 	debugLog("on_size called");
 	//debugLog(heartX);
 	ww = window.Width;
@@ -3767,14 +3766,6 @@ function RepaintWindow() {
 	debugLog("Repainting from RepaintWindow()");
 	window.Repaint();
 	debugLog("window.Repaint called");
-}
-
-function updateHeart(country) {
-	debugLog("updateHeart called");
-	//debugLog(heartX);
-	const countryName = convertIsoCountryCodeToFull(country) || country; // in case we have a 2-digit country code
-	const path = $(paths.flagsBase) + (is_4k ? "64\\" : "32\\") + countryName.trim().replace(/ /g, "-") + ".png";
-	return gdi.Image(path);
 }
 
 function createButtonObjects(ww, wh) {

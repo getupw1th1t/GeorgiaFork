@@ -235,3 +235,15 @@ const transportSchema = new ConfigurationObjectSchema(
 	undefined,
 	"Transport controls settings"
 );
+
+const lastfmDefaults = {
+	username: "",
+	sk: "",
+};
+
+const lastfmSchema = new ConfigurationObjectSchema(
+	"last.fm",
+	ConfigurationObjectType.Object,
+	undefined,
+	"Config for Last.fm Love Tracks button"
+);

@@ -6,10 +6,12 @@ let settings = {};
 let globals = {};
 /** @type {*} */
 let transport = {};
+/** @type {*} */
+let lfm = {};
 /** @type {MetadataGridEntry[]} */
 let metadataGrid;
 
-const currentVersion = '2.0.3';
+const currentVersion = '2.0.3-fork';
 let configVersion = currentVersion;	// will be overwritten when loaded from config file
 let updateAvailable = false;
 let updateHyperlink;
@@ -120,6 +122,7 @@ if (!config.fileExists) {
 	config.addConfigurationObject(imgPathSchema, imgPathDefaults);
 	config.addConfigurationObject(lyricFilenamesSchema, lyricFilenamesDefaults);
 	config.addConfigurationObject(transportSchema, transportDefaults);
+	lfm = config.addConfigurationObject(lastfmSchema, lastfmDefaults);
 	console.log('> Writing', configPath);
 	config.writeConfiguration();
 }
@@ -131,6 +134,7 @@ if (config.fileExists) {
 	 **/
 	settings = config.addConfigurationObject(settingsSchema, Object.assign({}, settingsDefaults, prefs.settings), settingsComments);
 	transport = config.addConfigurationObject(transportSchema, Object.assign({}, transportDefaults, prefs.transport), transportComments);
+	lfm = config.addConfigurationObject(lastfmSchema, Object.assign({}, lastfmDefaults));
 	tf = config.addConfigurationObject(titleFormatSchema, Object.assign({}, defaultTitleFormatStrings, prefs.title_format_strings), titleFormatComments);
 	prefs.metadataGrid.forEach(entry => {
 		// copy comments over to existing object so they aren't lost
@@ -256,7 +260,7 @@ function migrateCheck(version, storedVersion) {
 				window.Reload();
 
 			case '2.0.3':
-
+				lfm = config.addConfigurationObject(lastfmSchema, lastfmDefaults);
 			default:
 				break;
 
@@ -268,7 +272,7 @@ function migrateCheck(version, storedVersion) {
 let retryCount = 0;	// don't hammer if it's not working
 
 function checkForUpdates(openUrl) {
-	var url = 'https://api.github.com/repos/kbuffington/Georgia/tags';
+	var url = 'https://api.github.com/repos/getupw1th1t/GeorgiaFork/tags';
 	makeHttpRequest('GET', url, function (resp) {
 		try {
 			var respObj = JSON.parse(resp);
