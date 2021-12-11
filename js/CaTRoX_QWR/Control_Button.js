@@ -351,12 +351,12 @@ function btnActionHandler(btn) {
 				case !panel.metadb:
 					break;
 				case parseInt(panel.tf("%SMP_LOVED%")) == 1:
-					lastfm.get_loved_tracks(1);
-					//lastfm.post("track.unlove", null, panel.metadb);
+					//lastfm.get_loved_tracks(1);
+					lastfm.post("track.unlove", null, panel.metadb);
 					break;
 				default:
-					lastfm.get_loved_tracks(1);
-					//lastfm.post("track.love", null, panel.metadb);
+					//lastfm.get_loved_tracks(1);
+					lastfm.post("track.love", null, panel.metadb);
 					break;
 			}
 			break;

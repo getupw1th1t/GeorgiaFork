@@ -231,15 +231,7 @@ function setGeometry() {
 		lyricsImg = gdi.Image(`${basePath}32/${paths.lyricsIcon}`);
 	}
 }
-/*
-function evalHeart() {
-	debugLog("evalHeart called");
-	heartImg = loved ? heartOnImg : heartOffImg;
-	createButtonImages();
-	createButtonObjects(ww, wh);
-	window.RepaintRect(heartX + 30, wh - geo.lower_bar_h, 30, 36);
-}
-*/
+
 var playedTimesRatios = [];
 
 // PATHS
@@ -2120,10 +2112,8 @@ function on_size() {
 		}
 	}
 	progressBar && progressBar.on_size(ww, wh);
-	debugLog("progressBar called");
 	//debugLog(heartX);
 	lastLeftEdge = 0;
-	debugLog("lastLeftEdge called");
 	//debugLog(heartX);
 	ResizeArtwork(true);
 	//createButtonImages();
