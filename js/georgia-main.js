@@ -140,11 +140,29 @@ function initColors() {
 	col.artist = RGB(255, 255, 255);
 
 	if (pref.darkMode) {
-		col.bg = RGB(50, 54, 57);
-		col.menu_bg = RGB(23, 23, 23);
-		col.progress_bar = RGB(23, 22, 25);
-		col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
-		col.shadow = RGBA(128, 128, 128, 54);
+		switch (pref.colorScheme) {
+			case "Dark Green":
+				col.bg = RGB(35, 56, 56);
+				col.menu_bg = RGB(50, 58, 75);
+				col.progress_bar = RGB(23, 22, 25);
+				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
+				col.shadow = RGBA(128, 128, 128, 54);
+				break;
+			case "Dark Purple":
+				col.bg = RGB(38, 64, 64);
+				col.menu_bg = RGB(23, 23, 23);
+				col.progress_bar = RGB(23, 22, 25);
+				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
+				col.shadow = RGBA(128, 128, 128, 54);
+				break;
+			default:
+				col.bg = RGB(50, 54, 57);
+				col.menu_bg = RGB(23, 23, 23);
+				col.progress_bar = RGB(23, 22, 25);
+				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
+				col.shadow = RGBA(128, 128, 128, 54);
+				break;
+		}
 	} else {
 		col.bg = RGB(185, 185, 185);
 		col.menu_bg = RGB(54, 54, 54);
@@ -266,6 +284,8 @@ paths.labelsBase = fb.ProfilePath + "images/recordlabel/"; // location of the re
 paths.artistlogos = fb.ProfilePath + "images/artistlogos/"; // location of High-Qualiy band logos for the bottom left corner
 paths.artistlogosColor = fb.ProfilePath + "images/artistlogos color/";
 paths.flagsBase = fb.ProfilePath + "images/flags/"; // location of artist country flags
+
+pref.colorScheme = pref.darkMode ? "Default (Dark)" : "Default (Light)";
 
 // MOUSE WHEEL SEEKING SPEED
 pref.mouse_wheel_seek_speed = 5; // seconds per wheel step
@@ -1557,6 +1577,7 @@ function onOptionsMenu(x, y) {
 		}
 	);
 	menu.addToggleItem("Use dark theme", pref, "darkMode", () => {
+		pref.colorScheme = pref.darkMode ? "Default (Dark)" : "Default (Light)";
 		initColors();
 		if (fb.IsPlaying) {
 			albumart = null;
@@ -1566,6 +1587,25 @@ function onOptionsMenu(x, y) {
 			RepaintWindow();
 		}
 	});
+	const lightPalettes = ["Default (Light)"];
+	const darkPalettes = ["Default (Dark)", "Dark Purple", "Dark Green"];
+	menu.createRadioSubMenu(
+		"Color Scheme",
+		pref.darkMode ? darkPalettes : lightPalettes,
+		pref.colorScheme,
+		pref.darkMode ? darkPalettes : lightPalettes,
+		(theme) => {
+			pref.colorScheme = theme;
+			initColors();
+			if (fb.IsPlaying) {
+				albumart = null;
+				loadFromCache = false;
+				on_playback_new_track(fb.GetNowPlaying());
+			} else {
+				RepaintWindow();
+			}
+		}
+	);
 	try {
 		const iconsFolder = fso.GetFolder(paths.iconsBase);
 		const iconSets = [];
@@ -3458,7 +3498,11 @@ function ResizeArtwork(resetCDPosition) {
 		if (albumart_scaled) {
 			albumart_scaled = null;
 		}
-		albumart_scaled = albumart.Resize(albumart_size.w, albumart_size.h);
+		try {
+			albumart_scaled = albumart.Resize(albumart_size.w, albumart_size.h);
+		} catch (e) {
+			albumart_scaled = null;
+		}
 		pauseBtn.setCoords(albumart_size.x + albumart_size.w / 2, albumart_size.y + albumart_size.h / 2);
 		hasArtwork = true;
 	} else {

@@ -62,6 +62,7 @@ pref.add_properties({
 
 	freq_update: ['Frequent progress bar updates', true], // true: update progress bar multiple times a second. Smoother, but uses more CPU
     darkMode: ['Use Dark Theme', true], // true: use a darker background
+	colorScheme: ['Player color scheme', "Default (Dark)"], // select alternate color palette for bg/menu
 	use_4k: ['Detect 4k', 'auto'], // auto: switch to 4k mode when window width wide enough, never: never use 4k mode, always: always use 4k mode
 	checkForUpdates: ['Check for Updates', true], // true: check github repo to determine if updates exist
 	loadAsync: ['Load Theme Asynchronously', true],	// loads individual theme files asynchronously at startup to reduce risk of FSM throwing slow script error on startup
