@@ -1,8 +1,4 @@
-To install:
-
-rename "georgia" folder to "georgiaFork"
-
-bing bang boom
+To install: rename "georgia" folder to "georgiaFork", bing bang boom
 
 fair warning: state is pretty crappy/unpolished, mainly using this fork as my personal Foobar config
 # Georgia
