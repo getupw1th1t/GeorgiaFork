@@ -2126,7 +2126,7 @@ function on_size() {
 	debugLog("lastLeftEdge called");
 	//debugLog(heartX);
 	ResizeArtwork(true);
-	createButtonImages();
+	//createButtonImages();
 	createButtonObjects(ww, wh);
 
 	playlist_shadow = null;
@@ -3911,10 +3911,10 @@ function createButtonObjects(ww, wh) {
 // =================================================== //
 
 function createButtonImages() {
-	debugLog("createButtonImages called");
+	//debugLog("createButtonImages called");
 	//debugLog(heartX);
 	let createButtonProfiler = null;
-	if (timings.showExtraDrawTiming) createButtonProfiler = fb.CreateProfiler("createButtonImages");
+	createButtonProfiler = fb.CreateProfiler("createButtonImages");
 	const transportCircleSize = Math.round(pref.transport_buttons_size * 0.93333);
 	let btns = {};
 
@@ -3922,13 +3922,13 @@ function createButtonImages() {
 		btns = {
 			LastFmHeart: {
 				ico: heartImg,
-				type: "toggle",
+				type: "playback",
 				w: heartImg.Width,
 				h: heartImg.Height,
 			},
 			Shuffle: {
 				ico: plShuffleImg,
-				type: "toggle",
+				type: "playback",
 				w: plShuffleImg.Width,
 				h: plShuffleImg.Height,
 			},
@@ -3964,7 +3964,7 @@ function createButtonImages() {
 			},
 			Repeat: {
 				ico: plRepeatImg,
-				type: "toggle",
+				type: "playback",
 				w: plRepeatImg.Width,
 				h: plRepeatImg.Height,
 			},
@@ -4122,7 +4122,7 @@ function createButtonImages() {
 
 		var stateImages = []; // 0=ButtonState.Default, 1=hover, 2=down, 3=Enabled;
 		for (let s = 0; s <= 5; s++) {
-			if (s === 3 && btns[i].type !== "image" && btns[i].type !== "toggle") {
+			if (s === 3 && btns[i].type !== "image") {
 				break;
 			}
 			var img = gdi.CreateImage(w, h);
@@ -4231,20 +4231,6 @@ function createButtonImages() {
 					0,
 					iconAlpha
 				);
-			} else if (btns[i].type == "toggle") {
-				g.DrawImage(
-					btns[i].ico,
-					Math.round((w - btns[i].ico.Width) / 2),
-					Math.round((h - btns[i].ico.Height) / 2),
-					btns[i].ico.Width,
-					btns[i].ico.Height,
-					0,
-					0,
-					btns[i].ico.Width,
-					btns[i].ico.Height,
-					0,
-					iconAlpha
-				);
 			}
 
 			img.ReleaseGraphics(g);
@@ -4253,5 +4239,5 @@ function createButtonImages() {
 
 		btnImg[i] = stateImages;
 	}
-	if (timings.showExtraDrawTiming) createButtonProfiler.Print();
+	createButtonProfiler.Print();
 }
