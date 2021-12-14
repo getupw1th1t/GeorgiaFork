@@ -36,10 +36,6 @@ g_properties.add_properties(
 		show_disc_header:   ['user.header.disc_header.show', true],
 
 		alternate_row_color:  ['user.row.alternate_color', true],
-		show_playcount:       ['user.row.play_count.show', g_component_playcount],
-		show_rating:          ['user.row.rating.show', g_component_playcount && !g_is_mini_panel],
-		use_rating_from_tags: ['user.row.rating.from_tags', false],
-		show_queue_position:  ['user.row.queue_position.show', true],
 
 		auto_colapse:                ['user.header.collapse.auto', g_is_mini_panel],
 		collapse_on_playlist_switch: ['user.header.collapse.on_playlist_switch', false],
@@ -57,8 +53,6 @@ g_properties.add_properties(
 (function () {
 	g_properties.rows_in_header = Math.max(0, g_properties.rows_in_header);
 	g_properties.rows_in_compact_header = Math.max(0, g_properties.rows_in_compact_header);
-	g_properties.show_rating = g_properties.show_rating && g_component_playcount;
-	g_properties.show_playcount = g_properties.show_playcount && g_component_playcount;
 
 	// Grouping data is validated in it's class ctor
 })();
@@ -98,9 +92,6 @@ function createPlaylistFonts() {
 		info:           font('Segoe Ui', playlistSize - 1),
 		cover:          font('Segoe Ui Semibold', playlistSize - 1),
 
-		playcount:      font('Segoe Ui', playlistSize - 3),
-		rating_not_set: font('Segoe Ui Symbol', playlistSize + 2),
-		rating_set:     font('Segoe Ui Symbol', playlistSize + 4),
 		scrollbar:      font('Segoe Ui Symbol', headerSize),
 
 		font_awesome:	font('FontAwesome', playlistSize + 2),
@@ -655,15 +646,14 @@ class Playlist extends List {
 
 	// Playlist.on_size
 	on_size(w, h, x, y) {
-		List.prototype.on_size.apply(this, [w, h, x, y]);
-		// TODO: Mordred - can we avoid this? this.reinitialize causing probs
-		this.x = x;
-		this.y = y;
-		this.h = h;
-		this.w = w;
-		this.was_on_size_called = true;
-
-		this.reinitialize();
+			List.prototype.on_size.apply(this, [w, h, x, y]);
+			// TODO: Mordred - can we avoid this? this.reinitialize causing probs
+			this.x = x;
+			this.y = y;
+			this.h = h;
+			this.w = w;
+			this.was_on_size_called = true;
+			this.reinitialize();
 	}
 
 	on_mouse_move(x, y, m) {
@@ -760,13 +750,7 @@ class Playlist extends List {
 			}
 			this.repaint();
 		} else if (item instanceof Row) {
-			if (g_properties.show_rating && item.rating_trace(x, y)) {
-				item.rating_click(x, y);
-				item.repaint();
-			}
-			else {
 				plman.ExecutePlaylistDefaultAction(this.cur_playlist_idx, item.idx);
-			}
 		}
 
 		return true;
@@ -1696,10 +1680,11 @@ class Playlist extends List {
 		}
 		this.selection_handler = new SelectionHandler(/** @type {PlaylistContent} */ this.cnt, this.cur_playlist_idx);
 
-		(true || trace_initialize_list_performance) && console.log('Playlist initialized in ' + profiler.Time + 'ms');
+		trace_initialize_list_performance && console.log('Playlist initialized in ' + profiler.Time + 'ms');
 	}
 
 	reinitialize() {
+
 		if (this.cur_playlist_idx !== plman.ActivePlaylist) {
 			g_properties.scroll_pos = this.scroll_pos_list[plman.ActivePlaylist] == null ? 0 : this.scroll_pos_list[plman.ActivePlaylist];
 		}
@@ -2027,17 +2012,6 @@ class Playlist extends List {
 				this.queue_handler = g_properties.show_queue_position ? new QueueHandler(this.cnt.rows, this.cur_playlist_idx) : undefined;
 			},
 			{is_checked: g_properties.show_queue_position}
-		);
-
-		appear_row.append_item(
-			'Show rating',
-			() => {
-				g_properties.show_rating = !g_properties.show_rating;
-			},
-			{
-				is_checked:    g_properties.show_rating,
-				is_grayed_out: !g_component_playcount
-			}
 		);
 	}
 
@@ -4333,7 +4307,8 @@ Header.create_headers = function (parent, x, y, w, h, prepared_rows) {
 		var processed_rows_count = header.initialize_items(prepared_rows);
 
 		trimArray(prepared_header_rows, processed_rows_count, true);
-
+		//console.log(header);
+		//console.log("\n\n\n\n");
 		headers.push(header);
 		++header_idx;
 	}
@@ -4398,28 +4373,14 @@ class Row extends ListItem {
 		 */
 		this.cur_playlist_idx = cur_playlist_idx_arg;
 
-		// var that = this;
-		/**
-		 * @type {number}
-		 */
-		this.rating_left_pad = 0;
-		/**
-		 * @type {number}
-		 */
-		this.rating_right_pad = 10;
-		/** @type {?Rating} */
-		this.rating = undefined;
 
 		/** @type {?string} */
 		this.title_text = undefined;
 		/** @type {?string} */
 		this.title_artist_text = undefined;
 		/** @type {?string} */
-		this.count_text = undefined;
-		/** @type {?string} */
 		this.length_text = undefined;
 
-		this.initialize_rating();
 	}
 
 	//public:
@@ -4509,45 +4470,8 @@ class Row extends ListItem {
 		}
 
 		//---> RATING
-		if (g_properties.show_rating) {
-			this.rating.x = this.x + this.w - this.rating.w - right_pad;
-			this.rating.y = this.y;
-			this.rating.draw(gr, title_color);
-
-			right_pad += this.rating.w + this.rating_right_pad + this.rating_left_pad;
-		}
 
 		//---> COUNT
-		if (g_properties.show_playcount) {
-			if (this.count_text == null) {
-				if (is_radio) {
-					this.count_text = '';
-				}
-				else {
-					this.count_text = $('%play_count%', this.metadb);
-					if (this.count_text != '0') {
-						this.count_text = $('[$max(%play_count%, %lastfm_play_count%)]', this.metadb);
-						this.count_text = !Number(this.count_text) ? '' : (this.count_text + ' |');
-					} else {
-						// don't want to show lastfm play count if track hasn't been played locally
-						this.count_text = '';
-					}
-				}
-			}
-
-			if (this.count_text) {
-				var count_w = Math.ceil(
-					/** @type {!number} */
-					gr.MeasureString(this.count_text, g_pl_fonts.playcount, 0, 0, 0, 0).Width
-				);
-				var count_x = this.x + this.w - count_w - right_pad;
-
-				gr.DrawString(this.count_text, g_pl_fonts.playcount, title_color, count_x, this.y, count_w, this.h, g_string_format.align_center);
-				testRect && gr.DrawRect(count_x, this.y - 1, count_w, this.h, 1, RGBA(155, 155, 255, 250));
-
-				right_pad += count_w;
-			}
-		}
 
 		//---> QUEUE
 		let queueText = '';
@@ -4628,46 +4552,20 @@ class Row extends ListItem {
 	/** @override */
 	set_y(y) {
 		ListItem.prototype.set_y.apply(this, [y]);
-		this.rating.y = y;
 	};
 
 	/** @override */
 	set_w(w) {
 		ListItem.prototype.set_w.apply(this, [w]);
-		this.initialize_rating();
 	};
 
 	reset_queried_data() {
 		this.title_text = undefined;
 		this.title_artist_text = undefined;
-		this.count_text = undefined;
 		this.length_text = undefined;
 
-		this.rating.reset_queried_data();
 	};
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @return {boolean}
-	 */
-	rating_trace(x, y) {
-		if (!g_properties.show_rating) {
-			return false;
-		}
-		return this.rating.trace(x, y);
-	};
-
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	rating_click(x, y) {
-		assert(g_properties.show_rating,
-			LogicError, 'Rating_click was called, when there was no rating object.\nShould use trace before calling click');
-
-		this.rating.click(x, y);
-	}
 
 	/**
 	 * @return {boolean}
@@ -4676,138 +4574,11 @@ class Row extends ListItem {
 		return plman.IsPlaylistItemSelected(this.cur_playlist_idx, this.idx);
 	}
 
-	initialize_rating() {
-		this.rating = new Rating(0, this.y, this.w - this.rating_right_pad, this.h, this.metadb);
-		this.rating.x = this.x + this.w - (this.rating.w + this.rating_right_pad);
-	}
 
 	clear_title_text() {
 		this.title_text = null;
 	}
 
-}
-
-/**
- *
- * @param {number} x
- * @param {number} y
- * @param {number} max_w
- * @param {number} h
- * @param {FbMetadbHandle} metadb
- * @constructor
- */
-function Rating(x, y, max_w, h, metadb) {
-	/**
-	 * @param {GdiGraphics} gr
-	 * @param {number} color
-	 */
-	this.draw = function (gr, color) {
-		var cur_rating = this.get_rating();
-		var cur_rating_x = this.x;
-		var y = this.y - (is_4k ? 3 : 1);
-
-		for (var j = 0; j < 5; j++) {
-			if (j < cur_rating) {
-				gr.DrawString('\u2605', g_pl_fonts.rating_set, color, cur_rating_x, y, btn_w, this.h, g_string_format.align_center);
-			}
-			else {
-				gr.DrawString('\u2219', g_pl_fonts.rating_not_set, color, cur_rating_x, y, btn_w, this.h, g_string_format.align_center);
-			}
-			cur_rating_x += btn_w;
-		}
-	};
-
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @return {boolean}
-	 */
-	this.trace = function (x, y) {
-		return x >= this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h;
-	};
-
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	this.click = function (x, y) {
-		if (!this.trace(x, y)) {
-			return;
-		}
-
-		var new_rating = Math.floor((x - this.x) / btn_w) + 1;
-		var current_rating = this.get_rating();
-
-		if (g_properties.use_rating_from_tags) {
-			if (!_.startsWith(this.metadb.RawPath, 'http')) {
-				var handle = new FbMetadbHandleList();
-				handle.Add(this.metadb);
-				handle.UpdateFileInfoFromJSON(
-					JSON.stringify({
-						'RATING': (current_rating === new_rating) ? '' : new_rating
-					})
-				);
-			}
-		}
-		else {
-			fb.RunContextCommandWithMetadb('Playback Statistics/Rating/' + (current_rating === new_rating ? '<not set>' : new_rating), this.metadb);
-		}
-
-		rating = (current_rating === new_rating) ? 0 : new_rating;
-	};
-
-	/**
-	 * @return {number}
-	 */
-	this.get_rating = () => {
-		if (rating == null) {
-			var current_rating;
-			if (g_properties.use_rating_from_tags) {
-				var file_info = this.metadb.GetFileInfo();
-				var rating_meta_idx = file_info.MetaFind('RATING');
-				current_rating = rating_meta_idx !== -1 ? file_info.MetaValue(rating_meta_idx, 0) : 0;
-			}
-			else {
-				current_rating = $('%rating%', this.metadb);
-			}
-			rating = Number(current_rating);
-		}
-		return rating;
-	};
-
-	this.reset_queried_data = function () {
-		rating = undefined;
-	};
-
-	/**
-	 * @const
-	 * @type {number}
-	 */
-	var btn_w = scaleForDisplay(pref.font_size_playlist + 2);
-
-	/**
-	 * @const
-	 * @type {FbMetadbHandle}
-	 */
-	this.metadb = metadb;
-
-	/** @type {number} */
-	this.x = x;
-	/** @type {number} */
-	this.y = y;
-	/**
-	 * @const
-	 * @type {number}
-	 */
-	this.w = Math.min(btn_w * 5, max_w);
-	/**
-	 * @const
-	 * @type {number}
-	 */
-	this.h = h;
-
-	/** @type {?number} */
-	var rating = undefined;
 }
 
 /**

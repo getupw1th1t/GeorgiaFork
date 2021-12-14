@@ -134,41 +134,103 @@ function createFonts() {
 	ft.lyrics = font(fontRegular, pref.lyricsFontSize || 20, 1);
 }
 
+function newColorScheme() {
+	var ColorScheme = window.ColorScheme;
+
+	var scheme = new ColorScheme();
+	scheme
+		.from_hue(263) // Start the scheme
+		.scheme("analogic")
+		.distance(0.2)
+
+		.variation("pastel");
+	var colors = scheme.colors();
+	colors.forEach((c, i) => {
+		//console.log(c);
+		colors[i] = `#${c}`;
+		colors[i] = new Color(c);
+		colors[i] = colors[i].val;
+	});
+	return {
+		bg: colors[0],
+		menu_bg: colors[1],
+		progress_bar: colors[1],
+		now_playing: colors[2],
+		shadow: colors[5],
+	};
+}
+
+function pleaseMakeScheme(hex) {
+	let value = pref.darkMode ? 0.2 : 0.7;
+	let hsv;
+	if (hex) {
+		hsv = Please.HEX_to_HSV(hex);
+	} else {
+		hsv = Please.make_color({ value: value, format: "hsv" })[0];
+	}
+	let colors = Please.make_scheme(hsv);
+	colors.forEach((c, i) => {
+		//console.log(c);
+		colors[i] = new Color(c);
+		colors[i] = colors[i].val;
+	});
+	return {
+		bg: colors[0],
+		menu_bg: colors[1],
+		progress_bar: colors[2],
+		now_playing: colors[3],
+		shadow: colors[4],
+	};
+	//console.log(scheme);
+}
+
 function initColors() {
+	let scheme = pleaseMakeScheme();
 	debugLog("initColors called");
 	//debugLog(heartX);
 	col.artist = RGB(255, 255, 255);
-
-	if (pref.darkMode) {
-		switch (pref.colorScheme) {
-			case "Dark Green":
-				col.bg = RGB(35, 56, 56);
-				col.menu_bg = RGB(50, 58, 75);
-				col.progress_bar = RGB(23, 22, 25);
+	switch (pref.colorScheme) {
+		case "Dark Green":
+			col.bg = RGB(35, 56, 56);
+			col.menu_bg = RGB(50, 58, 75);
+			col.progress_bar = RGB(23, 22, 25);
+			col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
+			col.shadow = RGBA(128, 128, 128, 54);
+			break;
+		case "Dark Purple":
+			col.bg = RGB(38, 64, 64);
+			col.menu_bg = RGB(23, 23, 23);
+			col.progress_bar = RGB(23, 22, 25);
+			col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
+			col.shadow = RGBA(128, 128, 128, 54);
+			break;
+		case "generated":
+			col.bg = scheme.bg;
+			col.menu_bg = scheme.menu_bg;
+			col.progress_bar = scheme.progress_bar;
+			if (pref.darkMode) {
 				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
 				col.shadow = RGBA(128, 128, 128, 54);
-				break;
-			case "Dark Purple":
-				col.bg = RGB(38, 64, 64);
-				col.menu_bg = RGB(23, 23, 23);
-				col.progress_bar = RGB(23, 22, 25);
-				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
-				col.shadow = RGBA(128, 128, 128, 54);
-				break;
-			default:
+			} else {
+				col.now_playing = RGB(0, 0, 0); // tracknumber, title, and time
+				col.shadow = RGBA(0, 0, 0, 64);
+			}
+			break;
+		default:
+			if (pref.darkMode) {
 				col.bg = RGB(50, 54, 57);
 				col.menu_bg = RGB(23, 23, 23);
 				col.progress_bar = RGB(23, 22, 25);
 				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
 				col.shadow = RGBA(128, 128, 128, 54);
-				break;
-		}
-	} else {
-		col.bg = RGB(185, 185, 185);
-		col.menu_bg = RGB(54, 54, 54);
-		col.progress_bar = RGB(125, 125, 125);
-		col.now_playing = RGB(0, 0, 0); // tracknumber, title, and time
-		col.shadow = RGBA(0, 0, 0, 64);
+			} else {
+				col.bg = RGB(185, 185, 185);
+				col.menu_bg = RGB(54, 54, 54);
+				col.progress_bar = RGB(125, 125, 125);
+				col.now_playing = RGB(0, 0, 0); // tracknumber, title, and time
+				col.shadow = RGBA(0, 0, 0, 64);
+			}
+			break;
 	}
 
 	col.rating = RGB(255, 170, 32);
@@ -284,8 +346,6 @@ paths.labelsBase = fb.ProfilePath + "images/recordlabel/"; // location of the re
 paths.artistlogos = fb.ProfilePath + "images/artistlogos/"; // location of High-Qualiy band logos for the bottom left corner
 paths.artistlogosColor = fb.ProfilePath + "images/artistlogos color/";
 paths.flagsBase = fb.ProfilePath + "images/flags/"; // location of artist country flags
-
-pref.colorScheme = pref.darkMode ? "Default (Dark)" : "Default (Light)";
 
 // MOUSE WHEEL SEEKING SPEED
 pref.mouse_wheel_seek_speed = 5; // seconds per wheel step
@@ -1577,7 +1637,6 @@ function onOptionsMenu(x, y) {
 		}
 	);
 	menu.addToggleItem("Use dark theme", pref, "darkMode", () => {
-		pref.colorScheme = pref.darkMode ? "Default (Dark)" : "Default (Light)";
 		initColors();
 		if (fb.IsPlaying) {
 			albumart = null;
@@ -1587,8 +1646,8 @@ function onOptionsMenu(x, y) {
 			RepaintWindow();
 		}
 	});
-	const lightPalettes = ["Default (Light)"];
-	const darkPalettes = ["Default (Dark)", "Dark Purple", "Dark Green"];
+	const lightPalettes = ["Default (Light)", "generated"];
+	const darkPalettes = ["Default (Dark)", "Dark Purple", "Dark Green", "generated"];
 	menu.createRadioSubMenu(
 		"Color Scheme",
 		pref.darkMode ? darkPalettes : lightPalettes,
@@ -2131,7 +2190,7 @@ function on_size() {
 	//debugLog(heartX);
 	ww = window.Width;
 	wh = window.Height;
-	console.log(`in on_size() => width: ${ww}, height: ${wh}`);
+	debugLog(`in on_size() => width: ${ww}, height: ${wh}`);
 
 	if (ww <= 0 || wh <= 0) return;
 
@@ -3806,7 +3865,7 @@ function createButtonObjects(ww, wh) {
 	debugLog("createButtonObjects called");
 	//debugLog(heartX);
 	btns = [];
-	const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false;
+	const showingMinMaxButtons = !!(UIHacks && UIHacks.FrameStyle);
 
 	if (ww <= 0 || wh <= 0) {
 		return;
@@ -3814,12 +3873,12 @@ function createButtonObjects(ww, wh) {
 		createButtonImages();
 	}
 
-	const btSizeLg = 60;
-	const btSizeSm = 30;
+	const btSizeLg = pref.transport_buttons_size * 2;
+	const btSizeSm = pref.transport_buttons_size;
 	const btPad = scaleForDisplay(15);
 	const btPad2 = (btPad * 2) / 3;
-	const smY = wh - geo.lower_bar_h - scaleForDisplay(30) - btSizeSm / 2;
-	const lgY = wh - geo.lower_bar_h - scaleForDisplay(30) - btSizeLg / 2;
+	const smY = wh - geo.lower_bar_h - scaleForDisplay(2) - btSizeSm / 2;
+	const lgY = wh - geo.lower_bar_h - scaleForDisplay(2) - btSizeLg / 2;
 
 	let wPad = ww / 10;
 	let adjW = wPad * 8;
@@ -3832,29 +3891,29 @@ function createButtonObjects(ww, wh) {
 	let btRepeatX = btNextX + btPad + btSizeSm;
 
 	let btHeartX = heartX + btSizeSm;
-	let btHeartY = wh - geo.lower_bar_h + 4;
+	let btHeartY = wh - geo.lower_bar_h;
 	//---> Transport buttons
 	if (transport.enableTransportControls) {
 		let plImg = btnImg.Play;
 		btns.play = new Button(
 			btPlayX,
 			lgY,
-			plImg[0].Width,
-			plImg[0].Height,
+			btSizeLg,
+			btSizeLg,
 			"Play/Pause",
 			!fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause,
 			"Play"
 		);
 		plImg = btnImg.Previous;
-		btns.prev = new Button(btPrevX, smY, plImg[0].Width, plImg[0].Height, "Previous", btnImg.Previous, "Previous");
+		btns.prev = new Button(btPrevX, smY, btSizeSm, btSizeSm, "Previous", btnImg.Previous, "Previous");
 		plImg = btnImg.Shuffle;
-		btns.shuffle = new Button(btShuffleX, smY, plImg[0].Width, plImg[0].Height, "Shuffle", plImg);
+		btns.shuffle = new Button(btShuffleX, smY, btSizeSm, btSizeSm, "Shuffle", plImg);
 		plImg = btnImg.Next;
-		btns.next = new Button(btNextX, smY, plImg[0].Width, plImg[0].Height, "Next", btnImg.Next, "Next");
+		btns.next = new Button(btNextX, smY, btSizeSm, btSizeSm, "Next", btnImg.Next, "Next");
 		plImg = btnImg.Repeat;
-		btns.repeat = new Button(btRepeatX, smY, plImg[0].Width, plImg[0].Height, "Repeat", plImg);
+		btns.repeat = new Button(btRepeatX, smY, btSizeSm, btSizeSm, "Repeat", plImg);
 		plImg = btnImg.LastFmHeart;
-		btns.heart = new Button(btHeartX, btHeartY, plImg[0].Width, plImg[0].Height, "Heart", plImg);
+		btns.heart = new Button(btHeartX, btHeartY, btSizeSm, btSizeSm, "Heart", plImg);
 	}
 
 	//---> Caption buttons
@@ -3948,6 +4007,9 @@ function createButtonImages() {
 	//debugLog("createButtonImages called");
 	//debugLog(heartX);
 	let createButtonProfiler = null;
+	let btSize;
+	let btSizeLg = pref.transport_buttons_size * 2;
+	let btSizeSm = pref.transport_buttons_size;
 	createButtonProfiler = fb.CreateProfiler("createButtonImages");
 	const transportCircleSize = Math.round(pref.transport_buttons_size * 0.93333);
 	let btns = {};
@@ -3957,50 +4019,50 @@ function createButtonImages() {
 			LastFmHeart: {
 				ico: heartImg,
 				type: "playback",
-				w: heartImg.Width,
-				h: heartImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			Shuffle: {
 				ico: plShuffleImg,
 				type: "playback",
-				w: plShuffleImg.Width,
-				h: plShuffleImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			Stop: {
 				ico: plPreviousImg,
 				type: "playback",
-				w: plPreviousImg.Width,
-				h: plPreviousImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			Previous: {
 				ico: plPreviousImg,
 				type: "playback",
-				w: plPreviousImg.Width,
-				h: plPreviousImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			Play: {
 				ico: plPlayImg,
 				type: "playback",
-				w: plPlayImg.Width,
-				h: plPlayImg.Height,
+				w: btSizeLg,
+				h: btSizeLg,
 			},
 			Pause: {
 				ico: plPauseImg,
 				type: "playback",
-				w: plPauseImg.Width,
-				h: plPauseImg.Height,
+				w: btSizeLg,
+				h: btSizeLg,
 			},
 			Next: {
 				ico: plNextImg,
 				type: "playback",
-				w: plNextImg.Width,
-				h: plNextImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			Repeat: {
 				ico: plRepeatImg,
 				type: "playback",
-				w: plRepeatImg.Width,
-				h: plRepeatImg.Height,
+				w: btSizeSm,
+				h: btSizeSm,
 			},
 			ShowVolume: {
 				ico: g_guifx.volume_up,
@@ -4128,8 +4190,10 @@ function createButtonImages() {
 	}
 
 	btnImg = [];
-
 	for (var i in btns) {
+		if (btns[i].type === "playback") {
+			btSize = i == "Play" || i == "Pause" ? btSizeLg : btSizeSm;
+		}
 		if (btns[i].type === "menu") {
 			const img = gdi.CreateImage(100, 100);
 			const g = img.GetGraphics();
@@ -4254,10 +4318,10 @@ function createButtonImages() {
 			} else if (btns[i].type == "playback") {
 				g.DrawImage(
 					btns[i].ico,
-					Math.round((w - btns[i].ico.Width) / 2),
-					Math.round((h - btns[i].ico.Height) / 2),
-					btns[i].ico.Width,
-					btns[i].ico.Height,
+					Math.round((w - btSize) / 2),
+					Math.round((h - btSize) / 2),
+					btSize,
+					btSize,
 					0,
 					0,
 					btns[i].ico.Width,
@@ -4265,6 +4329,10 @@ function createButtonImages() {
 					0,
 					iconAlpha
 				);
+				img =
+					!pref.darkMode && i !== "Shuffle" && i !== "Repeat" && i !== "LastFmHeart"
+						? img.InvertColours()
+						: img;
 			}
 
 			img.ReleaseGraphics(g);

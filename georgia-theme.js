@@ -41,6 +41,8 @@ const startTime = Date.now();
 const fileList = [
 	"js\\CaTRoX_QWR\\lodash.min.js",
 	"js\\CaTRoX_QWR\\lodash-new.js",
+	"js\\color-scheme.min.js",
+	"js\\Please.js",
 	"js\\configuration.js", // reads/write from config file. The actual configuration values are specified in globals.js
 	"js\\helpers.js",
 	"js\\CaTRoX_QWR\\Common.js",

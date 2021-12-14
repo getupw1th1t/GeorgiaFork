@@ -103,24 +103,26 @@ function getThemeColorsJson(image, maxColorsToPull) {
 			c.col = new Color(c.col);
 		});
 
-		if (settings.showThemeLog) console.log('idx      color        bright  freq   weight');
+		if (settings.showThemeLog) console.log('idx      color        bright   sat    freq   weight');
 		let maxWeight = 0;
 		selectedColor = colorsWeighted[0].col;  // choose first color in case no color selected below
 		colorsWeighted.forEach((c, i) => {
 			const col = c.col;
 			const midBrightness = 127 - Math.abs(127 - col.brightness);   // favors colors with a brightness around 127
+			const midSat = Math.max(60 - Math.max(col.saturation * (50 / 60) - 60, 0), 10); // favors colors with a saturation > 60
 			c.weight = c.freq * midBrightness * 10; // multiply by 10 so numbers are easier to compare
+			c.weight = c.weight * midSat
 
 			if (c.freq >= minFrequency && !col.isCloseToGreyscale && col.brightness < maxBrightness) {
-				if (settings.showThemeLog) console.log(leftPad(i, 2), col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%', leftPad(c.weight.toFixed(2), 7));
+				if (settings.showThemeLog) console.log(leftPad(i, 2), col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad(col.saturation, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%', leftPad(c.weight.toFixed(2), 7));
 				if (c.weight > maxWeight) {
 					maxWeight = c.weight;
 					selectedColor = col;
 				}
 			} else if (col.isCloseToGreyscale) {
-				if (settings.showThemeLog) console.log(' -', col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%', '   grey');
+				if (settings.showThemeLog) console.log(' -', col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad(col.saturation, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%', '   grey');
 			} else {
-				if (settings.showThemeLog) console.log(' -', col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%',
+				if (settings.showThemeLog) console.log(' -', col.getRGB(true,true), leftPad(col.brightness, 4), ' ', leftPad(col.saturation, 4), ' ', leftPad((c.freq*100).toFixed(2),5) + '%',
 					(c.freq < minFrequency) ? '   freq' : ' bright');
 			}
 		});
