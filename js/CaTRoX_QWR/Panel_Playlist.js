@@ -506,13 +506,13 @@ function PlaylistPanel(x, y) {
 	 * @const
 	 * @type {number}
 	 */
-	var playlist_info_h = scaleForDisplay(g_properties.row_h + 4);
+	var playlist_info_h = scaleForDisplay(g_properties.row_h);
 
 	/**
 	 * @const
 	 * @type {number}
 	 */
-	var playlist_info_and_gap_h = playlist_info_h + 2;
+	var playlist_info_and_gap_h = playlist_info_h + scaleForDisplay(4);
 
 	var is_activated = window.IsVisible;
 
@@ -646,14 +646,22 @@ class Playlist extends List {
 
 	// Playlist.on_size
 	on_size(w, h, x, y) {
-			List.prototype.on_size.apply(this, [w, h, x, y]);
-			// TODO: Mordred - can we avoid this? this.reinitialize causing probs
-			this.x = x;
-			this.y = y;
-			this.h = h;
-			this.w = w;
-			this.was_on_size_called = true;
+		List.prototype.on_size.apply(this, [w, h, x, y]);
+
+		this.x = x;
+		this.y = y;
+		this.h = h;
+		this.w = w;
+		this.was_on_size_called = true;
+
+		if (needs_reinit) {
 			this.reinitialize();
+			needs_reinit = false;
+		}
+
+		if (pref.always_showPlayingPl || pref.rebornTheme && fb.CursorFollowPlayback) {
+			this.on_playback_new_track();
+		}
 	}
 
 	on_mouse_move(x, y, m) {
@@ -6285,4 +6293,17 @@ let playlist;
 function initPlaylist() {
 	playlist = new PlaylistPanel(0, 0);
 	playlist.initialize();
+}
+
+// Call reinitialize(); only when needed
+var needs_reinit = false;
+function reinitPlaylist() {
+	needs_reinit = true;
+}
+
+// Repaint playlist rows when using playlist row hover
+var needs_rows_repaint = true;
+function repaintPlaylistRows() {
+	window.Repaint();
+	needs_rows_repaint = true;
 }

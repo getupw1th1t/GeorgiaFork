@@ -15,9 +15,12 @@ let activatedBtns = [];
 const ButtonState = {
 	Default: 0,
 	Hovered: 1,
-	Down: 2, // happens on click
-	Enabled: 3,
-};
+	Down: 2,	// happens on click
+	Enabled: 3
+}
+
+var mouseInControl = false;
+
 function buttonEventHandler(x, y, m) {
 	// var CtrlKeyPressed = utils.IsKeyPressed(VK_CONTROL);
 	// var ShiftKeyPressed = utils.IsKeyPressed(VK_SHIFT);
@@ -27,8 +30,11 @@ function buttonEventHandler(x, y, m) {
 	/** @type {Button} */
 	let thisButton = null;
 
+	mouseInControl = false;
+
 	for (var i in btns) {
-		if (typeof btns[i] === "object" && btns[i].mouseInThis(x, y)) {
+		if (typeof btns[i] === 'object' && btns[i].mouseInThis(x, y)) {
+			mouseInControl = true;
 			thisButton = btns[i];
 			break;
 		}

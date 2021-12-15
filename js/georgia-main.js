@@ -29,6 +29,7 @@ var ft = {}; // fonts
  * @property {number=} tl_added background color for timeline block from added to first played
  * @property {number=} tl_played background color for timeline block from first played to last played
  * @property {number=} tl_unplayed background color for timeline block from last played to present time
+ * @property {number=} uiFrame border line color for when UI Hacks Aero mode is on
  */
 /** @type ColorsObj */
 var col = {}; // colors
@@ -161,26 +162,41 @@ function newColorScheme() {
 }
 
 function pleaseMakeScheme(hex) {
-	let value = pref.darkMode ? 0.2 : 0.7;
+	let value = pref.darkMode ? 0.25 : 0.9;
 	let hsv;
 	if (hex) {
 		hsv = Please.HEX_to_HSV(hex);
 	} else {
 		hsv = Please.make_color({ value: value, format: "hsv" })[0];
 	}
-	let colors = Please.make_scheme(hsv);
+	let colors = Please.make_scheme(hsv,{scheme_type: "mono"});
 	colors.forEach((c, i) => {
 		//console.log(c);
 		colors[i] = new Color(c);
 		colors[i] = colors[i].val;
 	});
-	return {
-		bg: colors[0],
-		menu_bg: colors[1],
-		progress_bar: colors[2],
-		now_playing: colors[3],
-		shadow: colors[4],
-	};
+	//
+	// colors[0] = input color
+	// colors[1] = brighter
+	// colors[2] = brighest
+	// colors[3] = darker
+	// colors[4] = darkest
+	//
+	if (pref.darkMode) {
+		return {
+			bg: colors[0],
+			menu_bg: colors[3],
+			progress_bar: colors[3],
+			uiFrame: colors[1],
+		};
+	} else {
+		return {
+			bg: colors[2],
+			menu_bg:shadeColor(colors[4], 60),
+			progress_bar: colors[0],
+			uiFrame: colors[0],
+		};
+	}
 	//console.log(scheme);
 }
 
@@ -208,6 +224,7 @@ function initColors() {
 			col.bg = scheme.bg;
 			col.menu_bg = scheme.menu_bg;
 			col.progress_bar = scheme.progress_bar;
+			col.uiFrame = scheme.uiFrame;
 			if (pref.darkMode) {
 				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
 				col.shadow = RGBA(128, 128, 128, 54);
@@ -223,12 +240,14 @@ function initColors() {
 				col.progress_bar = RGB(23, 22, 25);
 				col.now_playing = RGB(255, 255, 255); // tracknumber, title, and time
 				col.shadow = RGBA(128, 128, 128, 54);
+				col.uiFrame = col.bg;
 			} else {
 				col.bg = RGB(185, 185, 185);
 				col.menu_bg = RGB(54, 54, 54);
 				col.progress_bar = RGB(125, 125, 125);
 				col.now_playing = RGB(0, 0, 0); // tracknumber, title, and time
 				col.shadow = RGBA(0, 0, 0, 64);
+				col.uiFrame = col.bg;
 			}
 			break;
 	}
@@ -1486,6 +1505,10 @@ function draw_ui(gr) {
 		);
 		repaintRects = [];
 	}
+
+	// UIHacks Aero Glass Shadow Frame Fix
+	gr.DrawLine(0, 0, ww, 0, 1, col.uiFrame);
+	gr.DrawLine(ww, wh - 1, 0, wh - 1, 1, col.uiFrame);
 	//debugLog(heartX);
 	if (oldheartX !== heartX) {
 		createButtonObjects(ww, wh);
@@ -2195,6 +2218,9 @@ function on_size() {
 	if (ww <= 0 || wh <= 0) return;
 
 	checkFor4k(ww, wh);
+
+	if (sizeInitialized) reinitPlaylist(); // TODO: Is there another workaround? It's a performance killer when active playlist has a ridicouls amount of tracks - Needed to reposition playlist panel after player size has changed
+
 	if (!sizeInitialized) {
 		createFonts();
 		setGeometry();
@@ -2767,6 +2793,29 @@ function on_mouse_move(x, y, m) {
 		//if (transport.enableTransportControls && transport.showVolume && volume_btn) {
 		//	volume_btn.on_mouse_move(x, y, m);
 		//}
+		// UIHacks
+		if (!mouseInPanel) mouseInPanel = true;
+		if (!componentUiHacks) return;
+
+		try {
+			if (mouseInControl || downButton) {
+				UIHacks.SetPseudoCaption(0, 0, 0, 0);
+
+				if (UIHacks.FrameStyle == 3) {
+					console.log(`FrameStyle: ${UIHacks.FrameStyle}`);
+					UIHacks.DisableSizing = true;
+					pseudoCaption = false;
+				}
+			} else if (!pseudoCaption || pseudoCaptionWidth != ww) {
+				UIHacks.SetPseudoCaption(0, 0, ww, geo.top_art_spacing);
+
+				if (UIHacks.FrameStyle == 3) {
+					UIHacks.DisableSizing = false;
+					pseudoCaption = true;
+					pseudoCaptionWidth = ww;
+				}
+			}
+		} catch (e) {}
 	}
 }
 

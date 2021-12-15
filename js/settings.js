@@ -32,6 +32,14 @@ const fso = new ActiveXObject('Scripting.FileSystemObject');
 const vb = new ActiveXObject('ScriptControl');
 /** @type {*} */
 const UIHacks = !componentUiHacks || new ActiveXObject('UIHacks');
+	  UIHacks.FrameStyle = 3;
+	  UIHacks.MoveStyle = 3;
+	  UIHacks.Aero.Effect = 2;
+	  UIHacks.Aero.Top = 1;
+	  UIHacks.BlockMaximize = false;
+	  let pseudoCaption;
+	  let pseudoCaptionWidth;
+	  let mouseInPanel = false;
 
 // THEME PREFERENCES/PROPERTIES EXPLANATIONS - After initial run, these values are changed in Options Menu or by Right Click >> Properties and not here!
 pref.add_properties({

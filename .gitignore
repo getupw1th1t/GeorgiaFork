@@ -13,3 +13,5 @@ jsconfig.json
 georgia-*.json*
 
 /images/unused
+/reborn/settings/
+/reborn/georgia-*.json*
