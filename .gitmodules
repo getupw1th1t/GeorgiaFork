@@ -1,3 +1,6 @@
 [submodule "reborn"]
 	path = reborn
 	url = https://github.com/getupw1th1t/Georgia-ReBORN
+[submodule "eole"]
+	path = eole
+	url = https://github.com/getupw1th1t/Eole-foobar-theme
