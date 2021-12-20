@@ -15,3 +15,5 @@ georgia-*.json*
 /images/unused
 /reborn/settings/
 /reborn/georgia-*.json*
+/reborn/reborn.iml
+/eole/eole.iml

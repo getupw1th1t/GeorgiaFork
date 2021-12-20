@@ -55,7 +55,8 @@ const fileList = [
 	"js\\CaTRoX_QWR\\Control_ContextMenu.js",
 	"js\\CaTRoX_QWR\\Control_Scrollbar.js",
 	"js\\CaTRoX_QWR\\Control_List.js",
-	"js\\CaTRoX_QWR\\Panel_Playlist.js",
+	"js\\graphic_browser.js",
+//	"js\\CaTRoX_QWR\\Panel_Playlist.js",
 	"js\\CaTRoX_QWR\\Panel_Library.js",
 	"js\\CaTRoX_QWR\\Control_Button.js",
 	"js\\color.js",
@@ -160,4 +161,12 @@ function on_paint(gr) {
 		progressBar.h,
 		col.progressFill
 	);
+}
+
+function on_main_menu(index){
+	switch (index) {
+		case 1: // triggered when File>Spider Monkey Panel>1 is run
+			window.Reload();
+			break;
+	}
 }

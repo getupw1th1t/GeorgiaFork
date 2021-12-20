@@ -112,6 +112,11 @@ const MK_XBUTTON2 = 0x0040;
 const VK_BACKSPACE = 0x08;
 const VK_SHIFT = 0x10;
 const VK_CONTROL = 0x11;
+const VK_ALT = 0x12;
+const VK_TAB = 0x09;
+const VK_BACK = 0x08;
+const VK_PGUP = 0x21;
+const VK_PGDN = 0x22;
 const VK_MENU = 0x12; // ALT
 const VK_PAUSE = 0x13;
 const VK_ESCAPE = 0x1B;
@@ -320,6 +325,8 @@ const DrawText = {
 	CalcRect:     0x00000400,
 	NoPrefix:     0x00000800,
 	EndEllipsis:  0x00008000,
+	Top:          0x00000000,
+	Bottom:       0x00000008,
 }
 
 /** @enum{string|number} */

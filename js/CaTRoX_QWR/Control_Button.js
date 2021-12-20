@@ -90,10 +90,10 @@ function buttonEventHandler(x, y, m) {
 					mainMenuOpen = false;
 				}
 				if (thisButton) {
-					console.log("thisButton");
+					//console.log("thisButton");
 					thisButton.changeState(thisButton.enabled ? ButtonState.Enabled : ButtonState.Hovered);
 				} else {
-					console.log("downButton");
+					//console.log("downButton");
 					downButton.changeState(downButton.enabled ? ButtonState.Enabled : ButtonState.Default);
 				}
 				//thisButton ? thisButton.changeState(ButtonState.Hovered) : downButton.changeState(ButtonState.Default);

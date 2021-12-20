@@ -350,9 +350,9 @@ function userinterface() {
     this.get_colors = () => {
         this.col.bg = g_theme.colors.pss_back;
         // this.col.bgSel = set_custom_col(window.GetProperty("_Custom.Colour Background Selected", ""), 1);
-        this.col.line = g_pl_colors.title_selected & 0x80ffffff;
-        this.s_linecol = g_pl_colors.title_selected & 0x80ffffff;
-        // this.textcol = g_pl_colors.artist_normal;
+        this.col.line = RGB(170, 172, 174) & 0x80ffffff;
+        this.s_linecol = RGB(170, 172, 174) & 0x80ffffff;
+        // this.textcol = RGB(180, 182, 184);
         this.col.textsel = rgb(255,255,255);
         this.iconcol_c = '';
         iconcol_c = this.iconcol_c;
@@ -380,7 +380,7 @@ function userinterface() {
             this.col.bgSel = window.GetColourCUI(4);
             // textCol = window.GetColourCUI(0);
         }
-        this.col.text = g_pl_colors.artist_normal;
+        this.col.text = RGB(180, 182, 184);
         this.col.text_h = rgb(220, 220, 220);	// hovered text col
         // this.textcol_h = textColHover;
         // if (s_linecol == 1 && window.IsTransparent && !this.dui) s_linecol = 0;

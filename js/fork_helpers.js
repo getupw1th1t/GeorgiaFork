@@ -296,3 +296,17 @@ function _jsonParse(value) {
 		return null;
 	}
 }
+
+function _toRGB(a) {
+	const b = a - 0xff000000;
+	return [b >> 16, (b >> 8) & 0xff, b & 0xff];
+}
+
+function _blendColours(c1, c2, f) {
+	c1 = _toRGB(c1);
+	c2 = _toRGB(c2);
+	const r = Math.round(c1[0] + f * (c2[0] - c1[0]));
+	const g = Math.round(c1[1] + f * (c2[1] - c1[1]));
+	const b = Math.round(c1[2] + f * (c2[2] - c1[2]));
+	return RGB(r, g, b);
+}

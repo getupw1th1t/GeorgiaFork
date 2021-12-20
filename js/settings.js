@@ -88,6 +88,11 @@ pref.add_properties({
 	font_size_playlist: ['Font Size: Playlist', 12],
 	font_size_playlist_header: ['Font Size: Playlist Header', 15],
 	lyricsFontSize: ['Font Size: Lyrics', 20],
+
+	fontAdjustement_min: ['fontAdjustement_min',-5],
+	fontAdjustement_max: ['fontAdjustement_max',5],
+	fontAdjustement: ["GLOBAL Font Adjustement", 0],
+	g_fsize: ["a", pref.fontAdjustement + 13],
 });
 
 // Lyrics variables

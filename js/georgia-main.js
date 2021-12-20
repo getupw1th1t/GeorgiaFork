@@ -85,6 +85,11 @@ function createFonts() {
 		}
 		return font;
 	}
+
+	pref.fontAdjustement = Math.min(pref.fontAdjustement_max, Math.max(pref.fontAdjustement_min, pref.fontAdjustement));
+
+	pref.g_fsize = pref.fontAdjustement + 13
+
 	ft.album_lrg = font(fontBold, 36, 0);
 	ft.album_med = font(fontBold, 32, 0);
 	ft.album_sml = font(fontBold, 28, 0);
@@ -127,7 +132,17 @@ function createFonts() {
 		ft.lower_bar_artist = font(fontThin, 31, g_font_style.italic);
 		ft.lower_bar_artist_sml = font(fontThin, 27, g_font_style.italic);
 	}
-	ft.small_font = font(fontRegular, 14, 0);
+	ft.smallish_font = font(fontLight, 17 + pref.fontAdjustement, 0);
+	ft.small_font = font(fontLight, 15 + pref.fontAdjustement, 0);
+	ft.smaller_font = font(fontLight, 13 + pref.fontAdjustement, 0);
+	ft.med_italic = font(fontLight, 20 + pref.fontAdjustement, g_font_style.italic);
+	ft.smallish_italic = font(fontLight, 17 + pref.fontAdjustement, g_font_style.italic);
+	ft.small_italic = font(fontLight, 15 + pref.fontAdjustement, g_font_style.italic);
+	ft.smaller_italic = font(fontLight, 13 + pref.fontAdjustement, g_font_style.italic);
+	ft.med_bold = font(fontLight, 20 + pref.fontAdjustement, g_font_style.bold);
+	ft.smallish_bold = font(fontLight, 17 + pref.fontAdjustement, g_font_style.bold);
+	ft.small_bold = font(fontLight, 15 + pref.fontAdjustement, g_font_style.bold);
+	ft.smaller_bold = font(fontLight, 13 + pref.fontAdjustement, g_font_style.bold);
 	ft.guifx = font(fontGuiFx, Math.floor(pref.transport_buttons_size / 2), 0);
 	ft.Marlett = font("Marlett", 13, 0);
 	ft.SegoeUi = font("Segoe Ui Semibold", pref.menu_font_size, 0);
@@ -169,7 +184,7 @@ function pleaseMakeScheme(hex) {
 	} else {
 		hsv = Please.make_color({ value: value, format: "hsv" })[0];
 	}
-	let colors = Please.make_scheme(hsv,{scheme_type: "mono"});
+	let colors = Please.make_scheme(hsv, { scheme_type: "mono" });
 	colors.forEach((c, i) => {
 		//console.log(c);
 		colors[i] = new Color(c);
@@ -192,7 +207,7 @@ function pleaseMakeScheme(hex) {
 	} else {
 		return {
 			bg: colors[2],
-			menu_bg:shadeColor(colors[4], 60),
+			menu_bg: shadeColor(colors[4], 60),
 			progress_bar: colors[0],
 			uiFrame: colors[0],
 		};
@@ -2219,7 +2234,7 @@ function on_size() {
 
 	checkFor4k(ww, wh);
 
-	if (sizeInitialized) reinitPlaylist(); // TODO: Is there another workaround? It's a performance killer when active playlist has a ridicouls amount of tracks - Needed to reposition playlist panel after player size has changed
+	if (sizeInitialized) playlist.on_size(ww, wh); // TODO: Is there another workaround? It's a performance killer when active playlist has a ridicouls amount of tracks - Needed to reposition playlist panel after player size has changed
 
 	if (!sizeInitialized) {
 		createFonts();
@@ -2227,7 +2242,7 @@ function on_size() {
 		if (fb.IsPlaying) {
 			loadCountryFlags(); // wrong size flag gets loaded on 4k systems
 		}
-		rescalePlaylist(true);
+		//rescalePlaylist(true);
 		initPlaylist();
 		volume_btn = new VolumeBtn();
 		artCache.clear();
@@ -2448,9 +2463,8 @@ function on_playback_new_track(metadb) {
  * @param {boolean=} fromhook
  */
 function on_metadb_changed(handle_list, fromhook) {
-	debugLog("on_metadb_changed called");
 	//debugLog(heartX);
-	console.log(`on_metadb_changed(): ${handle_list ? handle_list.Count : "0"} handles, fromhook: ${fromhook}`);
+	debugLog(`on_metadb_changed(): ${handle_list ? handle_list.Count : "0"} handles, fromhook: ${fromhook}`);
 	if (fb.IsPlaying) {
 		var nowPlayingUpdated = !handle_list; // if we don't have a handle_list we called this manually from on_playback_new_track
 		var metadb = fb.GetNowPlaying();
@@ -2747,13 +2761,36 @@ function on_mouse_rbtn_up(x, y, m) {
 	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
-		return playlist.on_mouse_rbtn_up(x, y, m);
+		try {
+			return playlist.on_mouse_rbtn_up(x, y, m);
+		} catch (e) {
+			return null;
+		}
 	} else if (displayLibrary && library.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
 		return library.on_mouse_rbtn_up(x, y, m);
 	} else return settings.locked;
 }
+/*
+function on_mouse_mbtn_down(x, y, m) {
 
+	debugLog("on_mouse_mbtn_down called");
+	//debugLog(heartX);
+	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
+		trace_call && console.log(qwr_utils.function_name());
+		playlist.on_mouse_rbtn_down(x, y, m);
+	}
+}
+
+function on_mouse_mbtn_up(x, y, m) {
+	debugLog("on_mouse_mbtn_up called");
+	//debugLog(heartX);
+	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
+		trace_call && console.log(qwr_utils.function_name());
+		playlist.on_mouse_rbtn_down(x, y, m);
+	}
+}
+*/
 function on_mouse_move(x, y, m) {
 	//debugLog("on_mouse_move called");
 	//debugLog(heartX);
@@ -2802,7 +2839,7 @@ function on_mouse_move(x, y, m) {
 				UIHacks.SetPseudoCaption(0, 0, 0, 0);
 
 				if (UIHacks.FrameStyle == 3) {
-					console.log(`FrameStyle: ${UIHacks.FrameStyle}`);
+					//console.log(`FrameStyle: ${UIHacks.FrameStyle}`);
 					UIHacks.DisableSizing = true;
 					pseudoCaption = false;
 				}
@@ -3018,7 +3055,7 @@ function on_playback_queue_changed(origin) {
 	debugLog("on_playback_queue_changed called");
 	//debugLog(heartX);
 	trace_call && console.log(qwr_utils.function_name());
-	playlist.on_playback_queue_changed(origin);
+	//playlist.on_playback_queue_changed(origin);
 }
 
 function on_playback_pause(pausing) {
@@ -3359,7 +3396,7 @@ function parseJson(json, label, log) {
 	var parsed = [];
 	try {
 		if (log) {
-			console.log(label + json);
+			debugLog(label + json);
 		}
 		parsed = JSON.parse(json);
 	} catch (e) {
