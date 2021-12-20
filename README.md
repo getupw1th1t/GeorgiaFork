@@ -1,7 +1,8 @@
 To install: rename "georgia" folder to "georgiaFork", bing bang boom
 
 fair warning: state is pretty crappy/unpolished, mainly using this fork as my personal Foobar config
-![screenshot](https://i.imgur.com/Av8vHCO.png)
+![screenshot](https://i.imgur.com/KsVlaHr.png)
+![screenshot2](https://i.imgur.com/Av8vHCO.png)
 # Georgia
 [![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9LW4ABRYXG2DY&source=url)
 
