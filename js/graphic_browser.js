@@ -336,6 +336,7 @@ var oCursor = function () {
 	this.g_timer = false;
 	this.cursor = IDC_ARROW;
 	this.onMouse = function (state, x, y, m) {
+		//console.log(state, x, y);
 		switch (state) {
 			case "lbtn_down":
 				this.down_x = x;
@@ -371,12 +372,11 @@ var oCursor = function () {
 		}
 	};
 	this.setCursor = function (cursor_code, active_zone, numberOfTry) {
+		//console.log(cursor_code, active_zone, numberOfTry);
 		var active_zone = typeof active_zone != "undefined" ? active_zone : "";
 		var numberOfTry = typeof numberOfTry != "undefined" ? numberOfTry : 1;
 
-		if (window.Name != "ArtistBio" && (this.x < 0 || this.y < 0 || this.x > window.Width || this.y > window.Height))
-			return;
-
+		if (window.Name != "ArtistBio" && (this.x < 0 || this.y < 0 || this.x > window.Width || this.y > window.Height)) return;
 		this.cursor = cursor_code;
 		this.active_zone = active_zone;
 		if (numberOfTry > 1 && !this.g_timer) {
@@ -402,6 +402,7 @@ var oCursor = function () {
 		return this.cursor;
 	};
 	this.getActiveZone = function () {
+		//console.log(`active_zone: ${this.active_zone}`)
 		return this.active_zone;
 	};
 };
@@ -683,6 +684,7 @@ var randomStartTime = 0;
 var g_showlist = null;
 var g_genre_cache = null;
 var g_seconds = 0;
+var TimeElapsed=".";var TimeRemaining=".";var TimeTotal=".";var text_length="";
 var g_avoid_on_playlists_changed = false;
 var g_avoid_on_playlist_switch = false;
 var g_avoid_on_mouse_leave = false;
@@ -1545,6 +1547,7 @@ button = function (normal, hover, down, name, tooltip_text) {
 				}
 				break;
 			case "up":
+				//console.log("this.checkstate (up) called");
 				this.state = this.ishover ? ButtonStates.hover : ButtonStates.normal;
 				this.isdown = false;
 				break;
@@ -3697,7 +3700,6 @@ function PlaylistPanel(x, y) {
 		if (!is_activated) {
 			is_activated = true;
 		}
-
 		playlist.on_paint(gr);
 	};
 
@@ -3722,12 +3724,6 @@ function PlaylistPanel(x, y) {
 			playlist_h - (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0),
 			x,
 			y + (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0)
-		);
-		brw.setSize(
-			x,
-			y + brw.headerBarHeight + (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0),
-			playlist_w,
-			playlist_h - (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0)
 		);
 		is_activated = window.IsVisible && displayPlaylist;
 	};
@@ -3907,7 +3903,7 @@ function PlaylistPanel(x, y) {
 		if (!is_activated) {
 			return;
 		}
-
+		//console.log(time);
 		playlist.on_playback_time(time);
 	};
 
@@ -3915,7 +3911,7 @@ function PlaylistPanel(x, y) {
 		if (!is_activated) {
 			return;
 		}
-
+		//console.log(time);
 		playlist.on_playback_seek(time);
 	};
 
@@ -5227,6 +5223,8 @@ oRow = function (metadb, itemIndex) {
 		}
 	};
 	this.check = function (event, x, y) {
+		//console.log(x,y);
+		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
 		this.ishover = x > this.x + 10 && x < this.x + 10 + this.w - 5 && y >= this.y && y < this.y + this.h - 1;
 
 		this.ishover_rating =
@@ -5718,7 +5716,7 @@ oShowList = function (parentPanelName) {
 			gb.FillPolygon(colors.play_bt, 0, Array(xpos, ypos, xpos + width, ypos + height / 2, xpos, ypos + height));
 			gb.SetSmoothingMode(0);
 			this.play_img.ReleaseGraphics(gb);
-			if (typeof this.play_bt == "undefined") {
+			if(typeof(this.play_bt) == "undefined") {
 				this.play_bt = new button(this.play_img, this.play_img, this.play_img, "showlist_play", "Play album");
 			} else {
 				this.play_bt.img[0] = this.closeTracklist_off;
@@ -5728,7 +5726,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.setCloseButton = function (save_btns) {
-		if (typeof save_btns == "undefined") var save_btns = true;
+		if(typeof(save_btns) == "undefined") var save_btns = true;
 
 		if (this.light_bg) this.close_bt = this.close_btLight;
 		else this.close_bt = this.close_btDark;
@@ -5763,7 +5761,7 @@ oShowList = function (parentPanelName) {
 			}
 			this.closeTracklist_ov.ReleaseGraphics(gb);
 
-			if (typeof this.close_bt == "undefined") {
+			if(typeof(this.close_bt) == "undefined") {
 				this.close_bt = new button(
 					this.closeTracklist_off,
 					this.closeTracklist_ov,
@@ -5783,7 +5781,7 @@ oShowList = function (parentPanelName) {
 	};
 
 	this.setColumnsButtons = function (save_btns) {
-		if (typeof save_btns == "undefined") var save_btns = true;
+		if(typeof(save_btns) == "undefined") var save_btns = true;
 
 		if (this.light_bg) {
 			this.prev_bt = this.prev_btLight;
@@ -5924,7 +5922,7 @@ oShowList = function (parentPanelName) {
 			gb.FillPolygon(this.colorSchemeText, 0, xpts4);
 			this.prevColumn_ov.ReleaseGraphics(gb);
 
-			if (typeof this.prev_bt == "undefined") {
+			if (typeof (this.prev_bt) == "undefined") {
 				this.prev_bt = new button(
 					this.prevColumn_off,
 					this.prevColumn_ov,
@@ -5938,7 +5936,7 @@ oShowList = function (parentPanelName) {
 				this.prev_bt.img[2] = this.prevColumn_ov;
 			}
 
-			if (typeof this.next_bt == "undefined") {
+			if (typeof (this.next_bt) == "undefined") {
 				this.next_bt = new button(
 					this.nextColumn_off,
 					this.nextColumn_ov,
@@ -5963,13 +5961,11 @@ oShowList = function (parentPanelName) {
 
 	this.check = function (event, x, y) {
 		//console.log(x,y)
-		this.ishover = x > this.x && x < this.x + this.w && y >= this.y + this.marginTop && y < this.y + this.marginTop + this.h;
-		//console.log(`this.h: ${this.y + this.marginTop + this.h} this.w: ${this.w} this.x: ${this.x} playlist.x: ${playlist.x} this.y: ${this.y + this.marginTop} playlist.y: ${playlist.y}`);
-		this.ishoverTextTop =
-			x > this.x + this.MarginLeft &&
-			x < this.x + this.MarginLeft + this.text_w &&
-			y >= this.TopInfoY &&
-			y < this.TopInfoY + this.TopInfoHeight;
+		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
+		//window.RepaintRect(this.x, this.y, this.w, this.h);
+		this.ishover = (x > this.x && x < this.x + this.w && y >= this.y + 20 && y < this.y - 13 + this.h);
+		//window.RepaintRect(this.x, this.y + 20, this.w, this.h - 13);
+		this.ishoverTextTop = (x > this.x + this.MarginLeft && x < this.x + this.MarginLeft + this.text_w) && (y >= this.TopInfoY && y < this.TopInfoY + this.TopInfoHeight);
 		var isHoverBtn = false;
 		switch (event) {
 			case "right":
@@ -6000,8 +5996,8 @@ oShowList = function (parentPanelName) {
 				this.isHoverCover = false;
 				this.close_bt.checkstate("leave", 0, 0);
 				if (this.totalCols > this.totalColsVis) {
-					this.columnsOffset > 0 && this.prev_bt.checkstate("leave", 0, 0);
-					this.columnsOffset < this.totalCols - this.totalColsVis && this.next_bt.checkstate("leave", 0, 0);
+					(this.columnsOffset > 0) && this.prev_bt.checkstate("leave", 0, 0);
+					(this.columnsOffset < this.totalCols - this.totalColsVis) && this.next_bt.checkstate("leave", 0, 0);
 				}
 				break;
 			case "move":
@@ -6011,11 +6007,11 @@ oShowList = function (parentPanelName) {
 
 				this.isHoverLink = -1;
 				this.isHoverCover =
-					this.cover_x >= 0 &&
+					(this.cover_x >= 0 &&
 					x > this.cover_x &&
 					x < this.cover_x + this.coverRealSize &&
 					y > this.cover_y &&
-					y < this.cover_y + this.coverRealSize;
+					y < this.cover_y + this.coverRealSize);
 				if (this.isHoverCover) this.play_bt.changeState(ButtonStates.hover);
 				else if (this.play_bt.state == ButtonStates.hover) this.play_bt.changeState(ButtonStates.normal);
 
@@ -6048,8 +6044,8 @@ oShowList = function (parentPanelName) {
                  }
                  */
 				if (this.totalCols > this.totalColsVis) {
-					this.columnsOffset > 0 && this.prev_bt.checkstate("move", x, y);
-					this.columnsOffset < this.totalCols - this.totalColsVis && this.next_bt.checkstate("move", x, y);
+					(this.columnsOffset > 0) && this.prev_bt.checkstate("move", x, y);
+					(this.columnsOffset < this.totalCols - this.totalColsVis) && this.next_bt.checkstate("move", x, y);
 				}
 				for (var c = this.columnsOffset; c < this.columnsOffset + this.totalColsVis; c++) {
 					if (this.columns[c]) {
@@ -8619,6 +8615,8 @@ oScrollbar = function (parentObjectName) {
 
 		// draw cursor
 		this.buttons[cScrollBar.ButtonType.cursor].draw(gr, this.x, this.cursorPos, 255);
+		//gr.DrawRect(this.x, this.y, this.w, this.h, 6, RGB(0, 255, 0));
+		//console.log(this.h);
 	};
 	this.get_h_tot = function () {
 		if (g_showlist.idx > -1) {
@@ -8644,7 +8642,8 @@ oScrollbar = function (parentObjectName) {
 	this.check_scroll = function (scroll_to_check) {
 		h_vis = this.get_h_vis();
 		h_tot = this.get_h_tot();
-
+		//console.log(h_vis);
+		//console.log(h_tot);
 		if (scroll_to_check != 0 && scroll_to_check > h_tot - h_vis) {
 			scroll_to_check = h_tot - h_vis;
 		}
@@ -8960,6 +8959,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.check = function (event, x, y) {
+		//console.log(event, x, y);
 		this.hover = x >= this.x && x <= this.x + this.w && y > this.area_y && y < this.area_y + this.area_h;
 
 		// check cursor
@@ -9202,8 +9202,7 @@ oBrowser = function (name) {
 		} else {
 			this.marginLR = globalProperties.marginLR;
 			this.totalColumns = Math.floor((this.w - 2 * this.marginLR) / this.coverRealWith);
-			while (this.w - this.totalColumns * this.coverRealWith < this.marginLR * (this.totalColumns + 1))
-				this.totalColumns--;
+			while (this.w - this.totalColumns * this.coverRealWith < this.marginLR * (this.totalColumns + 1)) this.totalColumns--
 			this.marginLR = Math.round((this.w - this.coverRealWith * this.totalColumns) / (this.totalColumns + 1));
 			this.thumbnailWidth = this.coverRealWith + this.marginLR;
 			this.marginLR = Math.round(this.marginLR / 2);
@@ -9233,9 +9232,8 @@ oBrowser = function (name) {
 		//console.log(`this.totalRows : ${this.totalRows }, this.totalRowsVis : ${this.totalRowsVis }`)
 		// count total of rows for the whole library
 		this.rowsCount = Math.ceil(this.groups_draw.length / this.totalColumns);
-
+		//console.log(`this.rowsCount : ${this.rowsCount }`)
 		repaint_main1 = repaint_main2;
-
 		if (globalProperties.expandInPlace) {
 			g_showlist.setSize();
 		}
@@ -9875,6 +9873,7 @@ oBrowser = function (name) {
 			}
 
 			for (var i = start_; i < end_; i++) {
+				//console.log(this.activeIndex);
 				row = Math.floor(i / this.totalColumns);
 
 				ax = firstalbum_x + rowPosition * this.thumbnailWidth + (this.thumbnailWidth - this.coverRealWith) / 2;
@@ -10418,6 +10417,10 @@ oBrowser = function (name) {
 			}
 		}
 		//console.log("draw albums finished time:"+gTime_draw.Time);
+		//console.log(scroll);
+		//console.log(this.rowHeight);
+		//console.log(scroll/this.rowHeight);
+		//gr.DrawRect(this.x, this.y, this.w, this.h, 6, RGB(255, 0, 0));
 	};
 	this.stopResizing = function () {
 		if (this.resize_click || this.resize_drag) {
@@ -10476,8 +10479,8 @@ oBrowser = function (name) {
 		}
 	};
 	this.on_mouse = function (event, x, y) {
-		this.ishover = x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
-
+        this.ishover = (x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h);
+		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
 		switch (event) {
 			case "lbtn_down":
 				this.album_Rclicked_index = -1;
@@ -10646,15 +10649,22 @@ oBrowser = function (name) {
 		}
 	};
 	this.setActiveRow = function (x, y) {
+		//console.log(x,y);
+		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
 		if (!g_dragA && !g_dragR && !g_dragC) {
 			if (g_showlist.idx > -1) {
+				//console.log(`g_showlist.idx > -1`)
 				if (y > g_showlist.y) {
+					//console.log(`y > g_showlist.y`)
 					if (y < g_showlist.y + g_showlist.h + this.CoverMarginTop) {
+						//console.log(`y < g_showlist.y + g_showlist.h + this.CoverMarginTop`)
+						//console.log(`this.activeRow = -10`)
 						this.activeRow = -10;
 					} else {
+						//console.log(`!!y < g_showlist.y + g_showlist.h + this.CoverMarginTop`)
 						this.activeRow =
 							Math.ceil((y + scroll_ - this.y - g_showlist.h - this.CoverMarginTop) / this.rowHeight) - 1;
-						if (this.activeRow * this.rowHeight + g_showlist.h / 2 - scroll_ < g_showlist.y) {
+						if(playlist.y +this.activeRow*this.rowHeight + (g_showlist.h/2)-scroll_<g_showlist.y) {
 							this.activeRow = -10;
 						}
 					}
@@ -10666,26 +10676,17 @@ oBrowser = function (name) {
 			}
 
 			if (y > this.y && x > this.x && x < this.x + this.w - g_scrollbar.w && this.activeRow > -10) {
-				if (globalProperties.veryTighCoverActiveZone) {
-					if (
-						(x - this.x - this.marginLR) % this.thumbnailWidth <
-						(this.thumbnailWidth - this.coverRealWith) / 2 ||
-						(x - this.x - this.marginLR) % this.thumbnailWidth >
-						(this.thumbnailWidth + this.coverRealWith) / 2
-					) {
+				if(globalProperties.veryTighCoverActiveZone){
+					if((x - this.x - this.marginLR)%this.thumbnailWidth < ((this.thumbnailWidth - this.coverRealWith)/2) || (x - this.x - this.marginLR)%this.thumbnailWidth > ((this.thumbnailWidth + this.coverRealWith)/2)) {
 						this.activeColumn = 0;
 						this.activeIndex = -1;
 						this.activeTextIndex = -1;
 					} else {
 						if (x < this.x + this.marginLR) this.activeColumn = 0;
 						else this.activeColumn = Math.ceil((x - this.x - this.marginLR) / this.thumbnailWidth) - 1;
-						this.activeIndex = this.activeRow * this.totalColumns + this.activeColumn;
+						this.activeIndex = (this.activeRow * this.totalColumns) + this.activeColumn;
 						this.activeIndex = this.activeIndex > this.groups_draw.length - 1 ? -1 : this.activeIndex;
-						if (
-							(y + scroll_ - this.y - this.CoverMarginTop - 1 - (y > g_showlist.y ? g_showlist.h : 0)) %
-							this.rowHeight >
-							this.coverRealWith
-						) {
+						if((y + scroll_ - this.y - this.CoverMarginTop-1 - ((y > g_showlist.y)?g_showlist.h:0))%this.rowHeight>this.coverRealWith){
 							this.activeTextIndex = this.activeIndex;
 							this.activeIndex = -1;
 							this.activeColumn = 0;
@@ -10694,13 +10695,9 @@ oBrowser = function (name) {
 				} else {
 					if (x < this.x + this.marginLR) this.activeColumn = 0;
 					else this.activeColumn = Math.ceil((x - this.x - this.marginLR) / this.thumbnailWidth) - 1;
-					this.activeIndex = this.activeRow * this.totalColumns + this.activeColumn;
+					this.activeIndex = (this.activeRow * this.totalColumns) + this.activeColumn;
 					this.activeIndex = this.activeIndex > this.groups_draw.length - 1 ? -1 : this.activeIndex;
-					if (
-						(y + scroll_ - this.y - this.CoverMarginTop - 1 - (y > g_showlist.y ? g_showlist.h : 0)) %
-						this.rowHeight >
-						this.coverRealWith
-					) {
+					if((y + scroll_ - this.y - this.CoverMarginTop-1 - ((y > g_showlist.y)?g_showlist.h:0))%this.rowHeight>this.coverRealWith){
 						this.activeTextIndex = this.activeIndex;
 					} else this.activeTextIndex = -1;
 				}
@@ -11692,7 +11689,7 @@ function _playlist(x, y) {
 				brw.refresh_shadows();
 			}
 			// set Size of browser
-			brw.setSize(this.x, this.y + brw.headerBarHeight, this.w, this.h);
+			brw.setSize(this.x, this.y + brw.headerBarHeight, this.w, this.h - brw.headerBarHeight);
 			g_scrollbar.setSize(
 				window.Width - cScrollBar.activeWidth,
 				brw.y - brw.headerBarHeight,
@@ -11715,7 +11712,7 @@ function _playlist(x, y) {
 			first_on_size = false;
 		} else {
 			update_size = true;
-			brw.setSize(this.x, this.y + brw.headerBarHeight, this.w, this.h);
+			/*brw.setSize(this.x, this.y + brw.headerBarHeight, this.w, this.h - brw.headerBarHeight);
 			g_scrollbar.setSize(
 				window.Width - cScrollBar.activeWidth,
 				brw.y - brw.headerBarHeight,
@@ -11725,7 +11722,7 @@ function _playlist(x, y) {
 			);
 			g_scrollbar.setCursor(brw.totalRowsVis * brw.rowHeight, brw.rowHeight * brw.rowsCount, scroll);
 			scroll = g_scrollbar.check_scroll(scroll);
-			//this.set_update_function("on_size(window.Width, window.Height)");
+			this.set_update_function("on_size(window.Width, window.Height)");*/
 		}
 	};
 
@@ -11736,7 +11733,6 @@ function _playlist(x, y) {
 	};
 
 	this.on_paint = (gr) => {
-		if (update_size) this.on_size(window.Width, window.Height);
 		if (Update_Required_function != "") {
 			eval(Update_Required_function);
 			Update_Required_function = "";
@@ -11801,6 +11797,7 @@ function _playlist(x, y) {
 		if (paint_scrollbar && g_scrollbar.isVisible) {
 			g_scrollbar.draw(gr);
 		}
+		//gr.DrawRect(this.x, this.y, this.w, this.h, 6, RGB(0, 255, 0));
 	};
 
 	//=================================================// Mouse Callbacks =================================================
@@ -12402,6 +12399,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_move = (x, y, m) => {
+		//console.log(x, y, m);
 		if (x == g_cursor.x && y == g_cursor.y) return;
 		g_cursor.onMouse("move", x, y, m);
 
@@ -12411,7 +12409,6 @@ function _playlist(x, y) {
 		if (!g_dragA && !g_dragR && !brw.external_dragging) {
 			// check showList Tracks
 			if (g_showlist.idx > -1) {
-				//console.log(g_showlist.idx);
 				g_showlist.check("move", x, y);
 			}
 			// check scrollbar

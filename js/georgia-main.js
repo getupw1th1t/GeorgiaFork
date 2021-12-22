@@ -1329,12 +1329,12 @@ function draw_ui(gr) {
 		} else {
 			gr.DrawRect(playlist.x - 1, playlist.y - 1, playlist.w + 2, playlist.h + 2, 1, rgb(64, 64, 64));
 		}
+		if (update_size) playlist.on_size(ww, wh);
 		playlist.on_paint(gr);
 		timings.showExtraDrawTiming && drawPlaylistProfiler.Print();
 	} else if (displayLibrary) {
 		let drawLibraryProfiler = null;
 		timings.showExtraDrawTiming && (drawLibraryProfiler = fb.CreateProfiler("on_paint -> library"));
-
 		libraryPanel.on_paint(gr);
 		if (pref.darkMode) {
 			gr.DrawRect(
@@ -2627,14 +2627,17 @@ function on_playback_order_changed(this_pb) {
 	last_pb = this_pb;
 }
 
-function on_playback_seek() {
+function on_playback_seek(time) {
 	debugLog("on_playback_seek called");
 	//debugLog(heartX);
 	progressBar.progressMoved = true;
 	if (pref.displayLyrics) {
 		gLyrics.seek();
 	}
-	on_playback_time();
+	if (displayPlaylist) {
+		playlist.on_playback_seek(time);
+	}
+	on_playback_time(time);
 	refresh_seekbar();
 }
 
@@ -2813,7 +2816,7 @@ function on_mouse_move(x, y, m) {
 		buttonEventHandler(x, y, m);
 		if (updateHyperlink) Hyperlinks_on_mouse_move(updateHyperlink, x, y);
 
-		if (displayPlaylist && playlist.mouse_in_this(x, y)) {
+		if (displayPlaylist) {
 			trace_call && trace_on_move && console.log(qwr_utils.function_name());
 
 			if (mouse_move_suppress.is_supressed(x, y, m)) {
@@ -3245,11 +3248,14 @@ function on_script_unload() {
 
 // Timed events
 
-function on_playback_time() {
+function on_playback_time(time) {
 	debugLog("on_playback_time called");
 	//debugLog(heartX);
 	// Refresh playback time
 	str.time = $("%playback_time%");
+	if (displayPlaylist) {
+		playlist.on_playback_time(time);
+	}
 }
 
 function refresh_seekbar() {
