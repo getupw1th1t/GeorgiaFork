@@ -68,8 +68,20 @@ fontList.forEach(function (fontName) {
 var useNeue = false;
 var fontsCreated = null;
 
+// DEBUG
+// var pref.show_debug_log = window.GetProperty("Debug: Show Debug Output", false);
+var timings = {
+	logFunctionCalls: false, // spam console with function calls
+	showDebugTiming: false, // spam console with debug timings
+	showDrawTiming: false, // spam console with draw times
+	showExtraDrawTiming: false, // spam console with every section of the draw code to determine bottlenecks
+	drawRepaintRects: false, // outline window.RepaintRect in red
+};
+
 function createFonts() {
-	debugLog("createFonts called");
+	if (timings.logFunctionCalls) {
+		console.log("createFonts called");
+	}
 	//debugLog(heartX);
 	g_tooltip = window.Tooltip;
 	g_tooltip.Text = ""; // just in case
@@ -88,7 +100,7 @@ function createFonts() {
 
 	pref.fontAdjustement = Math.min(pref.fontAdjustement_max, Math.max(pref.fontAdjustement_min, pref.fontAdjustement));
 
-	pref.g_fsize = pref.fontAdjustement + 13
+	pref.g_fsize = pref.fontAdjustement + 13;
 
 	ft.album_lrg = font(fontBold, 36, 0);
 	ft.album_med = font(fontBold, 32, 0);
@@ -217,7 +229,9 @@ function pleaseMakeScheme(hex) {
 
 function initColors() {
 	let scheme = pleaseMakeScheme();
-	debugLog("initColors called");
+	if (timings.logFunctionCalls) {
+		console.log("initColors called");
+	}
 	//debugLog(heartX);
 	col.artist = RGB(255, 255, 255);
 	switch (pref.colorScheme) {
@@ -277,7 +291,9 @@ function initColors() {
 initColors();
 
 function setGeometry() {
-	debugLog("setGeometry called");
+	if (timings.logFunctionCalls) {
+		console.log("setGeometry called");
+	}
 	//debugLog(heartX);
 	const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false;
 	geo.aa_shadow = scaleForDisplay(8); // size of albumart shadow
@@ -336,6 +352,8 @@ function setGeometry() {
 		playlistImg = gdi.Image(`${basePath}64/${paths.playlistIcon}`);
 		libraryImg = gdi.Image(`${basePath}64/${paths.libraryIcon}`);
 		lyricsImg = gdi.Image(`${basePath}64/${paths.lyricsIcon}`);
+		plmImg = gdi.Image(`${basePath}32/${paths.plmIcon}`);
+		detailsImg = gdi.Image(`${basePath}32/${paths.detailsIcon}`);
 	} else {
 		settingsImg = gdi.Image(`${basePath}32/${paths.settingsIcon}`);
 		propertiesImg = gdi.Image(`${basePath}32/${paths.propertiesIcon}`);
@@ -343,6 +361,8 @@ function setGeometry() {
 		playlistImg = gdi.Image(`${basePath}32/${paths.playlistIcon}`);
 		libraryImg = gdi.Image(`${basePath}32/${paths.libraryIcon}`);
 		lyricsImg = gdi.Image(`${basePath}32/${paths.lyricsIcon}`);
+		plmImg = gdi.Image(`${basePath}32/${paths.plmIcon}`);
+		detailsImg = gdi.Image(`${basePath}32/${paths.detailsIcon}`);
 	}
 }
 
@@ -357,6 +377,8 @@ paths.propertiesIcon = "properties.png";
 paths.playlistIcon = "playlist.png";
 paths.libraryIcon = "library.png";
 paths.lyricsIcon = "lyrics.png";
+paths.plmIcon = "plm.png";
+paths.detailsIcon = "details.png";
 paths.ratingIcon = "star.png";
 
 paths.heartOffIcon = "heart.png";
@@ -384,14 +406,6 @@ paths.flagsBase = fb.ProfilePath + "images/flags/"; // location of artist countr
 // MOUSE WHEEL SEEKING SPEED
 pref.mouse_wheel_seek_speed = 5; // seconds per wheel step
 
-// DEBUG
-// var pref.show_debug_log = window.GetProperty("Debug: Show Debug Output", false);
-var timings = {
-	showDebugTiming: false, // spam console with debug timings
-	showDrawTiming: false, // spam console with draw times
-	showExtraDrawTiming: false, // spam console with every section of the draw code to determine bottlenecks
-	drawRepaintRects: false, // outline window.RepaintRect in red
-};
 
 // PLAYLIST JUNK
 var btns = {};
@@ -455,6 +469,8 @@ var ratingsImg = null; // rating image
 var playlistImg = null; // playlist image
 var libraryImg = null; // library image
 var lyricsImg = null; // lyrics image
+var plmImg = null;
+var detailsImg = null;
 var lastFmImg = gdi.Image(paths.lastFmImageRed); // Last.fm logo image
 var lastFmWhiteImg = gdi.Image(paths.lastFmImageWhite); // white Last.fm logo image
 var shadow_image = null; // shadow behind the artwork + discart
@@ -522,11 +538,14 @@ let lastLeftEdge = 0; // the left edge of the record labels. Saved so we don't h
 let lastLabelHeight = 0;
 let displayPlaylist = false;
 let displayLibrary = false;
+let displayFilterPanel = false;
 var track_is_loved = null;
 var old_track_is_loved = null;
 var heartAlpha = track_is_loved ? 255 : 140;
 var shuffleAlpha = plman.PlaybackOrder >= 4 ? 255 : 140;
 var repeatAlpha = plman.PlaybackOrder == 1 || plman.PlaybackOrder == 2 ? 255 : 140;
+
+var plManX;
 
 var tl_firstPlayedRatio = 0;
 var tl_lastPlayedRatio = 0;
@@ -565,7 +584,9 @@ let repaintRects = [];
  * @param {GdiGraphics} gr
  */
 function draw_ui(gr) {
-	//debugLog("draw_ui called");
+	//if (timings.logFunctionCalls) {
+	//	console.log("draw_ui called");
+	//}
 	//debugLog(heartX);
 	let topBarProfiler = null;
 	if (timings.showExtraDrawTiming) {
@@ -1329,7 +1350,6 @@ function draw_ui(gr) {
 		} else {
 			gr.DrawRect(playlist.x - 1, playlist.y - 1, playlist.w + 2, playlist.h + 2, 1, rgb(64, 64, 64));
 		}
-		if (update_size) playlist.on_size(ww, wh);
 		playlist.on_paint(gr);
 		timings.showExtraDrawTiming && drawPlaylistProfiler.Print();
 	} else if (displayLibrary) {
@@ -1536,12 +1556,10 @@ function draw_ui(gr) {
 let repaintRectCount = 0;
 window.oldRepaintRect = window.RepaintRect;
 window.RepaintRect = (x, y, w, h, force = undefined) => {
-	//debugLog("RepaintRect called");
 	//debugLog(heartX);
 	if (timings.drawRepaintRects) {
 		repaintRects.push({ x, y, w, h });
 		window.Repaint();
-		debugLog("window.Repaint called");
 	} else {
 		repaintRectCount++;
 		window.oldRepaintRect(x, y, w, h, force);
@@ -1550,7 +1568,9 @@ window.RepaintRect = (x, y, w, h, force = undefined) => {
 
 let rotatedCdIndex = 0; // global index of current cdartArray img to draw
 function setupRotationTimer() {
-	debugLog("setupRotationTimer called");
+	if (timings.logFunctionCalls) {
+		console.log("setupRotationTimer called");
+	}
 	//debugLog(heartX);
 	clearInterval(cdartRotationTimer);
 	if (
@@ -1590,7 +1610,9 @@ function setupRotationTimer() {
 }
 
 function drawCdArt(gr) {
-	debugLog("drawCdArt called");
+	if (timings.logFunctionCalls) {
+		console.log("drawCdArt called");
+	}
 	//debugLog(heartX);
 	if (pref.display_cdart && cdart_size.y >= albumart_size.y && cdart_size.h <= albumart_size.h) {
 		// if (timings.showExtraDrawTiming) drawCdProfiler = fb.CreateProfiler('on_paint -> cdart');
@@ -1601,7 +1623,6 @@ function drawCdArt(gr) {
 }
 
 function on_paint(gr) {
-	//debugLog("on_paint called");
 	//debugLog(heartX);
 	const start = new Date();
 	draw_ui(gr);
@@ -1628,7 +1649,9 @@ function on_paint(gr) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function onRatingMenu(x, y) {
-	debugLog("onRatingMenu called");
+	if (timings.logFunctionCalls) {
+		console.log("onRatingMenu called");
+	}
 	//debugLog(heartX);
 	menu_down = true;
 
@@ -1655,7 +1678,9 @@ function onRatingMenu(x, y) {
 }
 
 function onOptionsMenu(x, y) {
-	debugLog("onOptionsMenu called");
+	if (timings.logFunctionCalls) {
+		console.log("onOptionsMenu called");
+	}
 	//debugLog(heartX);
 	menu_down = true;
 
@@ -1973,7 +1998,6 @@ function onOptionsMenu(x, y) {
 	var playlistCallback = function () {
 		playlist.on_size(ww, wh);
 		window.Repaint();
-		debugLog("window.Repaint called");
 	};
 	playlistMenu.addToggleItem("Display playlist on startup", pref, "startPlaylist");
 	playlistMenu.addToggleItem("Show group header", g_properties, "show_header", playlistCallback);
@@ -2000,14 +2024,12 @@ function onOptionsMenu(x, y) {
 			createPlaylistFonts();
 			playlist.on_size(ww, wh);
 			window.Repaint();
-			debugLog("window.Repaint called");
 		}
 	);
 
 	playlistMenu.addToggleItem("Show full date in header", pref, "showPlaylistFulldate", () => {
 		playlist.on_size(ww, wh);
 		window.Repaint();
-		debugLog("window.Repaint called");
 	});
 	var rowsMenu = new Menu("Rows");
 	rowsMenu.createRadioSubMenu(
@@ -2027,7 +2049,6 @@ function onOptionsMenu(x, y) {
 			createPlaylistFonts();
 			playlist.on_size(ww, wh);
 			window.Repaint();
-			debugLog("window.Repaint called");
 		}
 	);
 	rowsMenu.addToggleItem("Alternate row color", g_properties, "alternate_row_color", playlistCallback);
@@ -2113,7 +2134,6 @@ function onOptionsMenu(x, y) {
 			createFonts();
 			pref.displayLyrics && initLyrics();
 			// window.Repaint();
-			debugLog("window.Repaint called");
 		}
 	);
 	lyricsMenu.appendTo(menu);
@@ -2129,6 +2149,7 @@ function onOptionsMenu(x, y) {
 			on_playback_new_track(fb.GetNowPlaying());
 		}
 	});
+	debugMenu.addToggleItem("Log function calls (doesn't persist)", timings, "logFunctionCalls");
 	debugMenu.addToggleItem("Show draw timing (doesn't persist)", timings, "showDrawTiming");
 	debugMenu.addToggleItem("Show extra draw timing (doesn't persist)", timings, "showExtraDrawTiming");
 	debugMenu.addToggleItem("Show debug timing (doesn't persist)", timings, "showDebugTiming");
@@ -2136,7 +2157,6 @@ function onOptionsMenu(x, y) {
 		if (!val) {
 			repaintRects = [];
 			window.Repaint();
-			debugLog("window.Repaint called");
 		}
 	});
 	debugMenu.addToggleItem("Show reload button", pref, "show_reload_button", () => {
@@ -2172,7 +2192,9 @@ function onOptionsMenu(x, y) {
 
 // custom initialisation function, called once after variable declarations
 function on_init() {
-	debugLog("on_init called");
+	if (timings.logFunctionCalls) {
+		console.log("on_init called");
+	}
 	//debugLog(heartX);
 	console.log("in on_init()");
 
@@ -2190,7 +2212,9 @@ function on_init() {
 	}
 	setGeometry();
 	progressBar = new ProgressBar(ww, wh);
-	debugLog("progressBar called");
+	if (timings.logFunctionCalls) {
+		console.log("progressBar called");
+	}
 	//debugLog(heartX);
 	//debugLog(heartX);
 	setTheme(blueTheme.colors);
@@ -2200,7 +2224,7 @@ function on_init() {
 		on_playback_new_track(fb.GetNowPlaying());
 	}
 	window.Repaint();
-	debugLog("window.Repaint called"); // needed when loading async, otherwise superfluous
+	// needed when loading async, otherwise superfluous
 
 	/** Workaround so we can use the Edit menu or run fb.RunMainMenuCommand("Edit/Something...")
 		when the panel has focus and a dedicated playlist viewer doesn't. */
@@ -2224,7 +2248,6 @@ function on_init() {
 
 // window size changed
 function on_size() {
-	debugLog("on_size called");
 	//debugLog(heartX);
 	ww = window.Width;
 	wh = window.Height;
@@ -2269,7 +2292,6 @@ function on_size() {
 }
 
 function setLibrarySize() {
-	debugLog("setLibrarySize called");
 	//debugLog(heartX);
 	if (typeof libraryPanel !== "undefined") {
 		var x = Math.round(ww * 0.5);
@@ -2290,7 +2312,9 @@ function setLibrarySize() {
 
 function on_playback_dynamic_info_track() {
 	panel.item_focus_change();
-	debugLog("on_playback_dynamic_info_track called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playback_dynamic_info_track called");
+	}
 	//debugLog(heartX);
 	// how frequently does this get called?
 	const metadb = fb.IsPlaying ? fb.GetNowPlaying() : null;
@@ -2311,7 +2335,9 @@ function on_playback_dynamic_info_track() {
  */
 function on_playback_new_track(metadb) {
 	panel.item_focus_change();
-	debugLog("on_playback_new_track called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playback_new_track called");
+	}
 	//debugLog(heartX);
 	if (!metadb) return; // solve weird corner case
 	let newTrackProfiler = null;
@@ -2611,7 +2637,9 @@ function on_metadb_changed(handle_list, fromhook) {
 // User activity
 
 function on_playback_order_changed(this_pb) {
-	debugLog("on_playback_order_changed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playback_order_changed called");
+	}
 	//debugLog(heartX);
 	// Repaint playback order
 	if (this_pb != last_pb) {
@@ -2628,7 +2656,6 @@ function on_playback_order_changed(this_pb) {
 }
 
 function on_playback_seek(time) {
-	debugLog("on_playback_seek called");
 	//debugLog(heartX);
 	progressBar.progressMoved = true;
 	if (pref.displayLyrics) {
@@ -2642,7 +2669,6 @@ function on_playback_seek(time) {
 }
 
 function on_mouse_lbtn_down(x, y, m) {
-	//debugLog("on_mouse_lbtn_down called");
 	//debugLog(heartX);
 	window.SetCursor(32512); // arrow
 	if (progressBar.mouseInThis(x, y)) {
@@ -2681,7 +2707,6 @@ function on_mouse_lbtn_down(x, y, m) {
 }
 
 function on_mouse_lbtn_up(x, y, m) {
-	//debugLog("on_mouse_lbtn_up called");
 	//debugLog(heartX);
 	progressBar.on_mouse_lbtn_up(x, y);
 
@@ -2726,7 +2751,6 @@ function on_mouse_lbtn_up(x, y, m) {
 }
 
 function on_mouse_lbtn_dblclk(x, y, m) {
-	//debugLog("on_mouse_lbtn_dblclk called");
 	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2746,9 +2770,8 @@ function on_mouse_lbtn_dblclk(x, y, m) {
 		}
 	}
 }
-
+/*
 function on_mouse_rbtn_down(x, y, m) {
-	//debugLog("on_mouse_rbtn_down called");
 	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2757,45 +2780,20 @@ function on_mouse_rbtn_down(x, y, m) {
 		// trace_call && console.log(qwr_utils.function_name());
 		// library.on_mouse_rbtn_down(x, y, m);
 	}
-}
+}*/
 
 function on_mouse_rbtn_up(x, y, m) {
-	//debugLog("on_mouse_rbtn_up called");
 	//debugLog(heartX);
 	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
-		try {
-			return playlist.on_mouse_rbtn_up(x, y, m);
-		} catch (e) {
-			return null;
-		}
+			return playlist.on_mouse_rbtn_up(x, y);
 	} else if (displayLibrary && library.mouse_in_this(x, y)) {
 		trace_call && console.log(qwr_utils.function_name());
 		return library.on_mouse_rbtn_up(x, y, m);
 	} else return settings.locked;
 }
-/*
-function on_mouse_mbtn_down(x, y, m) {
 
-	debugLog("on_mouse_mbtn_down called");
-	//debugLog(heartX);
-	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
-		trace_call && console.log(qwr_utils.function_name());
-		playlist.on_mouse_rbtn_down(x, y, m);
-	}
-}
-
-function on_mouse_mbtn_up(x, y, m) {
-	debugLog("on_mouse_mbtn_up called");
-	//debugLog(heartX);
-	if (displayPlaylist && playlist.mouse_in_this(x, y)) {
-		trace_call && console.log(qwr_utils.function_name());
-		playlist.on_mouse_rbtn_down(x, y, m);
-	}
-}
-*/
 function on_mouse_move(x, y, m) {
-	//debugLog("on_mouse_move called");
 	//debugLog(heartX);
 	if (x != state.mouse_x || y != state.mouse_y) {
 		window.SetCursor(32512); // arrow
@@ -2816,7 +2814,7 @@ function on_mouse_move(x, y, m) {
 		buttonEventHandler(x, y, m);
 		if (updateHyperlink) Hyperlinks_on_mouse_move(updateHyperlink, x, y);
 
-		if (displayPlaylist) {
+		if (displayPlaylist && playlist.mouse_in_this(x, y)) {
 			trace_call && trace_on_move && console.log(qwr_utils.function_name());
 
 			if (mouse_move_suppress.is_supressed(x, y, m)) {
@@ -2898,7 +2896,9 @@ function on_mouse_leave() {
 }
 
 function on_playlists_changed() {
-	debugLog("on_playlists_changed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlists_changed called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2908,7 +2908,9 @@ function on_playlists_changed() {
 
 function on_playlist_switch() {
 	panel.item_focus_change();
-	debugLog("on_playlist_switch called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_switch called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2917,7 +2919,9 @@ function on_playlist_switch() {
 }
 
 function on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex) {
-	debugLog("on_playlist_item_ensure_visible called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_item_ensure_visible called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2926,7 +2930,9 @@ function on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex) {
 }
 
 function on_playlist_items_added(playlistIndex) {
-	debugLog("on_playlist_items_added called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_items_added called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2935,7 +2941,9 @@ function on_playlist_items_added(playlistIndex) {
 }
 
 function on_playlist_items_reordered(playlistIndex) {
-	debugLog("on_playlist_items_reordered called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_items_reordered called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2944,7 +2952,9 @@ function on_playlist_items_reordered(playlistIndex) {
 }
 
 function on_playlist_items_removed(playlistIndex) {
-	debugLog("on_playlist_items_removed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_items_removed called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2953,7 +2963,9 @@ function on_playlist_items_removed(playlistIndex) {
 }
 
 function on_playlist_items_selection_change() {
-	debugLog("on_playlist_items_selection_change called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playlist_items_selection_change called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2962,7 +2974,9 @@ function on_playlist_items_selection_change() {
 }
 
 function on_library_items_added(handle_list) {
-	debugLog("on_library_items_added called");
+	if (timings.logFunctionCalls) {
+		console.log("on_library_items_added called");
+	}
 	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2971,7 +2985,9 @@ function on_library_items_added(handle_list) {
 }
 
 function on_library_items_removed(handle_list) {
-	debugLog("on_library_items_removed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_library_items_removed called");
+	}
 	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2980,7 +2996,9 @@ function on_library_items_removed(handle_list) {
 }
 
 function on_library_items_changed(handle_list) {
-	debugLog("on_library_items_changed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_library_items_changed called");
+	}
 	//debugLog(heartX);
 	if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -2990,7 +3008,9 @@ function on_library_items_changed(handle_list) {
 
 function on_item_focus_change(playlist_arg, from, to) {
 	panel.item_focus_change();
-	debugLog("on_item_focus_change called");
+	if (timings.logFunctionCalls) {
+		console.log("on_item_focus_change called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -3041,7 +3061,10 @@ function on_key_down(vkey) {
 // =================================================== //
 
 function on_char(code) {
-	if (displayLibrary) {
+	if (displayPlaylist) {
+		trace_call && console.log(qwr_utils.function_name());
+		playlist.on_char(code);
+	} else if (displayLibrary) {
 		trace_call && console.log(qwr_utils.function_name());
 		library.on_char(code);
 	}
@@ -3055,14 +3078,15 @@ function on_key_up(vkey) {
 }
 
 function on_playback_queue_changed(origin) {
-	debugLog("on_playback_queue_changed called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playback_queue_changed called");
+	}
 	//debugLog(heartX);
 	trace_call && console.log(qwr_utils.function_name());
 	//playlist.on_playback_queue_changed(origin);
 }
 
 function on_playback_pause(pausing) {
-	debugLog("on_playback_pause called");
 	//debugLog(heartX);
 	refreshPlayButton();
 	if (pausing) {
@@ -3096,7 +3120,6 @@ function on_playback_pause(pausing) {
 }
 
 function on_playback_stop(reason) {
-	debugLog("on_playback_stop called");
 	//debugLog(heartX);
 	if (reason !== 2) {
 		// 2 = starting_another
@@ -3134,7 +3157,6 @@ function on_playback_stop(reason) {
 		cdart = disposeCDImg(cdart);
 		cdartArray = []; // clear Images
 		window.Repaint();
-		debugLog("window.Repaint called");
 	}
 	if (displayPlaylist) {
 		playlist.on_playback_stop(reason);
@@ -3142,7 +3164,9 @@ function on_playback_stop(reason) {
 }
 
 function on_playback_starting(cmd, is_paused) {
-	debugLog("on_playback_starting called");
+	if (timings.logFunctionCalls) {
+		console.log("on_playback_starting called");
+	}
 	//debugLog(heartX);
 	if (settings.hideCursor) {
 		window.SetCursor(-1); // hide cursor
@@ -3172,7 +3196,9 @@ function on_drag_drop(action, x, y, mask) {
 }
 
 function on_focus(is_focused) {
-	debugLog("on_focus called");
+	if (timings.logFunctionCalls) {
+		console.log("on_focus called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -3186,12 +3212,14 @@ function on_focus(is_focused) {
 }
 
 function on_notify_data(name, info) {
-	debugLog("on_notify_data called");
-	//debugLog(heartX);
-	if (displayPlaylist) {
-		trace_call && console.log(qwr_utils.function_name());
-		playlist.on_notify_data(name, info);
+	if (timings.logFunctionCalls) {
+		console.log("on_notify_data called");
 	}
+	//debugLog(heartX);
+	//if (displayPlaylist) {
+	//trace_call && console.log(qwr_utils.function_name());
+	//playlist.on_notify_data(name, info);
+	//}
 }
 
 function on_volume_change(val) {
@@ -3214,7 +3242,9 @@ var debounced_init_playlist = _.debounce(
 // =================================================== //
 
 function clearUIVariables() {
-	debugLog("clearUIVariables called");
+	if (timings.logFunctionCalls) {
+		console.log("clearUIVariables called");
+	}
 	//debugLog(heartX);
 	return {
 		artist: "",
@@ -3228,7 +3258,9 @@ function clearUIVariables() {
 
 // album art retrieved from GetAlbumArtAsync
 function on_get_album_art_done(metadb, art_id, image, image_path) {
-	debugLog("on_get_album_art_done called");
+	if (timings.logFunctionCalls) {
+		console.log("on_get_album_art_done called");
+	}
 	//debugLog(heartX);
 	if (displayPlaylist) {
 		trace_call && console.log(qwr_utils.function_name());
@@ -3240,7 +3272,9 @@ function on_get_album_art_done(metadb, art_id, image, image_path) {
 }
 
 function on_script_unload() {
-	debugLog("on_script_unload called");
+	if (timings.logFunctionCalls) {
+		console.log("on_script_unload called");
+	}
 	//debugLog(heartX);
 	console.log("Unloading Script");
 	// it appears we don't need to dispose the images which we loaded using gdi.Image in their declaration for some reason. Attempting to dispose them causes a script error.
@@ -3249,7 +3283,6 @@ function on_script_unload() {
 // Timed events
 
 function on_playback_time(time) {
-	debugLog("on_playback_time called");
 	//debugLog(heartX);
 	// Refresh playback time
 	str.time = $("%playback_time%");
@@ -3259,7 +3292,6 @@ function on_playback_time(time) {
 }
 
 function refresh_seekbar() {
-	debugLog("refresh_seekbar called");
 	//debugLog(heartX);
 	window.RepaintRect(
 		0.025 * ww,
@@ -3272,7 +3304,9 @@ function refresh_seekbar() {
 
 // TIMER Callback functions
 function displayNextImage() {
-	debugLog("displayNextImage called");
+	if (timings.logFunctionCalls) {
+		console.log("displayNextImage called");
+	}
 	//debugLog(heartX);
 	debugLog("Repainting in displayNextImage: " + albumArtIndex);
 	albumArtIndex = (albumArtIndex + 1) % aa_list.length;
@@ -3285,7 +3319,9 @@ function displayNextImage() {
 }
 
 function createShadowRect(width, height) {
-	debugLog("createShadowRect called");
+	if (timings.logFunctionCalls) {
+		console.log("createShadowRect called");
+	}
 	//debugLog(heartX);
 	var shadow = gdi.CreateImage(width + 2 * geo.aa_shadow, height + 2 * geo.aa_shadow);
 	var shimg = shadow.GetGraphics();
@@ -3306,7 +3342,9 @@ function createShadowRect(width, height) {
 
 // HELPER FUNCTIONS
 function createDropShadow() {
-	debugLog("createDropShadow called");
+	if (timings.logFunctionCalls) {
+		console.log("createDropShadow called");
+	}
 	//debugLog(heartX);
 	let shadowProfiler = null;
 	if (timings.showDebugTiming) shadowProfiler = fb.CreateProfiler("createDropShadow");
@@ -3365,7 +3403,9 @@ function createDropShadow() {
 }
 
 function SetProgressBarRefresh() {
-	debugLog("SetProgressBarRefresh called");
+	if (timings.logFunctionCalls) {
+		console.log("SetProgressBarRefresh called");
+	}
 	//debugLog(heartX);
 	if (fb.PlaybackLength > 0) {
 		if (pref.freq_update) {
@@ -3397,7 +3437,9 @@ function SetProgressBarRefresh() {
 }
 
 function parseJson(json, label, log) {
-	debugLog("parseJson called");
+	if (timings.logFunctionCalls) {
+		console.log("parseJson called");
+	}
 	//debugLog(heartX);
 	var parsed = [];
 	try {
@@ -3416,7 +3458,9 @@ var lfmPlayedTimesJsonLast = "";
 var playedTimesJsonLast = "";
 
 function calcDateRatios(dontUpdateLastPlayed, currentLastPlayed) {
-	debugLog("calcDateRatios called");
+	if (timings.logFunctionCalls) {
+		console.log("calcDateRatios called");
+	}
 	//debugLog(heartX);
 	var newDate = new Date();
 	dontUpdateLastPlayed = dontUpdateLastPlayed || false;
@@ -3507,7 +3551,9 @@ function calcDateRatios(dontUpdateLastPlayed, currentLastPlayed) {
  * @param {boolean} loadFromCache Retrieve image from cache instead of reading from disc.
  */
 function loadImageFromAlbumArtList(index, loadFromCache) {
-	debugLog("loadImageFromAlbumArtList called");
+	if (timings.logFunctionCalls) {
+		console.log("loadImageFromAlbumArtList called");
+	}
 	//debugLog(heartX);
 	let tempAlbumArt;
 	if (loadFromCache) {
@@ -3539,7 +3585,9 @@ function loadImageFromAlbumArtList(index, loadFromCache) {
 }
 
 function disposeCDImg(cdImage) {
-	debugLog("disposeCDImg called");
+	if (timings.logFunctionCalls) {
+		console.log("disposeCDImg called");
+	}
 	//debugLog(heartX);
 	cdart_size = new ImageSize(0, 0, 0, 0);
 	cdImage = null;
@@ -3554,7 +3602,9 @@ function disposeCDImg(cdImage) {
  * @param {number} degrees
  */
 function rotateImg(img, w, h, degrees) {
-	debugLog("rotateImg called");
+	if (timings.logFunctionCalls) {
+		console.log("rotateImg called");
+	}
 	//debugLog(heartX);
 	/** @type {GdiBitmap} */ let rotatedImg;
 	if (degrees === 0) {
@@ -3571,7 +3621,9 @@ function rotateImg(img, w, h, degrees) {
 // TODO: Once spinning art is done, scrap this and the rotation amount crap and just use indexes into the cdartArray when needed
 // IDEA: Smooth rotation to new position?
 function CreateRotatedCDImage() {
-	debugLog("CreateRotatedCDImage called");
+	if (timings.logFunctionCalls) {
+		console.log("CreateRotatedCDImage called");
+	}
 	//debugLog(heartX);
 	if (pref.display_cdart) {
 		// drawing cdArt rotated is slow, so first draw it rotated into the rotatedCD image, and then draw rotatedCD image unrotated in on_paint
@@ -3596,7 +3648,9 @@ function CreateRotatedCDImage() {
 }
 
 function calcLowerSpace() {
-	debugLog("calcLowerSpace called");
+	if (timings.logFunctionCalls) {
+		console.log("calcLowerSpace called");
+	}
 	//debugLog(heartX);
 	return transport.displayBelowArtwork
 		? geo.lower_bar_h + scaleForDisplay(pref.transport_buttons_size + 10)
@@ -3604,7 +3658,9 @@ function calcLowerSpace() {
 }
 
 function ResizeArtwork(resetCDPosition) {
-	debugLog("ResizeArtwork called");
+	if (timings.logFunctionCalls) {
+		console.log("ResizeArtwork called");
+	}
 	//debugLog(heartX);
 	debugLog("Resizing artwork");
 	var hasArtwork = false;
@@ -3746,7 +3802,9 @@ function ResizeArtwork(resetCDPosition) {
 }
 
 function loadFlagImage(country) {
-	debugLog("loadFlagImage called");
+	if (timings.logFunctionCalls) {
+		console.log("loadFlagImage called");
+	}
 	//debugLog(heartX);
 	const countryName = convertIsoCountryCodeToFull(country) || country; // in case we have a 2-digit country code
 	const path = $(paths.flagsBase) + (is_4k ? "64\\" : "32\\") + countryName.trim().replace(/ /g, "-") + ".png";
@@ -3754,7 +3812,9 @@ function loadFlagImage(country) {
 }
 
 function loadCountryFlags() {
-	debugLog("loadCountryFlags called");
+	if (timings.logFunctionCalls) {
+		console.log("loadCountryFlags called");
+	}
 	//debugLog(heartX);
 	flagImgs = [];
 	getMetaValues(tf.artist_country).forEach((country) => {
@@ -3764,13 +3824,17 @@ function loadCountryFlags() {
 }
 
 function loadReleaseCountryFlag() {
-	debugLog("loadReleaseCountryFlag called");
+	if (timings.logFunctionCalls) {
+		console.log("loadReleaseCountryFlag called");
+	}
 	//debugLog(heartX);
 	releaseFlagImg = loadFlagImage($(tf.releaseCountry));
 }
 
 function replaceFileChars(s) {
-	debugLog("replaceFileChars called");
+	if (timings.logFunctionCalls) {
+		console.log("replaceFileChars called");
+	}
 	//debugLog(heartX);
 	return s
 		.replace(/:/g, "_")
@@ -3785,7 +3849,9 @@ function replaceFileChars(s) {
 }
 
 function LoadLabelImage(publisherString) {
-	debugLog("LoadLabelImage called");
+	if (timings.logFunctionCalls) {
+		console.log("LoadLabelImage called");
+	}
 	//debugLog(heartX);
 	let recordLabel = null;
 	const d = new Date();
@@ -3844,7 +3910,9 @@ function LoadLabelImage(publisherString) {
 }
 
 function fetchNewArtwork(metadb) {
-	debugLog("fetchNewArtwork called");
+	if (timings.logFunctionCalls) {
+		console.log("fetchNewArtwork called");
+	}
 	//debugLog(heartX);
 	let fetchArtworkProfiler = null;
 	let cdartPath;
@@ -3950,11 +4018,12 @@ function fetchNewArtwork(metadb) {
 function RepaintWindow() {
 	debugLog("Repainting from RepaintWindow()");
 	window.Repaint();
-	debugLog("window.Repaint called");
 }
 
 function createButtonObjects(ww, wh) {
-	debugLog("createButtonObjects called");
+	if (timings.logFunctionCalls) {
+		console.log("createButtonObjects called");
+	}
 	//debugLog(heartX);
 	btns = [];
 	const showingMinMaxButtons = !!(UIHacks && UIHacks.FrameStyle);
@@ -4091,12 +4160,17 @@ function createButtonObjects(ww, wh) {
 	x -= img[0].Width + 10;
 	btns.playlist = new Button(x, y, img[0].Width, h, "Playlist", img, "Show Playlist");
 	/* if a new image button is added to the left of playlist we need to update the ResizeArtwork code */
+	img = btnImg.PlManager;
+	x -= img[0].Width + 10;
+	btns.plm = new Button(x, y, img[0].Width, h, "PlaylistManager", img, "Playlist Manager");
 }
 
 // =================================================== //
 
 function createButtonImages() {
-	//debugLog("createButtonImages called");
+	if (timings.logFunctionCalls) {
+		console.log("createButtonImages called");
+	}
 	//debugLog(heartX);
 	let createButtonProfiler = null;
 	let btSize;
@@ -4249,6 +4323,18 @@ function createButtonImages() {
 				type: "image",
 				w: lyricsImg.Width,
 				h: lyricsImg.Height,
+			},
+			PlManager: {
+				ico: plmImg,
+				type: "image",
+				w: plmImg.Width,
+				h: plmImg.Height,
+			},
+			TrackDetails: {
+				ico: detailsImg,
+				type: "image",
+				w: detailsImg.Width,
+				h: detailsImg.Height,
 			},
 			Rating: {
 				ico: ratingsImg,

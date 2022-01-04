@@ -66,6 +66,7 @@ const fileList = [
 	"js\\ui-components.js",
 	"js\\lyrics.js",
 	"js\\georgia-main.js",
+//	"js\\filter_panel.js",
 ];
 includeFiles(fileList).then(() => {
 	console.log(`Georgia loaded in ${Date.now() - startTime}ms`);
