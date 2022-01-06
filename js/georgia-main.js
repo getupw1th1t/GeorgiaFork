@@ -11,29 +11,6 @@
 var ft = {}; // fonts
 
 /**
- * @typedef {Object} ColorsObj
- * @property {number=} shadow color of the shadow
- * @property {number=} accent typically, the primary color shaded by 15%
- * @property {number=} artist color of artist text on background
- * @property {number=} bg background of the entire panel from geo.top_bg_h to bottom
- * @property {number=} darkAccent typically, the primary color shaded by 30%
- * @property {number=} extraDarkAccent the primary color shaded by 50% - used for dropshadow of colored text
- * @property {number=} hotness color of hotness text in metadatagrid
- * @property {number=} primary primary theme color generated from artwork
- * @property {number=} info_text default color of text in metadatagrid
- * @property {number=} lightAccent typically, the primary color tinted (lightened) 20%
- * @property {number=} menu_bg background color under menu (i.e. from y = 0 - geo.top_bg_h)
- * @property {number=} now_playing color of the lower bar text, including tracknum, title, elapsed and remaining time
- * @property {number=} progress_bar the background of the progress bar. Fill will be `col.primary`
- * @property {number=} rating color of rating stars in metadatagrid
- * @property {number=} tl_added background color for timeline block from added to first played
- * @property {number=} tl_played background color for timeline block from first played to last played
- * @property {number=} tl_unplayed background color for timeline block from last played to present time
- * @property {number=} uiFrame border line color for when UI Hacks Aero mode is on
- */
-/** @type ColorsObj */
-var col = {}; // colors
-/**
  * @typedef {Object} GeometryObj
  * @property {number=} aa_shadow size of albumart shadow
  * @property {number=} lower_bar_h height of song title and time + progress bar area
@@ -98,10 +75,6 @@ function createFonts() {
 		return font;
 	}
 
-	pref.fontAdjustement = Math.min(pref.fontAdjustement_max, Math.max(pref.fontAdjustement_min, pref.fontAdjustement));
-
-	pref.g_fsize = pref.fontAdjustement + 13;
-
 	ft.album_lrg = font(fontBold, 36, 0);
 	ft.album_med = font(fontBold, 32, 0);
 	ft.album_sml = font(fontBold, 28, 0);
@@ -144,17 +117,6 @@ function createFonts() {
 		ft.lower_bar_artist = font(fontThin, 31, g_font_style.italic);
 		ft.lower_bar_artist_sml = font(fontThin, 27, g_font_style.italic);
 	}
-	ft.smallish_font = font(fontLight, 17 + pref.fontAdjustement, 0);
-	ft.small_font = font(fontLight, 15 + pref.fontAdjustement, 0);
-	ft.smaller_font = font(fontLight, 13 + pref.fontAdjustement, 0);
-	ft.med_italic = font(fontLight, 20 + pref.fontAdjustement, g_font_style.italic);
-	ft.smallish_italic = font(fontLight, 17 + pref.fontAdjustement, g_font_style.italic);
-	ft.small_italic = font(fontLight, 15 + pref.fontAdjustement, g_font_style.italic);
-	ft.smaller_italic = font(fontLight, 13 + pref.fontAdjustement, g_font_style.italic);
-	ft.med_bold = font(fontLight, 20 + pref.fontAdjustement, g_font_style.bold);
-	ft.smallish_bold = font(fontLight, 17 + pref.fontAdjustement, g_font_style.bold);
-	ft.small_bold = font(fontLight, 15 + pref.fontAdjustement, g_font_style.bold);
-	ft.smaller_bold = font(fontLight, 13 + pref.fontAdjustement, g_font_style.bold);
 	ft.guifx = font(fontGuiFx, Math.floor(pref.transport_buttons_size / 2), 0);
 	ft.Marlett = font("Marlett", 13, 0);
 	ft.SegoeUi = font("Segoe Ui Semibold", pref.menu_font_size, 0);

@@ -39,7 +39,6 @@ const loadStrs = {
 };
 const startTime = Date.now();
 const fileList = [
-	"js\\CaTRoX_QWR\\lodash.min.js",
 	"js\\CaTRoX_QWR\\lodash-new.js",
 	"js\\color-scheme.min.js",
 	"js\\Please.js",

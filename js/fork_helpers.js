@@ -1,3 +1,5 @@
+
+
 //Files, Folders, FileSystemObject ----------------------------------------------------
 
 const theme_name = "eole";
@@ -9,112 +11,15 @@ const now_playing_img1 = gdi.Image(theme_img_path + "\\graphic_browser\\now_play
 const now_playing_img0 = gdi.Image(theme_img_path + "\\graphic_browser\\now_playing_track0.png");
 const now_playing_progress1 = gdi.Image(theme_img_path + "\\graphic_browser\\now_playing_progress1.png");
 const now_playing_progress0 = gdi.Image(theme_img_path + "\\graphic_browser\\now_playing_progress0.png");
-oFileSystObject = function () {
-	this.fileObject = new ActiveXObject("Scripting.FileSystemObject");
-	this.CreateTextFile = function (path) {
-		try {
-			return this.fileObject.CreateTextFile(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "CreateTextFile call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.FileExists = function (path) {
-		try {
-			return utils.FileTest(path, "e");
-			//return this.fileObject.FileExists(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "FileExists call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.MoveFile = function (target, dest) {
-		try {
-			return this.fileObject.MoveFile(target, dest);
-		} catch (e) {
-			fb.ShowPopupMessage(
-				"Oupppppsssss, it look like an error\n\n" + "MoveFile call, from " + target + " to " + dest,
-				"Error"
-			);
-			console.log(e);
-		}
-	};
-	this.DeleteFile = function (path) {
-		return this.fileObject.DeleteFile(path);
-	};
-	this.FolderExists = function (path) {
-		try {
-			return this.fileObject.FolderExists(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "FolderExists call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.CreateFolder = function (path) {
-		try {
-			return this.fileObject.CreateFolder(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "CreateFolder call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.DeleteFolder = function (path, force) {
-		try {
-			return this.fileObject.DeleteFolder(path, force);
-		} catch (e) {
-			fb.ShowPopupMessage(
-				"Oupppppsssss, it look like an error\n\n" + "DeleteFolder call, " + path + " force:" + force,
-				"Error"
-			);
-			console.log(e);
-		}
-	};
-	this.GetFolder = function (path) {
-		try {
-			return this.fileObject.GetFolder(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "GetFolder call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.GetExtensionName = function (path) {
-		try {
-			return this.fileObject.GetExtensionName(path);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "GetExtensionName call, " + path, "Error");
-			console.log(e);
-		}
-	};
-	this.OpenTextFile = function (path, openMode) {
-		try {
-			return this.fileObject.OpenTextFile(path, openMode);
-		} catch (e) {
-			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "OpenTextFile call, " + path, "Error");
-			console.log(e);
-		}
-	};
-};
-g_files = new oFileSystObject();
-const data_global_path = ProfilePath + "wsh-data";
-if (!g_files.FolderExists(data_global_path)) g_files.CreateFolder(data_global_path);
-const cover_img_cache = data_global_path + "\\" + theme_name + "-img-cache";
-if (!g_files.FolderExists(cover_img_cache)) g_files.CreateFolder(cover_img_cache);
-const SettingsPath = data_global_path + "\\" + theme_name + "-settings\\";
-if (!g_files.FolderExists(SettingsPath)) g_files.CreateFolder(SettingsPath);
-
 const search_results_order = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
 const sort_by_default = "%album artist%|%date%|%album%|%discnumber%|%tracknumber%";
 const sort_by_album_artist = "%album artist%|%date%|%album%|%discnumber%|%tracknumber%";
-const sort_by_album = "%album%|%date%|%discnumber%|%tracknumber%";
-const sort_by_path = "%path%|%album%|%date%|%discnumber%|%tracknumber%";
 const sort_by_title = "%title%|%tracknumber%";
 const sort_by_tracknumber = "%tracknumber%|%album artist%";
 const sort_by_date = "%date%|%album artist%|%album%";
 const sort_by_date_added =
 	"$sub(9999,$year(%added%))-$sub(9999,$month(%added%))-$sub(9999,$day_of_month(%added%))|%album artist%|%date%|%album%|%tracknumber%";
 const sort_by_rating = "$sub(10,%rating%)|%album artist%|%album%";
-const sort_by_time = "%length%|%album artist%|%date%|%album%";
-
 var last_mouse_move_notified = new Date().getTime();
 var timers = [];
 
@@ -130,7 +35,7 @@ var globalProperties = {
 	thumbnailWidthMax: window.GetProperty("PL_GLOBAL thumbnail width max", 200),
 	use_ratings_file_tags: window.GetProperty("PL_GLOBAL use ratings in file tags", false),
 
-//===Debug===//
+	//===Debug===//
 	logFunctions: window.GetProperty("PL_DEBUG spam console with function calls", false),
 
 	drawDebugRects: window.GetProperty("PL_DEBUG draw object area rects", false),
@@ -274,7 +179,140 @@ globalProperties.tf_order = fb.TitleFormat("%album artist%|%date%|%album%|%discn
 globalProperties.coverCacheWidthMax = Math.max(50, Math.min(2000, Number(globalProperties.coverCacheWidthMax)));
 if (isNaN(globalProperties.coverCacheWidthMax)) globalProperties.coverCacheWidthMax = 200;
 globalProperties.thumbnailWidthMax = Math.max(50, globalProperties.coverCacheWidthMax);
+
+oFileSystObject = function () {
+	if (globalProperties.logFunctions) {
+		console.log("called oFileSystObject ( )");
+	}
+	this.fileObject = new ActiveXObject("Scripting.FileSystemObject");
+	this.CreateTextFile = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.CreateTextFile (${path})`);
+		}
+		try {
+			return this.fileObject.CreateTextFile(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "CreateTextFile call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.FileExists = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.FileExists (${path})`);
+		}
+		try {
+			return utils.FileTest(path, "e");
+			//return this.fileObject.FileExists(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "FileExists call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.MoveFile = function (target, dest) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.MoveFile (${target}, ${dest})`);
+		}
+		try {
+			return this.fileObject.MoveFile(target, dest);
+		} catch (e) {
+			fb.ShowPopupMessage(
+				"Oupppppsssss, it look like an error\n\n" + "MoveFile call, from " + target + " to " + dest,
+				"Error"
+			);
+			console.log(e);
+		}
+	};
+	this.DeleteFile = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.DeleteFile (${path})`);
+		}
+		return this.fileObject.DeleteFile(path);
+	};
+	this.FolderExists = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.FolderExists (${path})`);
+		}
+		try {
+			return this.fileObject.FolderExists(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "FolderExists call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.CreateFolder = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.CreateFolder (${path})`);
+		}
+		try {
+			return this.fileObject.CreateFolder(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "CreateFolder call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.DeleteFolder = function (path, force) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.DeleteFolder (${path}, ${force})`);
+		}
+		try {
+			return this.fileObject.DeleteFolder(path, force);
+		} catch (e) {
+			fb.ShowPopupMessage(
+				"Oupppppsssss, it look like an error\n\n" + "DeleteFolder call, " + path + " force:" + force,
+				"Error"
+			);
+			console.log(e);
+		}
+	};
+	this.GetFolder = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.GetFolder (${path})`);
+		}
+		try {
+			return this.fileObject.GetFolder(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "GetFolder call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.GetExtensionName = function (path) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.GetExtensionName (${path})`);
+		}
+		try {
+			return this.fileObject.GetExtensionName(path);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "GetExtensionName call, " + path, "Error");
+			console.log(e);
+		}
+	};
+	this.OpenTextFile = function (path, openMode) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFileSystObject.OpenTextFile (${path}, ${openMode})`);
+		}
+		try {
+			return this.fileObject.OpenTextFile(path, openMode);
+		} catch (e) {
+			fb.ShowPopupMessage("Oupppppsssss, it look like an error\n\n" + "OpenTextFile call, " + path, "Error");
+			console.log(e);
+		}
+	};
+};
+g_files = new oFileSystObject();
+const data_global_path = ProfilePath + "wsh-data";
+if (!g_files.FolderExists(data_global_path)) g_files.CreateFolder(data_global_path);
+const cover_img_cache = data_global_path + "\\" + theme_name + "-img-cache";
+if (!g_files.FolderExists(cover_img_cache)) g_files.CreateFolder(cover_img_cache);
+const SettingsPath = data_global_path + "\\" + theme_name + "-settings\\";
+if (!g_files.FolderExists(SettingsPath)) g_files.CreateFolder(SettingsPath);
+
+
+
+
 function setMemoryParameters() {
+	if (globalProperties.logFunctions) {
+		console.log("called setMemoryParameters ( )");
+	}
 	switch (true) {
 		case globalProperties.mem_solicitation == 0:
 			globalProperties.loaded_covers2memory = false;
@@ -294,15 +332,21 @@ function setMemoryParameters() {
 			break;
 	}
 }
+
 setMemoryParameters();
-function setGlobalParameter(parameter_name, parameter_value, notify_others = false){
-	window.SetProperty("GLOBAL "+parameter_name, parameter_value);
-	eval("globalProperties."+parameter_name+" = "+parameter_value);
-	if(notify_others) window.NotifyOthers("setGlobalParameter",Array(parameter_name,parameter_value));
-	if(parameter_name=="keepProportion") {
+
+function setGlobalParameter(parameter_name, parameter_value, notify_others = false) {
+	if (globalProperties.logFunctions) {
+		console.log(`called setGlobalParameter (${parameter_name}, ${parameter_value}, ${notify_others})`);
+	}
+	window.SetProperty("GLOBAL " + parameter_name, parameter_value);
+	eval("globalProperties." + parameter_name + " = " + parameter_value);
+	if (notify_others) window.NotifyOthers("setGlobalParameter", Array(parameter_name, parameter_value));
+	if (parameter_name == "keepProportion") {
 		g_image_cache.resetCache();
 	}
 }
+
 var cScrollBar = {
 	enabled: window.GetProperty("PL_DISPLAY Show Scrollbar", true),
 	visible: true,
@@ -324,46 +368,28 @@ var cScrollBar = {
 	timerCounter: -1,
 };
 
-const g_drop_effect = {
-	none: 0,
-	copy: 1,
-	move: 2,
-	link: 4,
-	scroll: 0x80000000,
-};
-
 var oCursor = function () {
-	if (globalProperties.logFunctionCalls) {
-		console.log("var oCursor called");
+	if (globalProperties.logFunctions) {
+		console.log("called oCursor ( )");
 	}
 	this.x = -10;
 	this.y = -10;
-	this.first_x = -10;
-	this.first_y = -10;
 	this.active_zone = "";
 	this.g_timer = false;
 	this.cursor = IDC_ARROW;
 	this.onMouse = function (state, x, y, m) {
-		if (globalProperties.logFunctionCalls) {
-			//	console.log("oCursor.onMouse called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oCursor.onMouse (${state}, ${x}, ${y}, ${m})`);
 		}
 		//console.log(state, x, y);
 		switch (state) {
 			case "lbtn_down":
-				this.down_x = x;
-				this.down_y = y;
 				break;
 			case "lbtn_up":
-				this.up_x = x;
-				this.up_y = y;
 				break;
 			case "dble_click":
-				this.down_x = x;
-				this.down_y = y;
 				break;
 			case "move":
-				if (this.x == -10) this.first_x = x;
-				if (this.y == -10) this.first_y = y;
 				this.x = x;
 				this.y = y;
 				if (!globalProperties.enable_screensaver) return;
@@ -375,16 +401,14 @@ var oCursor = function () {
 			case "leave":
 				this.x = -10;
 				this.y = -10;
-				this.first_x = -10;
-				this.first_y = -10;
 				this.active_zone = "";
 				this.cursor = IDC_ARROW;
 				break;
 		}
 	};
 	this.setCursor = function (cursor_code, active_zone = "", numberOfTry = 1) {
-		if (globalProperties.logFunctionCalls) {
-			//	console.log("oCursor.setCursor called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oCursor.setCursor (${cursor_code}, ${active_zone}, ${numberOfTry})`);
 		}
 		//console.log(cursor_code, active_zone, numberOfTry);
 
@@ -411,29 +435,35 @@ var oCursor = function () {
 			window.SetCursor(cursor_code);
 		}
 	};
-	this.getCursor = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oCursor.getCursor called");
-		}
-		return this.cursor;
-	};
 	this.getActiveZone = function () {
-		//if (globalProperties.logFunctionCalls) {
-		//	console.log("oCursor.getActiveZone called");
-		//}
+		if (globalProperties.logFunctions) {
+			console.log(`called oCursor.getActiveZone ( )`);
+		}
 		//console.log(`active_zone: ${this.active_zone}`)
 		return this.active_zone;
 	};
 };
+
 function SetPlaylistFocusItemByHandle(playlist_id, metadb) {
+	if (globalProperties.logFunctions) {
+		console.log(`called SetPlaylistFocusItemByHandle (${playlist_id}, ${metadb})`);
+	}
 	plman.ActivePlaylist = playlist_id;
 	plman.SetPlaylistFocusItem(playlist_id, metadb);
 }
+
 function GetGrey(grey, alpha = 255) {
+	if (globalProperties.logFunctions) {
+		console.log(`called GetGrey (${grey}, ${alpha})`);
+	}
 	return RGBA(grey, grey, grey, alpha);
 }
+
 // HTML dialogs ---------------------------------------------------------------------
 function get_windows_version() {
+	if (globalProperties.logFunctions) {
+		console.log(`called get_windows_version ( )`);
+	}
 	let version = "";
 	var WshShell = new ActiveXObject("WScript.Shell");
 	try {
@@ -456,7 +486,11 @@ function get_windows_version() {
 
 	return "6.1";
 }
+
 function htmlCode(directory, filename) {
+	if (globalProperties.logFunctions) {
+		console.log(`called htmlCode (${directory}, ${filename})`);
+	}
 	let htmlCode = utils.ReadTextFile(directory + "\\" + filename);
 
 	let cssPath = directory;
@@ -468,18 +502,33 @@ function htmlCode(directory, filename) {
 	htmlCode = htmlCode.replace(/href="styles10.css"/i, `href="${cssPath}"`);
 	return htmlCode;
 }
+
 function HtmlMsg(msg_title, msg_content, btn_label) {
+	if (globalProperties.logFunctions) {
+		console.log(`called HtmlMsg (${msg_title}, ${msg_content}, ${btn_label})`);
+	}
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "MsgBox.html"), {
 		data: [msg_title, msg_content, btn_label, null],
 	});
 }
+
 function HtmlDialog(msg_title, msg_content, btn_yes_label, btn_no_label, confirm_callback) {
+	if (globalProperties.logFunctions) {
+		console.log(`called HtmlDialog (${msg_title}, ${msg_content}, ${btn_yes_label}, ${btn_no_label}, ${confirm_callback})`);
+	}
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "ConfirmDialog.html"), {
 		data: [msg_title, msg_content, btn_yes_label, btn_no_label, confirm_callback],
 	});
 }
+
 function customGraphicBrowserGrouping(title, top_msg, bottom_msg, input_default_values, input_labels) {
+	if (globalProperties.logFunctions) {
+		console.log(`called customGraphicBrowserGrouping (${title}, ${top_msg}, ${bottom_msg}, ${input_default_values}, ${input_labels})`);
+	}
 	function ok_callback(status, input_values) {
+		if (globalProperties.logFunctions) {
+			console.log(`called ok_callback (${status}, ${input_values})`);
+		}
 		if (status != "cancel") {
 			input_values = input_values.split("##");
 			if (
@@ -497,12 +546,20 @@ function customGraphicBrowserGrouping(title, top_msg, bottom_msg, input_default_
 			}
 		}
 	}
+
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "InputDialog.html"), {
 		data: [title, top_msg, "Cancel", ok_callback, bottom_msg, input_default_values, input_labels],
 	});
 }
+
 function customTracklistDetails(title, top_msg, bottom_msg, input_default_values, input_labels) {
+	if (globalProperties.logFunctions) {
+		console.log(`called customGraphicBrowserGrouping (${title}, ${top_msg}, ${bottom_msg}, ${input_default_values}, ${input_labels})`);
+	}
 	function ok_callback(status, input_values) {
+		if (globalProperties.logFunctions) {
+			console.log(`called ok_callback (${status}, ${input_values})`);
+		}
 		if (status != "cancel") {
 			input_values = input_values.split("##");
 			if (!(typeof input_values[0] == "undefined" || globalProperties.show2linesCustomTag == input_values[0])) {
@@ -514,16 +571,44 @@ function customTracklistDetails(title, top_msg, bottom_msg, input_default_values
 			}
 		}
 	}
+
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "InputDialog.html"), {
 		data: [title, top_msg, "Cancel", ok_callback, bottom_msg, input_default_values, input_labels],
 	});
 }
+
 //Colors ------------------------------------------------------------------------------
+/**
+ * @typedef {Object} ColorsObj
+ * @property {number=} shadow color of the shadow
+ * @property {number=} accent typically, the primary color shaded by 15%
+ * @property {number=} artist color of artist text on background
+ * @property {number=} bg background of the entire panel from geo.top_bg_h to bottom
+ * @property {number=} darkAccent typically, the primary color shaded by 30%
+ * @property {number=} extraDarkAccent the primary color shaded by 50% - used for dropshadow of colored text
+ * @property {number=} hotness color of hotness text in metadatagrid
+ * @property {number=} primary primary theme color generated from artwork
+ * @property {number=} info_text default color of text in metadatagrid
+ * @property {number=} lightAccent typically, the primary color tinted (lightened) 20%
+ * @property {number=} menu_bg background color under menu (i.e. from y = 0 - geo.top_bg_h)
+ * @property {number=} now_playing color of the lower bar text, including tracknum, title, elapsed and remaining time
+ * @property {number=} progress_bar the background of the progress bar. Fill will be `col.primary`
+ * @property {number=} rating color of rating stars in metadatagrid
+ * @property {number=} tl_added background color for timeline block from added to first played
+ * @property {number=} tl_played background color for timeline block from first played to last played
+ * @property {number=} tl_unplayed background color for timeline block from last played to present time
+ * @property {number=} uiFrame border line color for when UI Hacks Aero mode is on
+ */
+/** @type ColorsObj */
+var col = {}; // colors
 
 var colors = {};
 var darkcolors = {};
 
 function get_colors_global() {
+	if (globalProperties.logFunctions) {
+		console.log(`called get_colors_global ( )`);
+	}
 	darkcolors.normal_txt = GetGrey(240);
 	if (pref.darkMode) {
 		colors.normal_bg = GetGrey(30);
@@ -556,7 +641,7 @@ function get_colors_global() {
 		colors.selected_bg = RGBA(15, 177, 255, 160);
 		colors.highlight = RGB(255, 175, 50);
 
-		colors.headerbar_bg = _blendColours(col.menu_bg, pref.darkMode ? RGB(22, 22, 22): RGB(220, 220, 220), 0.4);
+		colors.headerbar_bg = blendColors(col.menu_bg, pref.darkMode ? RGB(22, 22, 22) : RGB(220, 220, 220), 0.4);
 		colors.headerbar_line = GetGrey(255, 38);
 
 		colors.scrollbar_normal_cursor = GetGrey(255, 60);
@@ -695,7 +780,6 @@ var key_down_suppress = new qwr_utils.KeyModifiersSuppress();
 var trace_call = false;
 var trace_on_paint = false;
 var trace_on_move = false;
-var trace_initialize_list_performance = false;
 var found = false;
 var doubleClick = false;
 var FocusOnNowPlaying = false;
@@ -704,6 +788,9 @@ var randomStartTime = 0;
 var PlaylistExclude = Array(globalProperties.whole_library, globalProperties.filter_playlist);
 
 function rescalePlaylist() {
+	if (globalProperties.logFunctions) {
+		console.log(`called rescalePlaylist ( )`);
+	}
 	playlist_geo.row_h = scaleForDisplay(g_properties.row_h);
 	playlist_geo.scrollbar_w = g_properties.scrollbar_w; // don't scaleForDisplay
 	playlist_geo.scrollbar_right_pad = scaleForDisplay(g_properties.scrollbar_right_pad);
@@ -711,7 +798,11 @@ function rescalePlaylist() {
 	playlist_geo.scrollbar_bottom_pad = scaleForDisplay(g_properties.scrollbar_bottom_pad);
 	playlist_geo.list_bottom_pad = scaleForDisplay(g_properties.list_bottom_pad);
 }
+
 function ExcludePlaylist(name) {
+	if (globalProperties.logFunctions) {
+		console.log(`called ExcludePlaylist (${name})`);
+	}
 	for (var i = 0; i < PlaylistExclude.length; i++) {
 		if (PlaylistExclude[i] == name) return true;
 	}
@@ -719,6 +810,9 @@ function ExcludePlaylist(name) {
 }
 
 function enableCoversAtStartupGlobally() {
+	if (globalProperties.logFunctions) {
+		console.log(`called enableCoversAtStartupGlobally ( )`);
+	}
 	globalProperties.load_covers_at_startup = !globalProperties.load_covers_at_startup;
 	window.SetProperty("PL_COVER Load all at startup", globalProperties.load_covers_at_startup);
 	if (globalProperties.load_covers_at_startup)
@@ -727,7 +821,7 @@ function enableCoversAtStartupGlobally() {
 			(!globalProperties.enableDiskCache
 				? "This option will work better if the disk image cache is enabled and already built (check the option just below).\n\n"
 				: "") +
-				"Foobar memory usage is higher when this option is enabled , because all the covers are loaded into the memory, but if your library isn't outsized, it should be okey.\n\nIf you want to update a cover, you must manually refresh it in foobar, do a right click over the cover which need to be refreshed, and you will have a menu item for that.\n\nThe disk image cache is based on the %album artist% & %album% tags.\n\nRestart foobar to start loading all the covers.",
+			"Foobar memory usage is higher when this option is enabled , because all the covers are loaded into the memory, but if your library isn't outsized, it should be okey.\n\nIf you want to update a cover, you must manually refresh it in foobar, do a right click over the cover which need to be refreshed, and you will have a menu item for that.\n\nThe disk image cache is based on the %album artist% & %album% tags.\n\nRestart foobar to start loading all the covers.",
 			"Ok"
 		);
 }
@@ -809,100 +903,17 @@ FontTypeDUI = {
 	statusbar: 4,
 	console: 5,
 };
-function RGB(r, g, b) {
-	return 0xff000000 | (r << 16) | (g << 8) | b;
-}
-function RGBA(r, g, b, a) {
-	return (a << 24) | (r << 16) | (g << 8) | b;
-}
-function HSL2RGB(zH, zS, zL, result) {
-	var L = zL / 100;
-	var S = zS / 100;
-	var H = zH / 100;
-	var R, G, B, var_1, var_2;
-	if (S == 0) {
-		//HSL from 0 to 1
-		R = L * 255; //RGB results from 0 to 255
-		G = L * 255;
-		B = L * 255;
-	} else {
-		if (L < 0.5) var_2 = L * (1 + S);
-		else var_2 = L + S - S * L;
-
-		var_1 = 2 * L - var_2;
-
-		R = 255 * Hue2RGB(var_1, var_2, H + 1 / 3);
-		G = 255 * Hue2RGB(var_1, var_2, H);
-		B = 255 * Hue2RGB(var_1, var_2, H - 1 / 3);
-	}
-	switch (result) {
-		case "R":
-			return Math.round(R);
-		case "G":
-			return Math.round(G);
-		case "B":
-			return Math.round(B);
-		default:
-			return RGB(Math.round(R), Math.round(G), Math.round(B));
-	}
-}
-function Hue2RGB(v1, v2, vH) {
-	if (vH < 0) vH += 1;
-	if (vH > 1) vH -= 1;
-	if (6 * vH < 1) return v1 + (v2 - v1) * 6 * vH;
-	if (2 * vH < 1) return v2;
-	if (3 * vH < 2) return v1 + (v2 - v1) * (2 / 3 - vH) * 6;
-	return v1;
-}
-function RGB2HSL(RGB_colour) {
-	var R = getRed(RGB_colour) / 255;
-	var G = getGreen(RGB_colour) / 255;
-	var B = getBlue(RGB_colour) / 255;
-	var HSL_colour = { RGB: 0, H: 0, S: 0, L: 0 };
-
-	var_Min = Math.min(R, G, B); //Min. value of RGB
-	var_Max = Math.max(R, G, B); //Max. value of RGB
-	del_Max = var_Max - var_Min; //Delta RGB value
-
-	L = (var_Max + var_Min) / 2;
-
-	if (del_Max == 0) {
-		//This is a gray, no chroma...
-		H = 0; //HSL results from 0 to 1
-		S = 0;
-	} else {
-		//Chromatic data...
-		if (L < 0.5) S = del_Max / (var_Max + var_Min);
-		else S = del_Max / (2 - var_Max - var_Min);
-
-		del_R = ((var_Max - R) / 6 + del_Max / 2) / del_Max;
-		del_G = ((var_Max - G) / 6 + del_Max / 2) / del_Max;
-		del_B = ((var_Max - B) / 6 + del_Max / 2) / del_Max;
-
-		if (R == var_Max) H = del_B - del_G;
-		else if (G == var_Max) H = 1 / 3 + del_R - del_B;
-		else if (B == var_Max) H = 2 / 3 + del_G - del_R;
-
-		if (H < 0) H += 1;
-		if (H > 1) H -= 1;
-	}
-	HSL_colour.RGB = RGB_colour;
-	HSL_colour.H = Math.round(H * 100);
-	HSL_colour.S = Math.round(S * 100);
-	HSL_colour.L = Math.round(L * 100);
-	return HSL_colour;
-}
 
 oGenreCache = function () {
-	if (globalProperties.logFunctionCalls) {
-		console.log("oGenreCache called");
+	if (globalProperties.logFunctions) {
+		console.log("called oGenreCache ( )");
 	}
 	this.genreList = Array();
 	this.tf_genre = globalProperties.tf_genre;
 	this.initialized = false;
 	this.genreExist = function (genre) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.genreExist called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.genreExist (${genre})`);
 		}
 		for (let i = 0; i < this.genreList.length; i++) {
 			if (this.genreList[i][0] == genre) return true;
@@ -910,8 +921,8 @@ oGenreCache = function () {
 		return false;
 	};
 	this.add = function (genre) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.add called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.add (${genre})`);
 		}
 		//genre = genre.replace("&","&&");
 		if (!this.genreExist(genre)) {
@@ -921,16 +932,16 @@ oGenreCache = function () {
 		return false;
 	};
 	this.onFinish = function (genre) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.onFinish called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.onFinish (${genre})`);
 		}
 		this.sort();
 		this.setHierarchy();
 		this.initialized = true;
 	};
 	this.setHierarchy = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.setHierarchy called");
+		if (globalProperties.logFunctions) {
+			console.log("called oGenreCache.setHierarchy ( )");
 		}
 		var submenu = false;
 		for (let i = 0; i < this.genreList.length; i++) {
@@ -942,28 +953,28 @@ oGenreCache = function () {
 		}
 	};
 	this.sort = function (genre) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.sort called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.sort (${genre})`);
 		}
 		this.genreList.sort(sortNumber);
 	};
 	this.isEmpty = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.isEmpty called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.isEmpty ( )`);
 		}
 		return this.genreList.length == 0;
 	};
 	this.trace = function (genre) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.trace called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.trace (${genre})`);
 		}
 		for (let i = 0; i < this.genreList.length; i++) {
 			debugLog(this.genreList[i][0] + "," + this.genreList[i][1]);
 		}
 	};
 	this.on_metadb_changed = function (metadbs, fromhook) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.on_metadb_changed called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oGenreCache.on_metadb_changed (${metadbs}, ${fromhook})`);
 		}
 		if (fromhook) return;
 		var previous = "123456789";
@@ -981,8 +992,8 @@ oGenreCache = function () {
 		if (genre_added) this.onFinish();
 	};
 	this.build_from_library = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oGenreCache.build_from_library called");
+		if (globalProperties.logFunctions) {
+			console.log("called oGenreCache.build_from_library ( )");
 		}
 		var libraryList = fb.GetLibraryItems();
 		libraryList.OrderByFormat(globalProperties.tf_genre, 1);
@@ -1003,64 +1014,61 @@ oGenreCache = function () {
 	};
 };
 var_cache = function () {
-	if (globalProperties.logFunctionCalls) {
-		console.log("var_cache called");
+	if (globalProperties.logFunctions) {
+		console.log("called var_cache ( )");
 	}
 	this.vars = {};
 	this.set = function (name, value) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.set called");
+		if (globalProperties.logFunctions) {
+			console.log(`called var_cache.set (${name}, ${value})`);
 		}
 		this.vars[name] = value;
 	};
 	this.get = function (name) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.get called");
+		if (globalProperties.logFunctions) {
+			console.log(`called var_cache.get (${name}`);
 		}
 		return this.vars[name];
 	};
 	this.setOnce = function (name, value) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.setOnce called");
+		if (globalProperties.logFunctions) {
+			console.log(`called var_cache.setOnce (${name}, ${value})`);
 		}
 		if (!this.isdefined(name)) this.vars[name] = value;
 	};
 	this.isdefined = function (name) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.isdefined called");
+		if (globalProperties.logFunctions) {
+			console.log(`called var_cache.isdefined (${name}`);
 		}
 		return typeof this.vars[name] != "undefined" && this.vars[name] != null;
 	};
 	this.reset = function (name) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.reset called");
+		if (globalProperties.logFunctions) {
+			console.log(`called var_cache.reset (${name}`);
 		}
 		delete this.vars[name];
 	};
 	this.resetAll = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("var_cache.resetAll called");
+		if (globalProperties.logFunctions) {
+			console.log("called var_cache.resetAll ( )");
 		}
 		this.vars = {};
 	};
 };
-function isDefined(variable) {
-	return typeof variable != "undefined" && variable != null;
-}
-function cloneObject(obj) {
-	var clone = {};
-	for (let i in obj) {
-		if (obj[i] != null && typeof obj[i] == "object") clone[i] = cloneObject(obj[i]);
-		else clone[i] = obj[i];
-	}
-	return clone;
-}
+
 function sortNumber(a, b) {
+	if (globalProperties.logFunctions) {
+		console.log(`called sortNumber (${a}, ${b})`);
+	}
 	if (a[0] < b[0]) return -1;
 	if (a[0] > b[0]) return 1;
 	return 0;
 }
+
 function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = window.CreatePopupMenu()) {
+	if (globalProperties.logFunctions) {
+		console.log(`called createGenrePopupMenu (${firstFile}, ${checked_item}, ${genrePopupMenu})`);
+	}
 	let showBelow = false;
 	if (checked_item >= 1000 && checked_item < 2001) var checked_name = g_genre_cache.genreList[checked_item - 1000][0];
 	else checked_name = "#";
@@ -1094,7 +1102,7 @@ function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = win
 				MF_STRING,
 				DefaultGenreIndex + 999,
 				g_genre_cache.genreList[DefaultGenreIndex - 1][0].replace("&", "&&") +
-					"   (Guessed from first file path)"
+				"   (Guessed from first file path)"
 			);
 			genrePopupMenu.AppendMenuSeparator();
 		}
@@ -1132,7 +1140,8 @@ function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = win
 			if (i + 1000 == checked_item) flags = MF_CHECKED;
 			/*if (g_genre_cache.genreList[i][1] == "0")
 				genrePopupMenu.AppendMenuItem(flags, i + 1000, g_genre_cache.genreList[i][0].replace("&", "&&"));
-			else */ if (g_genre_cache.genreList[i][1] == "1") {
+			else */
+			if (g_genre_cache.genreList[i][1] == "1") {
 				currentLevel++;
 				try {
 					eval("genre" + currentLevel).AppendMenuItem(
@@ -1169,13 +1178,17 @@ function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = win
 	}
 	return genrePopupMenu;
 }
+
 function SetGenre(GenreNumber, plist_items, max_items = 9000, clean_file = false) {
+	if (globalProperties.logFunctions) {
+		console.log(`called SetGenre (${GenreNumber}, ${plist_items}, ${max_items}, ${clean_file})`);
+	}
 	if (plist_items.Count > max_items) {
 		HtmlMsg(
 			"Error",
 			"The current playlist contain more than " +
-				max_items +
-				" files. Please use the standard properties dialog.",
+			max_items +
+			" files. Please use the standard properties dialog.",
 			"Ok"
 		);
 		return false;
@@ -1192,13 +1205,19 @@ function SetGenre(GenreNumber, plist_items, max_items = 9000, clean_file = false
 				plist_items.UpdateFileInfoFromJSON(str);
 			}
 		}
+
 		var QuestionString =
 			"Updating " + plist_items.Count + " files genre to '" + g_genre_cache.genreList[GenreNumber][0] + "' ?";
 		HtmlDialog("Please confirm", QuestionString, "Yes", "No", update_confirmation);
 	}
 	return false;
 }
+
+
 String.prototype.sanitise = function () {
+	if (globalProperties.logFunctions) {
+		console.log(`called String.prototype.sanitise ( )`);
+	}
 	return this.replace(/[\/\\|:]/g, "-")
 		.replace(/\*/g, "x")
 		.replace(/"/g, "''")
@@ -1209,16 +1228,26 @@ String.prototype.sanitise = function () {
 		.replace(/^\s+|[\n\s]+$/g, "");
 };
 String.prototype.extract_year = function () {
+	if (globalProperties.logFunctions) {
+		console.log(`called String.prototype.extract_year ( )`);
+	}
 	var year = this.match(/[0-9]{4}/);
 	if (year) return year[0];
 	return this;
 };
+
 function trim1(str) {
+	if (globalProperties.logFunctions) {
+		console.log(`called trim1 (${str})`);
+	}
 	return str.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
 }
 
 function apply_playlist(itemsList, play_results, order_list, undobackup = true) {
-	console.log("apply_playlist")
+	if (globalProperties.logFunctions) {
+		console.log(`called apply_playlist (${itemsList}, ${play_results}, ${order_list}, ${undobackup})`);
+	}
+	console.log("apply_playlist");
 	var pl_idx = -1;
 	playlist_2remove = -1;
 	for (i = 0; i < plman.PlaylistCount; i++) {
@@ -1249,7 +1278,11 @@ function apply_playlist(itemsList, play_results, order_list, undobackup = true) 
 	plman.InsertPlaylistItems(pl_idx, 0, itemsList);
 	if (play_results) plman.ExecutePlaylistDefaultAction(pl_idx, 0);
 }
+
 function match(input, str) {
+	if (globalProperties.logFunctions) {
+		console.log(`called match (${input}, ${str})`);
+	}
 	input = input.removeAccents().toLowerCase();
 	for (let i in str) {
 		if (input.indexOf(str[i]) < 0) return false;
@@ -1258,6 +1291,9 @@ function match(input, str) {
 }
 
 function process_string(str) {
+	if (globalProperties.logFunctions) {
+		console.log(`called process_string (${str})`);
+	}
 	var str_ = [];
 	str = str.removeAccents().toLowerCase();
 	str = str.split(" ").sort();
@@ -1266,7 +1302,11 @@ function process_string(str) {
 	}
 	return str_;
 }
+
 function quickSearch(start, search_function, idx) {
+	if (globalProperties.logFunctions) {
+		console.log(`called match (${start}, ${search_function}, ${idx})`);
+	}
 	let arr;
 	switch (search_function) {
 		case "artist":
@@ -1319,21 +1359,6 @@ function quickSearch(start, search_function, idx) {
 				return false;
 			}
 			break;
-		case "genreArray":
-			arr = globalProperties.tf_genre.EvalWithMetadb(start).split(", ").filter(Boolean)[idx];
-			try {
-				genre_items = fb.GetQueryItems(fb.GetLibraryItems(), "%genre% HAS " + trim1(arr));
-				if (genre_items.Count > 0) {
-					genre_items.OrderByFormat(globalProperties.tf_order, 1);
-					apply_playlist(genre_items, false, false);
-				} else {
-					return false;
-				}
-				genre_items = undefined;
-			} catch (e) {
-				return false;
-			}
-			break;
 		case "date":
 			arr = globalProperties.tf_date.EvalWithMetadb(start);
 			try {
@@ -1369,12 +1394,19 @@ function quickSearch(start, search_function, idx) {
 }
 
 function arrayContains(array, name) {
+	if (globalProperties.logFunctions) {
+		console.log(`called arrayContains (${array}, ${name})`);
+	}
 	for (let i = 0; i < array.length; i++) {
 		if (array[i] == name) return true;
 	}
 	return false;
 }
+
 function delete_tags_except(track_metadb, except_array) {
+	if (globalProperties.logFunctions) {
+		console.log(`called delete_tags_except (${track_metadb}, ${except_array})`);
+	}
 	var track_FileInfo = track_metadb.GetFileInfo();
 
 	for (let i = 0; i <= track_FileInfo.MetaCount; i++) {
@@ -1390,6 +1422,9 @@ function delete_tags_except(track_metadb, except_array) {
 //=================================================// General declarations
 
 function GetKeyboardMask() {
+	if (globalProperties.logFunctions) {
+		console.log(`called GetKeyboardMask ( )`);
+	}
 	var c = utils.IsKeyPressed(VK_CONTROL);
 	var a = utils.IsKeyPressed(VK_ALT);
 	var s = utils.IsKeyPressed(VK_SHIFT);
@@ -1404,33 +1439,269 @@ function GetKeyboardMask() {
 }
 
 // Used everywhere!
-function getAlpha(color) {
-	return (color >> 24) & 0xff;
+
+
+const patternDir = fb.ProfilePath + "patterns\\";
+const patternDirDark = fb.ProfilePath + "patterns\\dark\\";
+const patternDirDarkSm = fb.ProfilePath + "patterns\\dark\\small\\";
+const patternDirLight = fb.ProfilePath + "patterns\\light\\";
+const patternDirLightSm = fb.ProfilePath + "patterns\\light\\small\\";
+/*
+var pattern_list = findRecursivefile("*.png", [patternDirLight]).filter((path) => {
+	return !path.split("\\").pop().startsWith("_");
+});
+const pattern_list_total = pattern_list.length;
+*/
+function getMask(imgname) {
+	if (globalProperties.logFunctions) {
+		console.log(`called getMask (${imgname})`);
+	}
+	let mask;
+	console.log(`mask: ${imgname}`);
+	if (utils.IsFile(patternDirDark + imgname + ".png")) {
+		mask = gdi.Image(patternDirDark + imgname + ".png");
+	} else if (utils.IsFile(patternDirLight + imgname + ".png")) {
+		mask = gdi.Image(patternDirLight + imgname + ".png");
+		mask = mask.InvertColours();
+	} else if (utils.IsFile(patternDirDarkSm + imgname + ".png")) {
+		mask = gdi.Image(patternDirDarkSm + imgname + ".png");
+	} else if (utils.IsFile(patternDirLightSm + imgname + ".png")) {
+		mask = gdi.Image(patternDirLightSm + imgname + ".png");
+		mask = mask.InvertColours();
+	} else if (utils.IsFile(patternDirDark + imgname + ".jpg")) {
+		mask = gdi.Image(patternDirDark + imgname + ".jpg");
+	} else if (utils.IsFile(patternDirLight + imgname + ".jpg")) {
+		mask = gdi.Image(patternDirLight + imgname + ".jpg");
+		mask = mask.InvertColours();
+	}
+	return mask;
+}
+/*
+function getRandomMask() {
+	let randNum = Math.floor(Math.random() * pattern_list.length);
+	let maskPth = pattern_list.splice(randNum, 1).toString();
+	// on_load_image_done will be triggered when the image has been loaded
+	let mask = gdi.Image(maskPth);
+	if (mask == null) {
+		pattern_list = findRecursivefile("*.png", [patternDirLight]).filter((path) => {
+			return !path.split("\\").pop().startsWith("_");
+		});
+		return getRandomMask();
+	}
+	if (maskPth.includes("light")) mask = mask.InvertColours();
+	console.log(
+		`mask: ${utils.SplitFilePath(maskPth)[1]} (${pattern_list_total - pattern_list.length} / ${pattern_list_total})`
+	);
+	return mask;
+}
+*/
+function tileMask(gr, w, h, rgb, mask) {
+	if (globalProperties.logFunctions) {
+		console.log(`called tileMask (${gr}, ${w}, ${h}, ${rgb}, ${mask})`);
+	}
+	//console.log(calcBrightness(rgb));
+	let maskColorA = invert(rgb);
+	let maskColorB = RGB(0, 0, 0);
+	let maskColorC = RGB(255, 255, 255);
+	let contrastA = getContrastRatio(rgb, maskColorA);
+	let contrastB = getContrastRatio(rgb, maskColorB);
+	let contrastC = getContrastRatio(rgb, maskColorC);
+	let largest;
+	let maskColor;
+	// check the condition
+	if (contrastA >= contrastB && contrastA >= contrastC) {
+		maskColor = maskColorA;
+	} else if (contrastB >= contrastA && contrastB >= contrastC) {
+		maskColor = maskColorB;
+	} else {
+		maskColor = maskColorC;
+	}
+	//while (getContrastRatio(maskColor, rgb) < 6) {
+	//	maskColor = new Color(maskColor);
+	//	let cRatio = getContrastRatio(maskColor, rgb);
+	//	console.log("contrast ratio: " + cRatio);
+	//	let cTint = getContrastRatio(tintColor(maskColor, 5), rgb);
+	//	console.log("cTint ratio: " + cTint);
+	//	if (cTint > cRatio) {
+	//		console.log(">>> Theme primary color is too close to text color. Tinting theme color.");
+	//		maskColor = tintColor(maskColor, 5);
+	//	} else {
+	//		console.log(">>> Theme primary color is too close to text color. Shading theme color.");
+	//		maskColor = shadeColor(maskColor, 5);
+	//	}
+	//}
+	//maskColor = invert(maskColor);
+	mask = mask.InvertColours();
+	let white = gdi.CreateImage(mask.Width, mask.Height);
+	let g = white.GetGraphics();
+	g.FillSolidRect(0, 0, mask.Width, mask.Height, maskColor);
+	white.ReleaseGraphics(g);
+	white.ApplyMask(mask);
+	//white = white.InvertColours();
+	let img = gdi.CreateImage(mask.Width, mask.Height);
+	g = img.GetGraphics();
+	g.FillSolidRect(0, 0, mask.Width, mask.Height, rgb);
+	g.DrawImage(white, 0, 0, mask.Width, mask.Height, 0, 0, mask.Width, mask.Height);
+	img.ReleaseGraphics(g);
+	//img = img.InvertColours();
+	//img = img.CreateRawBitmap();
+	for (let i = 0; i < h; i += img.Height) {
+		for (let k = 0; k < w; k += img.Width) {
+			gr.DrawImage(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
+			//gr.GdiDrawBitmap(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
+		}
+	}
 }
 
-function getRed(color) {
-	return (color >> 16) & 0xff;
+const getLuminanace = (color) => {
+	if (globalProperties.logFunctions) {
+		console.log(`called getLuminanace (${color})`);
+	}
+	const values = [color.format("%r%"), color.format("%g%"), color.format("%b%")];
+	const rgb = values.map((v) => {
+		const val = v / 255;
+		return val <= 0.03928 ? val / 12.92 : ((val + 0.055) / 1.055) ** 2.4;
+	});
+	return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
+};
+
+const getContrastRatio = (a, b) => {
+	if (globalProperties.logFunctions) {
+		console.log(`called getContrastRatio (${a}, ${b})`);
+	}
+	const aCol = new Color(a);
+	const bCol = new Color(b);
+	const lumA = getLuminanace(aCol);
+	const lumB = getLuminanace(bCol);
+
+	return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
+};
+
+function invert(color, bBW = false) {
+	if (globalProperties.logFunctions) {
+		console.log(`called invert (${color}, ${bBW})`);
+	}
+	let r = getRed(color);
+	let g = getGreen(color);
+	let b = getBlue(color);
+	if (bBW) {
+		return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? RGB(0, 0, 0) : RGB(255, 255, 255);
+	} else {
+		return RGB(255 - r, 255 - g, 255 - b);
+	}
 }
 
-function getGreen(color) {
-	return (color >> 8) & 0xff;
+function calcBrightness(c) {
+	if (globalProperties.logFunctions) {
+		console.log(`called calcBrightness (${c})`);
+	}
+	var r = getRed(c);
+	var g = getGreen(c);
+	var b = getBlue(c);
+	return Math.round(Math.sqrt(0.299 * r * r + 0.587 * g * g + 0.114 * b * b));
 }
 
-function getBlue(color) {
-	return color & 0xff;
+function HSL2RGB(zH, zS, zL, result) {
+	if (globalProperties.logFunctions) {
+		console.log(`called HSL2RGB (${zH}, ${zS}, ${zL}, ${result})`);
+	}
+	var L = zL / 100;
+	var S = zS / 100;
+	var H = zH / 100;
+	var R, G, B, var_1, var_2;
+	if (S == 0) {
+		//HSL from 0 to 1
+		R = L * 255; //RGB results from 0 to 255
+		G = L * 255;
+		B = L * 255;
+	} else {
+		if (L < 0.5) var_2 = L * (1 + S);
+		else var_2 = L + S - S * L;
+
+		var_1 = 2 * L - var_2;
+
+		R = 255 * Hue2RGB(var_1, var_2, H + 1 / 3);
+		G = 255 * Hue2RGB(var_1, var_2, H);
+		B = 255 * Hue2RGB(var_1, var_2, H - 1 / 3);
+	}
+	switch (result) {
+		case "R":
+			return Math.round(R);
+		case "G":
+			return Math.round(G);
+		case "B":
+			return Math.round(B);
+		default:
+			return RGB(Math.round(R), Math.round(G), Math.round(B));
+	}
 }
+
+function Hue2RGB(v1, v2, vH) {
+	if (globalProperties.logFunctions) {
+		console.log(`called Hue2RGB (${v1}, ${v2}, ${vH})`);
+	}
+	if (vH < 0) vH += 1;
+	if (vH > 1) vH -= 1;
+	if (6 * vH < 1) return v1 + (v2 - v1) * 6 * vH;
+	if (2 * vH < 1) return v2;
+	if (3 * vH < 2) return v1 + (v2 - v1) * (2 / 3 - vH) * 6;
+	return v1;
+}
+
+function RGB2HSL(RGB_colour) {
+	if (globalProperties.logFunctions) {
+		console.log(`called RGB2HSL (${RGB_colour})`);
+	}
+	var R = getRed(RGB_colour) / 255;
+	var G = getGreen(RGB_colour) / 255;
+	var B = getBlue(RGB_colour) / 255;
+	var HSL_colour = { RGB: 0, H: 0, S: 0, L: 0 };
+
+	var_Min = Math.min(R, G, B); //Min. value of RGB
+	var_Max = Math.max(R, G, B); //Max. value of RGB
+	del_Max = var_Max - var_Min; //Delta RGB value
+
+	L = (var_Max + var_Min) / 2;
+
+	if (del_Max == 0) {
+		//This is a gray, no chroma...
+		H = 0; //HSL results from 0 to 1
+		S = 0;
+	} else {
+		//Chromatic data...
+		if (L < 0.5) S = del_Max / (var_Max + var_Min);
+		else S = del_Max / (2 - var_Max - var_Min);
+
+		del_R = ((var_Max - R) / 6 + del_Max / 2) / del_Max;
+		del_G = ((var_Max - G) / 6 + del_Max / 2) / del_Max;
+		del_B = ((var_Max - B) / 6 + del_Max / 2) / del_Max;
+
+		if (R == var_Max) H = del_B - del_G;
+		else if (G == var_Max) H = 1 / 3 + del_R - del_B;
+		else if (B == var_Max) H = 2 / 3 + del_G - del_R;
+
+		if (H < 0) H += 1;
+		if (H > 1) H -= 1;
+	}
+	HSL_colour.RGB = RGB_colour;
+	HSL_colour.H = Math.round(H * 100);
+	HSL_colour.S = Math.round(S * 100);
+	HSL_colour.L = Math.round(L * 100);
+	return HSL_colour;
+}
+
 function setAlpha(color, alpha) {
+	if (globalProperties.logFunctions) {
+		console.log(`called setAlpha (${color}, ${alpha})`);
+	}
 	colorRGB = toRGB(color);
 	return RGBA(colorRGB[0], colorRGB[1], colorRGB[2], alpha);
 }
-function negative(colour) {
-	var R = getRed(colour);
-	var G = getGreen(colour);
-	var B = getBlue(colour);
-	return RGB(Math.abs(R - 255), Math.abs(G - 255), Math.abs(B - 255));
-}
 
 function toRGB(d) {
+	if (globalProperties.logFunctions) {
+		console.log(`called toRGB (${d})`);
+	}
 	// convert back to RGB values
 	d = d - 0xff000000;
 	var r = d >> 16;
@@ -1439,8 +1710,11 @@ function toRGB(d) {
 	return [r, g, b];
 }
 
+// When factor is 0, result is 100% color1, when factor is 1, result is 100% color2.
 function blendColors(c1, c2, factor) {
-	// When factor is 0, result is 100% color1, when factor is 1, result is 100% color2.
+	if (globalProperties.logFunctions) {
+		console.log(`called blendColors (${c1}, ${c2}, ${factor})`);
+	}
 	c1 = toRGB(c1);
 	c2 = toRGB(c2);
 	var r = Math.round(c1[0] + factor * (c2[0] - c1[0]));
@@ -1448,7 +1722,11 @@ function blendColors(c1, c2, factor) {
 	var b = Math.round(c1[2] + factor * (c2[2] - c1[2]));
 	return 0xff000000 | (r << 16) | (g << 8) | b;
 }
+
 function TrackType(metadb) {
+	if (globalProperties.logFunctions) {
+		console.log(`called TrackType (${metadb})`);
+	}
 	var taggable;
 	var type;
 	var trackpath = metadb.RawPath.substring(0, 4);
@@ -1485,6 +1763,7 @@ function TrackType(metadb) {
 	}
 	return type;
 }
+
 //}}
 
 //=================================================// Buttons objects
@@ -1515,8 +1794,7 @@ class button {
 		try {
 			this.img[this.state] &&
 			gr.DrawImage(this.img[this.state], this.x, this.y, this.w, this.h, 0, 0, this.w, this.h, 0, alpha);
-		} catch (e) {
-		}
+		} catch (e) {}
 	}
 
 	repaint() {
@@ -1633,11 +1911,11 @@ class SimpleButton extends button {
 		this.w = w;
 		this.h = h;
 		this.positioned = true;
-	};
+	}
 
 	containXY(x, y) {
 		return this.x <= x && x <= this.x + this.w && this.y <= y && y <= this.y + this.h;
-	};
+	}
 
 	draw(gr) {
 		if (this.state === ButtonStates.hide) return;
@@ -1673,17 +1951,11 @@ class SimpleButton extends button {
 				);
 				break;
 		}
-	};
+	}
 
 	onClick() {
 		this.fonClick && this.fonClick();
-	};
-
-	onDbleClick() {
-		if (this.fonDbleClick) {
-			this.fonDbleClick && this.fonDbleClick();
-		}
-	};
+	}
 
 	onMouse(state, x, y) {
 		switch (state) {
@@ -1716,8 +1988,9 @@ class SimpleButton extends button {
 				}
 				break;
 		}
-	};
+	}
 }
+
 //=================================================// Tools (general)
 
 function DrawPolyStar(gr, x, y, out_radius, in_radius, points, line_thickness, line_color, fill_color, angle, opacity) {
@@ -1753,8 +2026,12 @@ function DrawPolyStar(gr, x, y, out_radius, in_radius, points, line_thickness, l
 }
 
 function zoom(value, factor) {
+	if (globalProperties.logFunctions) {
+		console.log(`called zoom (${value}, ${factor})`);
+	}
 	return Math.ceil((value * factor) / 100);
 }
+
 Number.prototype.toHHMMSS = function () {
 	var sec_num = parseInt(this, 10); // don't forget the second param
 	var hours = Math.floor(sec_num / 3600);
@@ -1981,7 +2258,7 @@ var defaultDiacriticsRemovalap = [
 
 var diacriticsMap = {};
 for (let i = 0; i < defaultDiacriticsRemovalap.length; i++) {
-	var letters = defaultDiacriticsRemovalap[i].letters;
+	let letters = defaultDiacriticsRemovalap[i].letters;
 	for (let j = 0; j < letters.length; j++) {
 		diacriticsMap[letters[j]] = defaultDiacriticsRemovalap[i].base;
 	}
@@ -1994,6 +2271,9 @@ String.prototype.removeAccents = function () {
 
 // ========================================= IMAGES =========================================
 function FormatCover(image, w, h, rawBitmap, callID, keepratio = false) {
+	if (globalProperties.logFunctions) {
+		console.log(`called FormatCover (${image}, ${w}, ${h}, ${rawBitmap}, ${callID}, ${keepratio})`);
+	}
 	let ratio, pw, ph;
 	if (!image || w <= 0 || h <= 0) return image;
 	try {
@@ -2017,10 +2297,18 @@ function FormatCover(image, w, h, rawBitmap, callID, keepratio = false) {
 		return image;
 	}
 }
+
 function isImage(variable) {
+	if (globalProperties.logFunctions) {
+		console.log(`called isImage (${variable})`);
+	}
 	return typeof variable == "object" && variable != null;
 }
+
 function process_cachekey(metadb, titleformat = globalProperties.tf_crc, str = titleformat.EvalWithMetadb(metadb)) {
+	if (globalProperties.logFunctions) {
+		console.log(`called process_cachekey (${metadb}, ${titleformat}, ${str})`);
+	}
 	var str_return = "";
 	str = str.toLowerCase();
 	var len = str.length;
@@ -2031,7 +2319,11 @@ function process_cachekey(metadb, titleformat = globalProperties.tf_crc, str = t
 	}
 	return str;
 }
+
 function check_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey) {
+	if (globalProperties.logFunctions) {
+		console.log(`called check_cache (${metadb}, ${albumIndex}, ${crc})`);
+	}
 	var filename = cover_img_cache + "\\" + crc + "." + globalProperties.ImageCacheExt;
 	if (crc == "undefined") return false;
 	if (g_files.FileExists(filename)) {
@@ -2039,7 +2331,11 @@ function check_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey)
 	}
 	return false;
 }
+
 function delete_file_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey, delete_at_startup) {
+	if (globalProperties.logFunctions) {
+		console.log(`called delete_file_cache (${metadb}, ${albumIndex}, ${crc}, ${delete_at_startup})`);
+	}
 	var filename = cover_img_cache + "\\" + crc + "." + globalProperties.ImageCacheExt;
 	if (g_files.FileExists(filename)) {
 		try {
@@ -2063,9 +2359,9 @@ function delete_file_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cac
 				HtmlMsg(
 					"Can't delete this file",
 					"The cached cover can't be deleted.\nTry to close foobar and delete the following file manually :\n\n" +
-						cover_img_cache +
-						"\\" +
-						crc,
+					cover_img_cache +
+					"\\" +
+					crc,
 					"Ok"
 				);
 			else
@@ -2081,6 +2377,9 @@ function delete_file_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cac
 }
 
 function delete_full_cache() {
+	if (globalProperties.logFunctions) {
+		console.log(`called delete_full_cache ( )`);
+	}
 	if (globalProperties.deleteDiskCache) {
 		g_files.DeleteFolder(cover_img_cache, true);
 		timer_create_folder = setTimeout(function () {
@@ -2097,12 +2396,17 @@ function delete_full_cache() {
 				fb.Exit();
 			}
 		}
+
 		var QuestionString =
 			"Do you really want to fully reset the image cache ?\n\nIf you confirm, the image cache will be refreshed on next startup. Foobar will exit, please restart it manually.";
 		HtmlDialog("Please confirm", QuestionString, "Yes", "No", delete_confirmation);
 	}
 }
+
 function load_image_from_cache(filename) {
+	if (globalProperties.logFunctions) {
+		console.log(`called load_image_from_cache (${filename})`);
+	}
 	try {
 		var tdi = gdi.LoadImageAsync(window.ID, filename);
 		return tdi;
@@ -2110,15 +2414,22 @@ function load_image_from_cache(filename) {
 		return -1;
 	}
 }
+
 function load_image_from_cache_direct(filename) {
+	if (globalProperties.logFunctions) {
+		console.log(`called load_image_from_cache_direct (${filename})`);
+	}
 	try {
-		var img = gdi.Image(filename);
-		return img;
+		return gdi.Image(filename);
 	} catch (e) {
 		return -1;
 	}
 }
+
 function get_albumArt(metadb, cachekey = process_cachekey(metadb)) {
+	if (globalProperties.logFunctions) {
+		console.log(`called get_albumArt (${metadb}, ${cachekey})`);
+	}
 	try {
 		var artwork_img = g_image_cache.cachelist[cachekey];
 	} catch (e) {}
@@ -2136,14 +2447,22 @@ function get_albumArt(metadb, cachekey = process_cachekey(metadb)) {
 	}
 	return artwork_img;
 }
+
 function get_fallbackCover(metadb, tracktype = TrackType(metadb)) {
+	if (globalProperties.logFunctions) {
+		console.log(`called get_fallbackCover (${metadb}, ${tracktype})`);
+	}
 	if (tracktype < 2) {
 		return globalProperties.nocover_img;
 	} else {
 		return globalProperties.stream_img;
 	}
 }
+
 const get_albumArt_async = async (metadb, albumIndex, cachekey, need_stub, only_embed, no_load, addArgs) => {
+	if (globalProperties.logFunctions) {
+		console.log(`called get_albumArt_async (${metadb}, ${albumIndex}, ${cachekey}, ${need_stub}, ${only_embed}, ${no_load}, ${addArgs})`);
+	}
 	need_stub = true;
 	only_embed = false;
 	no_load = false;
@@ -2191,6 +2510,9 @@ const get_albumArt_async = async (metadb, albumIndex, cachekey, need_stub, only_
 };
 
 function save_image_to_cache(image, albumIndex, cachekey = false, metadb) {
+	if (globalProperties.logFunctions) {
+		console.log(`called save_image_to_cache (${image}, ${albumIndex}, ${cachekey}, ${metadb})`);
+	}
 	let save2cache;
 	let crc;
 	if (!cachekey && typeof pBrw != "undefined") crc = pBrw.groups[albumIndex].cachekey;
@@ -2234,14 +2556,18 @@ function save_image_to_cache(image, albumIndex, cachekey = false, metadb) {
 	if (typeof pBrw == "object") pBrw.repaint();
 	//return image;
 }
+
 function createDragText(line1, line2, cover_size) {
+	if (globalProperties.logFunctions) {
+		console.log(`called createDragText (${line1}, ${line2}, ${cover_size})`);
+	}
 	var drag_img = gdi.CreateImage(cover_size, cover_size);
 
 	var gb = drag_img.GetGraphics();
 	gb.SetTextRenderingHint(2);
 	gb.SetSmoothingMode(1);
-	var text1_width = gb.CalcTextWidth(line1, ft.smallish_bold);
-	var text2_width = gb.CalcTextWidth(line2, ft.small_italic);
+	var text1_width = gb.CalcTextWidth(line1, f_ft.smallish_bold);
+	var text2_width = gb.CalcTextWidth(line2, f_ft.small_italic);
 	var rectangle_width = Math.min(Math.max(text1_width, text2_width), cover_size - 40);
 
 	var sep_width = Math.min(text1_width, text2_width) + 10;
@@ -2281,7 +2607,7 @@ function createDragText(line1, line2, cover_size) {
 
 	gb.GdiDrawText(
 		line1,
-		ft.smallish_bold,
+		f_ft.smallish_bold,
 		colors.dragimage_text,
 		10,
 		cover_size - 75,
@@ -2291,7 +2617,7 @@ function createDragText(line1, line2, cover_size) {
 	);
 	gb.GdiDrawText(
 		line2,
-		ft.small_italic,
+		f_ft.small_italic,
 		colors.dragimage_text,
 		10,
 		cover_size - 45,
@@ -2303,7 +2629,11 @@ function createDragText(line1, line2, cover_size) {
 
 	return drag_img;
 }
+
 function createDragImg(img, cover_size, count) {
+	if (globalProperties.logFunctions) {
+		console.log(`called createDragImg (${img}, ${cover_size}, ${count})`);
+	}
 	var drag_zone_size = 220;
 	var drag_img = gdi.CreateImage(drag_zone_size, drag_zone_size);
 	var left_padding = (top_padding = Math.round((drag_zone_size - cover_size) / 2));
@@ -2324,7 +2654,7 @@ function createDragImg(img, cover_size, count) {
 	gb.DrawRect(left_padding, top_padding, cover_size - 1, cover_size - 1, 1.0, colors.dragimage_border);
 	gb.GdiDrawText(
 		count + " tracks",
-		ft.small_italic,
+		f_ft.small_italic,
 		colors.dragimage_text,
 		left_padding,
 		top_padding + cover_size - text_height,
@@ -2337,7 +2667,11 @@ function createDragImg(img, cover_size, count) {
 	//drag_img = drag_img.Resize(cover_size, cover_size, 2);
 	return drag_img;
 }
+
 function freeCacheMemory(force = false) {
+	if (globalProperties.logFunctions) {
+		console.log(`called freeCacheMemory (${force})`);
+	}
 	if (window.TotalMemoryUsage > window.MemoryLimit * 0.8 || force) {
 		g_image_cache.resetCache();
 		if (typeof pBrw != "undefined") pBrw.freeMemory();
@@ -2345,19 +2679,19 @@ function freeCacheMemory(force = false) {
 	}
 	return false;
 }
+
 oImageCache = function () {
-	if (globalProperties.logFunctionCalls) {
-		console.log("oImageCache called");
+	if (globalProperties.logFunctions) {
+		console.log("called oImageCache");
 	}
 	this.cachelist = Array();
-	this.loadCounter = 0;
 	this.coverCacheWidthMax = -1;
 	this.addToCache = function (image, cachekey, resize_width, resize_height) {
-		if (globalProperties.logFunctionCalls) {
-			//	console.log("oImageCache.addToCache called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.addToCache (${image}, ${cachekey}, ${resize_width}, ${resize_height})`);
 		}
 		if (!globalProperties.loaded_covers2memory || freeCacheMemory()) return;
-		var resize_height = typeof resize_height != "undefined" ? resize_height : resize_width;
+		resize_height = typeof resize_height != "undefined" ? resize_height : resize_width;
 		if (cachekey != "undefined") {
 			if (this.coverCacheWidthMax > 0)
 				this.cachelist[cachekey] = FormatCover(
@@ -2371,15 +2705,9 @@ oImageCache = function () {
 			else this.cachelist[cachekey] = image;
 		}
 	};
-	this.setMaxWidth = function (maxWidth) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.setMaxWidth called");
-		}
-		this.coverCacheWidthMax = maxWidth;
-	};
 	this.resetCache = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.resetCache called");
+		if (globalProperties.logFunctions) {
+			console.log("called oImageCache.resetCache ( )");
 		}
 		debugger_hint("-------------- image cache reset --------------");
 		debugger_hint(window.TotalMemoryUsage + " > TotalMemoryUsage");
@@ -2388,6 +2716,9 @@ oImageCache = function () {
 		this.cachelist = Array();
 	};
 	this.load_image_from_cache_async = async (albumIndex, cachekey, filename, save = false, metadb) => {
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.load_image_from_cache_async (${albumIndex}, ${cachekey}, ${filename}, ${save}, ${metadb})`);
+		}
 		if (pBrw.groups[albumIndex].load_requested == 0) {
 			try {
 				if (globalProperties.load_image_from_cache_direct) {
@@ -2413,9 +2744,15 @@ oImageCache = function () {
 			pBrw.repaint();
 		}
 	};
-	this.hit = function (metadb, albumIndex, direct_return, cachekey = pBrw.groups[albumIndex].cachekey, artist_name = "") {
-		if (globalProperties.logFunctionCalls) {
-			//	console.log("oImageCache.hit called");
+	this.hit = function (
+		metadb,
+		albumIndex,
+		direct_return,
+		cachekey = pBrw.groups[albumIndex].cachekey,
+		artist_name = ""
+	) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.hit (${metadb}, ${albumIndex}, ${direct_return}, ${cachekey}, ${artist_name})`);
 		}
 		var img = this.cachelist[cachekey];
 		if (typeof img == "undefined" || img == null) {
@@ -2489,27 +2826,27 @@ oImageCache = function () {
 		return img;
 	};
 	this.reset = function (key) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.reset called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.reset (${key})`);
 		}
 		this.cachelist[key] = null;
 	};
 	this.resetMetadb = function (metadb) {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.resetMetadb called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.resetMetadb (${metadb})`);
 		}
 		this.cachelist[process_cachekey(metadb)] = null;
 	};
 	this.resetAll = function () {
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.resetAll called");
+		if (globalProperties.logFunctions) {
+			console.log("called oImageCache.resetAll ( )");
 		}
 		this.cachelist = Array();
 	};
 	this.getit = function (metadb, albumId, image, cw = globalProperties.thumbnailWidthMax) {
 		let ratio, pw, ph;
-		if (globalProperties.logFunctionCalls) {
-			console.log("oImageCache.getit called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oImageCache.getit (${metadb}, ${albumId}, ${image}, ${cw})`);
 		}
 		var ch = cw;
 		var img = null;
@@ -2557,9 +2894,11 @@ oImageCache = function () {
 //=========================================================================
 
 function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, overlay_color, quality = 1) {
-
+	if (globalProperties.logFunctions) {
+		console.log(`called draw_blurred_image (${image}, ${ix}, ${iy}, ${iw}, ${ih}, ${bx}, ${by}, ${bw}, ${bh}, ${blur_value}, ${overlay_color}, ${quality})`);
+	}
 	image.StackBlur(50);
-	return image;
+	//return image;
 
 	var imgA = image.Resize(Math.max(5, (iw * blur_value) / 100), Math.max(5, (ih * blur_value) / 100), quality);
 	var imgB = imgA.Resize(iw, ih, quality);
@@ -2588,7 +2927,20 @@ function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, o
 
 	return bbox;
 }
-function setWallpaperImgV2(image, metadb, progressbar_art = false, width = window.Width, height = window.Height, blur_value = globalProperties.wallpaperblurvalue, rawBitmap = false, quality = 1) {
+
+function setWallpaperImgV2(
+	image,
+	metadb,
+	progressbar_art = false,
+	width = window.Width,
+	height = window.Height,
+	blur_value = globalProperties.wallpaperblurvalue,
+	rawBitmap = false,
+	quality = 1
+) {
+	if (globalProperties.logFunctions) {
+		console.log(`called setWallpaperImgV2 (${image}, ${metadb}, ${progressbar_art}, ${width}, ${height}, ${blur_value}, ${rawBitmap}, ${quality})`);
+	}
 	let tmp_img;
 	let display;
 	if (isImage(image)) {
@@ -2623,7 +2975,20 @@ function setWallpaperImgV2(image, metadb, progressbar_art = false, width = windo
 	);
 	return img;
 }
-function setWallpaperImg(defaultpath, metadb, progressbar_art = false, width = window.Width, height = window.Height, blur_value = globalProperties.wallpaperblurvalue, rawBitmap = false, quality = 1) {
+
+function setWallpaperImg(
+	defaultpath,
+	metadb,
+	progressbar_art = false,
+	width = window.Width,
+	height = window.Height,
+	blur_value = globalProperties.wallpaperblurvalue,
+	rawBitmap = false,
+	quality = 1
+) {
+	if (globalProperties.logFunctions) {
+		console.log(`called setWallpaperImg (${defaultpath}, ${metadb}, ${progressbar_art}, ${width}, ${height}, ${blur_value}, ${rawBitmap}, ${quality})`);
+	}
 	let display;
 	if (metadb && (globalProperties.wallpapermode == 0 || progressbar_art)) {
 		cachekey = process_cachekey(metadb);
@@ -2659,6 +3024,7 @@ function setWallpaperImg(defaultpath, metadb, progressbar_art = false, width = w
 	);
 	return img;
 }
+
 function FormatWallpaper(
 	image,
 	iw,
@@ -2672,6 +3038,9 @@ function FormatWallpaper(
 	blur_value = globalProperties.wallpaperblurvalue,
 	quality = 1
 ) {
+	if (globalProperties.logFunctions) {
+		console.log(`called FormatWallpaper (${image}, ${iw}, ${ih}, ${interpolation_mode}, ${display_mode}, ${angle}, ${txt}, ${rawBitmap}, ${force_blur}, ${blur_value}, ${quality})`);
+	}
 	if (!image || !iw || !ih) return image;
 
 	var panel_ratio = iw / ih;
@@ -2785,12 +3154,20 @@ function FormatWallpaper(
 		return tmp_img;
 	}
 }
+
 // Debugger functions
 function debugger_hint(string) {
+	if (globalProperties.logFunctions) {
+		console.log(`called debugger_hint (${string})`);
+	}
 	//console.log(string)	;
 }
+
 //JSON wrappers
 function JSON_stringify(info) {
+	if (globalProperties.logFunctions) {
+		console.log(`called JSON_stringify (${info})`);
+	}
 	try {
 		return JSON.stringify(info);
 	} catch (e) {
@@ -2802,6 +3179,33 @@ function JSON_stringify(info) {
 // *****************************************************************************************************************************************
 // INPUT BOX by Br3tt aka Falstaff (c)2013-2015
 // *****************************************************************************************************************************************
+
+var f_ft = {};
+
+const f_fontLight = "HelveticaNeueLT Pro 45 Lt";
+const f_fontRegular = "HelveticaNeueLT Pro 55 Roman";
+
+function createForkFonts() {
+	if (globalProperties.logFunctions) {
+		console.log(`called createForkFonts ( )`);
+	}
+	pref.fontAdjustement = Math.min(pref.fontAdjustement_max, Math.max(pref.fontAdjustement_min, pref.fontAdjustement));
+	pref.g_fsize = pref.fontAdjustement + 13;
+	f_ft.pl_lrg = gdi.Font(f_fontRegular, 24 + pref.fontAdjustement, 0);
+	f_ft.pl_med = gdi.Font(f_fontRegular, 20 + pref.fontAdjustement, 0);
+	f_ft.pl_sml = gdi.Font(f_fontRegular, 18 + pref.fontAdjustement, 0);
+	f_ft.smallish_font = gdi.Font(f_fontLight, 17 + pref.fontAdjustement, 0);
+	f_ft.small_font = gdi.Font(f_fontLight, 15 + pref.fontAdjustement, 0);
+	f_ft.smaller_font = gdi.Font(f_fontLight, 13 + pref.fontAdjustement, 0);
+	f_ft.med_italic = gdi.Font(f_fontLight, 20 + pref.fontAdjustement, g_font_style.italic);
+	f_ft.smallish_italic = gdi.Font(f_fontLight, 17 + pref.fontAdjustement, g_font_style.italic);
+	f_ft.small_italic = gdi.Font(f_fontLight, 15 + pref.fontAdjustement, g_font_style.italic);
+	f_ft.smaller_italic = gdi.Font(f_fontLight, 13 + pref.fontAdjustement, g_font_style.italic);
+	f_ft.med_bold = gdi.Font(f_fontLight, 20 + pref.fontAdjustement, g_font_style.bold);
+	f_ft.smallish_bold = gdi.Font(f_fontLight, 17 + pref.fontAdjustement, g_font_style.bold);
+	f_ft.small_bold = gdi.Font(f_fontLight, 15 + pref.fontAdjustement, g_font_style.bold);
+	f_ft.smaller_bold = gdi.Font(f_fontLight, 13 + pref.fontAdjustement, g_font_style.bold);
+}
 
 cInputbox = {
 	temp_gr: gdi.CreateImage(1, 1).GetGraphics(),
@@ -2823,7 +3227,6 @@ cFilterBox = {
 };
 
 class oInputBox {
-
 	constructor(
 		w,
 		h,
@@ -2878,17 +3281,20 @@ class oInputBox {
 		this.onFontChanged();
 	}
 
-	onFontChanged(){
+	onFontChanged() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.onFontChanged ( )`);
+		}
 		this.font_search = eval(this.font_search_string);
 		this.font_empty = eval(this.font_empty_string);
 	}
 
-	setSize(w, h){
+	setSize(w, h) {
 		this.w = w;
 		this.h = h;
 	}
 
-	draw(gr, x, y){
+	draw(gr, x, y) {
 		this.x = x;
 		this.y = y;
 		let DT;
@@ -2976,7 +3382,10 @@ class oInputBox {
 		if (this.edit && !this.select) this.drawcursor(gr);
 	}
 
-	drawcursor(gr){
+	drawcursor(gr) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.drawcursor (gr)`);
+		}
 		if (cInputbox.cursor_state) {
 			if (this.Cpos >= this.offset) {
 				this.Cx = this.GetCx(this.Cpos);
@@ -2991,15 +3400,24 @@ class oInputBox {
 		}
 	}
 
-	repaint(){
+	repaint() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.repaint ( )`);
+		}
 		pBrw.repaint();
 	}
 
 	CalcText() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.CalcText ( )`);
+		}
 		this.TWidth = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset), this.font_search);
-	};
+	}
 
 	GetCx(pos) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.GetCx (${pos})`);
+		}
 		let x;
 		if (pos >= this.offset) {
 			x = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset, pos - this.offset), this.font_search);
@@ -3007,9 +3425,12 @@ class oInputBox {
 			x = 0;
 		}
 		return x;
-	};
+	}
 
 	GetCPos(x) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.GetCPos (${x})`);
+		}
 		var tx = x - this.x;
 		var pos = 0;
 		for (var i = this.offset; i < this.text.length; i++) {
@@ -3019,9 +3440,12 @@ class oInputBox {
 			}
 		}
 		return i;
-	};
+	}
 
-	on_focus(is_focused){
+	on_focus(is_focused) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.on_focus (${is_focused})`);
+		}
 		if (!is_focused && this.edit) {
 			if (this.text.length == 0) {
 				this.text = this.default_text;
@@ -3039,7 +3463,10 @@ class oInputBox {
 		}
 	}
 
-	resetCursorTimer(){
+	resetCursorTimer() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.resetCursorTimer ( )`);
+		}
 		if (cInputbox.timer_cursor) {
 			window.ClearInterval(cInputbox.timer_cursor);
 			cInputbox.timer_cursor = false;
@@ -3052,6 +3479,9 @@ class oInputBox {
 	}
 
 	activate(x) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.activate (${x})`);
+		}
 		this.dblclk = false;
 		this.drag = true;
 		this.edit = true;
@@ -3060,13 +3490,19 @@ class oInputBox {
 		this.SelBegin = this.Cpos;
 		this.SelEnd = this.Cpos;
 		this.resetCursorTimer();
-	};
+	}
 
-	checkActive(){
+	checkActive() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.checkActive ( )`);
+		}
 		return this.edit;
 	}
 
-	check(callback, x, y, force_activate = false){
+	check(callback, x, y, force_activate = false) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.check (${callback}, ${x}, ${y}, ${force_activate})`);
+		}
 		this.hover = x >= this.x - 2 && x <= this.x + this.w + 1 && y > this.y && y < this.y + this.h;
 		switch (callback) {
 			case "down":
@@ -3181,10 +3617,10 @@ class oInputBox {
 	}
 
 	show_context_menu(x, y) {
-		let p1, p2;
-		if (globalProperties.logFunctionCalls) {
-			console.log("oInputbox.show_context_menu called");
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.show_context_menu (${x}, ${y})`);
 		}
+		let p1, p2;
 		let idx;
 		let _menu = window.CreatePopupMenu();
 		cInputbox.clipboard = cInputbox.doc.parentWindow.clipboardData.getData("Text");
@@ -3267,13 +3703,19 @@ class oInputBox {
 	}
 
 	on_key_down(vkey) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.on_key_down (${vkey})`);
+		}
 		this.resetCursorTimer();
 		let kmask = GetKeyboardMask();
 		//console.log(kmask);
 		this.on_key(vkey, kmask);
-	};
+	}
 
 	on_key(vkey, mask, autovalidate = this.autovalidation) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.on_key (${vkey}, ${mask}, ${autovalidate})`);
+		}
 		//console.log("on_key");
 		let tmp;
 		let tmp_x;
@@ -3659,9 +4101,11 @@ class oInputBox {
 	}
 
 	on_char(code, mask, autovalidate = this.autovalidation) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oInputBox.on_char (${code}, ${mask}, ${autovalidate})`);
+		}
 		let p1, p2;
 		if (code == 1 && this.edit && mask == KMask.ctrl) {
-			this.Spos = 0;
 			this.Cpos = this.text.length;
 			this.select = true;
 			this.repaint();
@@ -3712,12 +4156,14 @@ class oInputBox {
 				this.prev_text = this.text;
 			}
 		}
-	};
-
+	}
 }
 
 class oFilterBox extends oInputBox {
 	constructor() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox ( )`);
+		}
 		super(
 			0,
 			0,
@@ -3729,7 +4175,7 @@ class oFilterBox extends oInputBox {
 			colors.selected_bg,
 			g_sendResponse,
 			undefined,
-			"ft.smallish_italic"
+			"f_ft.smallish_italic"
 		);
 		this.autovalidation = true;
 		this.visible = true;
@@ -3745,7 +4191,10 @@ class oFilterBox extends oInputBox {
 		this.on_init();
 	}
 
-	getImages(w=18, btText = undefined){
+	getImages(w = 18, btText = undefined) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.getImages (${w}, ${btText})`);
+		}
 		let gb;
 		let icon_theme_subfolder = "";
 		if (pref.darkMode) icon_theme_subfolder = "\\white";
@@ -3756,7 +4205,7 @@ class oFilterBox extends oInputBox {
 			this.images.search_icon,
 			this.images.search_icon,
 			"search_bt",
-			btText? btText : "Filter groups" + (globalProperties.filterBox_filter_tracks ? " & tracks" : "")
+			btText ? btText : "Filter groups" + (globalProperties.filterBox_filter_tracks ? " & tracks" : "")
 		);
 
 		this.images.resetIcon_off = gdi.CreateImage(w, w);
@@ -3799,15 +4248,21 @@ class oFilterBox extends oInputBox {
 	}
 
 	on_init() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.on_init ( )`);
+		}
 		g_headerbar.RightTextLength = -1;
 		this.autovalidation = true;
 		this.visible = true;
 		this.getImages();
 		super.x = 0;
 		super.y = 0;
-	};
+	}
 
 	draw(gr, x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.draw (gr, ${x}, ${y})`);
+		}
 		this.x = x;
 		this.y = y;
 		if (pBrw.playlistName != globalProperties.whole_library && !libraryfilter_state.isActive()) {
@@ -3829,6 +4284,9 @@ class oFilterBox extends oInputBox {
 	}
 
 	clearInputbox() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.clearInputbox ( )`);
+		}
 		if (this.text.length > 0) {
 			this.text = "";
 			this.offset = 0;
@@ -3836,16 +4294,22 @@ class oFilterBox extends oInputBox {
 			this.isActive = false;
 		}
 		super.check("down", -1, -1);
-	};
+	}
 
-	setSize(w, h){
+	setSize(w, h) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.setSize (${w}, ${h})`);
+		}
 		this.w = w;
 		this.h = h;
 		this.paddingVertical = 6;
 		super.setSize(w - this.paddingLeft, h - this.paddingTop - this.paddingBottom);
 	}
 
-	on_mouse(event, x, y){
+	on_mouse(event, x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.on_mouse (${event}, ${x}, ${y})`);
+		}
 		switch (event) {
 			case "lbtn_down":
 				let force_activate = x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h;
@@ -3874,12 +4338,18 @@ class oFilterBox extends oInputBox {
 		}
 	}
 
-	on_char(code){
+	on_char(code) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.on_char (${code})`);
+		}
 		super.on_char(code);
 		this.isActive = this.text.length > 0;
 	}
 
 	search(string) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oFilterBox.search (${string})`);
+		}
 		let group_match = false;
 		let str = process_string(string);
 		pBrw.groups_draw.splice(0, pBrw.groups_draw.length);
@@ -3906,12 +4376,19 @@ class oFilterBox extends oInputBox {
 		scroll && (scroll_ = pBrw.rowHeight * 2);
 		scroll = 0;
 		pBrw.rowsCount = Math.ceil(pBrw.groups_draw.length / pBrw.totalColumns);
-		g_scrollbar.setCursor(pBrw.totalRowsVis * pBrw.rowHeight, pBrw.rowHeight * pBrw.rowsCount + g_showlist.h, scroll_);
+		g_scrollbar.setCursor(
+			pBrw.totalRowsVis * pBrw.rowHeight,
+			pBrw.rowHeight * pBrw.rowsCount + g_showlist.h,
+			scroll_
+		);
 		pBrw.repaint();
-	};
+	}
 }
 
 function g_sendResponse() {
+	if (globalProperties.logFunctions) {
+		console.log(`called g_sendResponse ( )`);
+	}
 	g_hiddenLoadTimer && clearTimeout(g_hiddenLoadTimer);
 	g_hiddenLoadTimer = false;
 
@@ -3934,6 +4411,9 @@ class oBaseBrowser {
 	}
 
 	repaint() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oBaseBrowser.repaint ( )`);
+		}
 		repaint_main1 = repaint_main2;
 	}
 
@@ -3945,6 +4425,9 @@ class oBaseBrowser {
 	}
 
 	DefineCircleMask(size) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oBaseBrowser.DefineCircleMask (${size})`);
+		}
 		let Mimg = gdi.CreateImage(size, size);
 		let gb = Mimg.GetGraphics();
 		gb.FillSolidRect(0, 0, size, size, GetGrey(255));
@@ -3952,52 +4435,61 @@ class oBaseBrowser {
 		gb.FillEllipse(1, 1, size - 2, size - 2, GetGrey(0));
 		Mimg.ReleaseGraphics(gb);
 		this.coverMask = Mimg;
-	};
+	}
 
 	_isHover(x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oBaseBrowser._isHover (${x}, ${y})`);
+		}
 		return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
-	};
+	}
 
 	resetTimer() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oBaseBrowser.resetTimer ( )`);
+		}
 		if (this.g_time) {
 			window.ClearInterval(this.g_time);
 			this.g_time = false;
 		}
-	};
+	}
 
 	startTimer() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oBaseBrowser.startTimer ( )`);
+		}
 		this.resetTimer();
 		try {
 			this.timerStartTime = Date.now();
-		} catch (e) {
-		}
+		} catch (e) {}
 		this.timerCounter = 0;
 		this.g_time = setInterval(() => {
 			this.timerCounter++;
 			//Restart if the animation is desyncronised
 			try {
-				if (Math.abs(this.timerStartTime + this.timerCounter * globalProperties.refreshRate - Date.now()) > 500) {
+				if (
+					Math.abs(this.timerStartTime + this.timerCounter * globalProperties.refreshRate - Date.now()) > 500
+				) {
 					this.startTimer();
 				}
-			} catch (e) {
-			}
+			} catch (e) {}
 			this.timerScript();
 		}, globalProperties.refreshRate);
-	};
-
-	timerScript(){
 	}
 
-	get_metrics(gr) {
-		this.get_metrics_called = true;
-		this.firstRowHeight = gr.CalcTextHeight("Wcgregor", ft.smallish_font);
-		this.secondRowHeight = gr.CalcTextHeight("Wcgregor", ft.small_italic);
-	};
+	timerScript() {}
 
+	get_metrics(gr) {
+		this.firstRowHeight = gr.CalcTextHeight("Wcgregor", f_ft.smallish_font);
+		this.secondRowHeight = gr.CalcTextHeight("Wcgregor", f_ft.small_italic);
+	}
 }
 
 class oPlBrowser extends oBaseBrowser {
 	constructor(name) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser (${name})`);
+		}
 		super(name);
 		this.groups_draw = [];
 		this.activeRow = 0;
@@ -4009,17 +4501,13 @@ class oPlBrowser extends oBaseBrowser {
 		this.thumbnailWidth = globalProperties.thumbnailWidth;
 		this.scroll = 0;
 		this.scroll_ = 0;
-		this.scrollTimer = false;
 		this.TooltipRow = -1;
 		this.TooltipAlbum = -1;
 		this.resize_drag = false;
 		this.forceActivePlaylist = false;
 		this.resize_click = false;
-		this.resize_sourceX = 0;
-		this.resize_sourceY = 0;
 		this.resizeCursorPos = 0;
 		this.resizeCursorX = 0;
-		this.resizeFactor = 0;
 		this.finishLoading = false;
 		this.firstInitialisation = true;
 		this.currently_sorted = false;
@@ -4028,16 +4516,11 @@ class oPlBrowser extends oBaseBrowser {
 		this.SourcePlaylistIdx = 0;
 		this.dontFlashNowPlaying = true;
 		this.dont_sort_on_next_populate = false;
-		this.click_down = false;
 		this.custom_groupby = false;
-		this.force_sorted = false;
 		this.currentSorting = "";
-		this.get_metrics_called = false;
 		this.searched_track = null;
 		this.found_albumIdx = -1;
-		this.previousPlaylistIdx = -1;
 		this.found_searched_track = false;
-		this.setSizeFirstCall = false;
 		this.cover_img_mask = null;
 		this.dateCircleBG = false;
 		this.external_dragging = false;
@@ -4061,6 +4544,9 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	RepaintRect(x, y, w, h) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.RepaintRect (${x}, ${y}, ${w}, ${h})`);
+		}
 		if (this.repaint_rect) {
 			this.repaint();
 			this.repaint_rect = false;
@@ -4071,9 +4557,12 @@ class oPlBrowser extends oBaseBrowser {
 		this.repaint_w = w;
 		this.repaint_h = h;
 		this.repaint_rect = true;
-	};
+	}
 
 	FormatTime(time) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.FormatTime (${time})`);
+		}
 		let time_txt = "";
 		let totalS, totalW, totalD, totalH, totalM;
 		if (time > 0) {
@@ -4091,9 +4580,12 @@ class oPlBrowser extends oBaseBrowser {
 			if (time_txt == "" || totalS != 0) time_txt += " " + totalS + "s";
 		}
 		return time_txt;
-	};
+	}
 
 	showheaderbar() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.showheaderbar ( )`);
+		}
 		if (globalProperties.showheaderbar) this.headerBarHeight = globalProperties.CoverGridNoText ? 39 : 43;
 		else this.headerBarHeight = globalProperties.CoverGridNoText ? 0 : 4;
 		if (globalProperties.showheaderbar) {
@@ -4101,11 +4593,12 @@ class oPlBrowser extends oBaseBrowser {
 			g_headerbar.setSize(this.x, this.y, this.w, this.headerBarHeight);
 			//this.setSize(0, this.headerBarHeight, window.Width, window.Height-this.headerBarHeight);
 		}
-	};
+	}
 
-	toggle_grid_mode(circleMode, gridMode) {
-		circleMode = typeof circleMode !== "undefined" ? circleMode : null;
-		gridMode = typeof gridMode !== "undefined" ? gridMode : null;
+	toggle_grid_mode(circleMode = null, gridMode = null) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.toggle_grid_mode (${circleMode}, ${gridMode})`);
+		}
 
 		if (circleMode !== null) {
 			globalProperties.circleMode = circleMode;
@@ -4127,9 +4620,12 @@ class oPlBrowser extends oBaseBrowser {
 		g_headerbar.setButtons();
 
 		playlist.on_size(adjW, adjH);
-	};
+	}
 
 	switch_display_mode() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.switch_display_mode ( )`);
+		}
 		if (!globalProperties.CoverGridNoText && !globalProperties.circleMode) {
 			this.toggle_grid_mode(true, null);
 		} else if (globalProperties.circleMode) {
@@ -4137,15 +4633,21 @@ class oPlBrowser extends oBaseBrowser {
 		} else if (globalProperties.CoverGridNoText) {
 			this.toggle_grid_mode(null, false);
 		}
-	};
+	}
 
 	on_font_changed(refreshDates) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.on_font_changed (${refreshDates})`);
+		}
 		this.fontDate = gdi.Font("Arial", pref.g_fsize - 1, 2);
 		if (refreshDates) this.refreshDates();
 		this.max_duration_length = 0;
-	};
+	}
 
 	on_init() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.on_init ( )`);
+		}
 		if (globalProperties.CoverGridNoText) {
 			// set margins betweens album stamps
 			this.marginTop = 0;
@@ -4157,18 +4659,19 @@ class oPlBrowser extends oBaseBrowser {
 			this.marginBot = 2;
 			this.CoverMarginTop = 15;
 		}
-	};
+	}
 
 	setSize(x, y, w, h) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.setSize (${x}, ${y}, ${w}, ${h})`);
+		}
 		super.setSize(x, y, w, h);
-
-		this.setSizeFirstCall = true;
 
 		// Adjust Column
 		this.coverRealWith = globalProperties.thumbnailWidth;
 
 		if (globalProperties.CoverGridNoText) {
-			this.totalColumns = Math.ceil(this.w / this.coverRealWith);
+			this.totalColumns = Math.max(Math.ceil(this.w / this.coverRealWith),1);
 			this.marginLR = 0;
 			this.rowHeight =
 				this.thumbnailWidth =
@@ -4176,9 +4679,10 @@ class oPlBrowser extends oBaseBrowser {
 						Math.round((this.totalColumns * this.coverRealWith - this.w) / this.totalColumns);
 		} else {
 			this.marginLR = globalProperties.marginLR;
-			this.totalColumns = Math.floor((this.w - 2 * this.marginLR) / this.coverRealWith);
+			this.totalColumns = Math.max(Math.floor((this.w - 2 * this.marginLR) / this.coverRealWith),1);
 			while (this.w - this.totalColumns * this.coverRealWith < this.marginLR * (this.totalColumns + 1))
 				this.totalColumns--;
+			if (this.totalColumns < 1) this.totalColumns = 1;
 			this.marginLR = Math.round((this.w - this.coverRealWith * this.totalColumns) / (this.totalColumns + 1));
 			this.thumbnailWidth = this.coverRealWith + this.marginLR;
 			this.marginLR = Math.round(this.marginLR / 2);
@@ -4210,18 +4714,22 @@ class oPlBrowser extends oBaseBrowser {
 		this.rowsCount = Math.ceil(this.groups_draw.length / this.totalColumns);
 
 		repaint_main1 = repaint_main2;
-		if (globalProperties.expandInPlace) {
-			g_showlist.setSize();
-		}
-	};
+		g_showlist.setSize();
+	}
 
 	get_metrics(gr) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.get_metrics (gr)`);
+		}
 		super.get_metrics(gr);
 		this.setResizeButton(65, 14);
-	};
+	}
 
 	get_albums(start, str_comp) {
-		let group_string, groupinfoscustom, groupinfos, string_compare_timeout;
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.get_albums (${start}, ${str_comp})`);
+		}
+		let group_string, groupinfoscustom, groupinfos, string_compare_timeout, groupinfos_rows;
 		if (start == null) {
 			scroll = 0;
 			start = 0;
@@ -4250,8 +4758,7 @@ class oPlBrowser extends oBaseBrowser {
 		let currentCallIndex = 0;
 		this.gTime.Reset();
 		let trackinfos = "",
-			arr = [],
-			group = "";
+			arr = [];
 
 		if (this.list == undefined) return;
 		while (k < this.totalTracks) {
@@ -4288,7 +4795,7 @@ class oPlBrowser extends oBaseBrowser {
 
 				if (i > 0) {
 					if (this.custom_groupby) {
-						var groupinfos_rows = TF.grouping.EvalWithMetadb(this.groups[i - 1].pl[0]).split(" ^^ ");
+						groupinfos_rows = TF.grouping.EvalWithMetadb(this.groups[i - 1].pl[0]).split(" ^^ ");
 						this.groups[i - 1].firstRow = groupinfos_rows[0];
 						this.groups[i - 1].secondRow =
 							groupinfos_rows[1] != ""
@@ -4323,16 +4830,15 @@ class oPlBrowser extends oBaseBrowser {
 					this.groups[i].artist = arr[0];
 					this.groups[i].album = arr[1];
 					this.groups[i].genre = groupinfos[0];
-					this.groups[i].genreArray = TF.genre.EvalWithMetadb(this.list[k]).split(", ").filter(Boolean);
 					this.groups[i].date = groupinfos[1];
 					this.groups[i].discnb = groupinfos[2];
 					this.groups[i].cachekey = process_cachekey(this.list[k], "", groupinfos[3]);
 				}
 				if (this.groups[i].album == "?") this.groups[i].album = "Single(s)";
 				if (this.groups[i].artist == "?") this.groups[i].artist = "Unknown artist(s)";
-				if (this.groups[i].genre == "?") (this.groups[i].genre = ""), (this.groups[i].genreArray = []);
+				if (this.groups[i].genre == "?") (this.groups[i].genre = "");
 				//console.log(this.groups[i].genreArray);
-
+				this.groups[i].genreGroup = getMetaValues('%genre%', this.list[k]);
 				if (globalProperties.extractYearFromDate && globalProperties.showdateOverCover)
 					this.groups[i].year = this.groups[i].date.extract_year();
 
@@ -4400,7 +4906,7 @@ class oPlBrowser extends oBaseBrowser {
 			//last group headers
 			if (this.groups.length > 0) {
 				if (this.custom_groupby) {
-					var groupinfos_rows = TF.grouping.EvalWithMetadb(this.groups[i - 1].pl[0]).split(" ^^ ");
+					groupinfos_rows = TF.grouping.EvalWithMetadb(this.groups[i - 1].pl[0]).split(" ^^ ");
 					this.groups[this.groups.length - 1].firstRow = groupinfos_rows[0];
 					this.groups[this.groups.length - 1].secondRow =
 						groupinfos_rows[1] != ""
@@ -4434,18 +4940,24 @@ class oPlBrowser extends oBaseBrowser {
 		this.dontFlashNowPlaying = false;
 		this.searched_track = null;
 		this.searched_track_rawpath = "";
-	};
+	}
 
 	refreshDates() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refreshDates ( )`);
+		}
 		for (var i = 0; i < this.groups.length; i++) {
 			delete this.groups[i].dateWidth;
 			delete this.groups[i].dateHeight;
 			delete this.dateCircleBG;
 			if (globalProperties.extractYearFromDate) this.groups[i].year = this.groups[i].date.extract_year();
 		}
-	};
+	}
 
 	getPlaybackPlaylist() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.getPlaybackPlaylist ( )`);
+		}
 		g_avoid_on_playlists_changed = true;
 		var isPlaybackPlaylistFound = false;
 		var total = plman.PlaylistCount;
@@ -4464,9 +4976,12 @@ class oPlBrowser extends oBaseBrowser {
 		}
 		g_avoid_on_playlists_changed = false;
 		return PlaybackPlaylistIndex;
-	};
+	}
 
 	getSelectionPlaylist() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.getSelectionPlaylist ( )`);
+		}
 		g_avoid_on_playlists_changed = true;
 		var isSelectionPlaylistFound = false;
 		var total = plman.PlaylistCount;
@@ -4485,9 +5000,12 @@ class oPlBrowser extends oBaseBrowser {
 		}
 		g_avoid_on_playlists_changed = false;
 		return SelectionPlaylistIndex;
-	};
+	}
 
 	getWholeLibraryPlaylist() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.getWholeLibraryPlaylist ( )`);
+		}
 		g_avoid_on_playlists_changed = true;
 		var isWholeLibraryPlaylistFound = false;
 		var total = plman.PlaylistCount;
@@ -4511,13 +5029,20 @@ class oPlBrowser extends oBaseBrowser {
 		}
 		g_avoid_on_playlists_changed = false;
 		return WholeLibraryPlaylistIndex;
-	};
+	}
 
 	setSourcePlaylist() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.setSourcePlaylist ( )`);
+		}
 		this.SourcePlaylistIdx = this.calculateSourcePlaylist();
-	};
+	}
 
 	calculateSourcePlaylist() {
+		pl_is_activated =  window.IsVisible && displayPlaylist;
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.calculateSourcePlaylist ( )`);
+		}
 		var new_SourcePlaylistIdx = -1;
 		var old_g_avoid_on_playlists_changed = g_avoid_on_playlists_changed;
 		g_avoid_on_playlists_changed = true;
@@ -4541,7 +5066,7 @@ class oPlBrowser extends oBaseBrowser {
 				//console.log("oBrowser.followActivePlaylist = true");
 				new_SourcePlaylistIdx = this.getWholeLibraryPlaylist();
 				this.followActivePlaylist = true;
-			} else if (window.IsVisible) {
+			} else if (pl_is_activated) {
 				//console.log("new_SourcePlaylistIdx = this.getSelectionPlaylist()");
 				//console.log("oBrowser.followActivePlaylist = false");
 				new_SourcePlaylistIdx = this.getSelectionPlaylist();
@@ -4567,17 +5092,19 @@ class oPlBrowser extends oBaseBrowser {
 		g_avoid_on_playlists_changed = old_g_avoid_on_playlists_changed;
 
 		return new_SourcePlaylistIdx;
-	};
+	}
 
 	getSourcePlaylist() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.getSourcePlaylist ( )`);
+		}
 		return this.SourcePlaylistIdx;
-	};
+	}
 
-	populate(call_id, force_sorting, keep_showlist, playlistIdx) {
-		force_sorting = typeof force_sorting !== "undefined" ? force_sorting : false;
-		keep_showlist = typeof keep_showlist !== "undefined" ? keep_showlist : false;
-		playlistIdx = typeof playlistIdx !== "undefined" ? playlistIdx : -1;
-		this.force_sorted = force_sorting;
+	populate(call_id, force_sorting = false, keep_showlist = false, playlistIdx = -1) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.populate (${call_id}, ${force_sorting}, ${keep_showlist}, ${playlistIdx})`);
+		}
 		this.currentSorting = "";
 		this.currently_sorted = false;
 		this.activeIndexFirstClick = -1;
@@ -4613,11 +5140,13 @@ class oPlBrowser extends oBaseBrowser {
 		debugLog("--> populate GraphicBrowser sorted:" + this.currently_sorted + " call_id:" + call_id);
 		this.get_albums();
 		this.dont_sort_on_next_populate = false;
-		this.previousPlaylistIdx = this.SourcePlaylistIdx;
 		FocusOnNowPlaying = false;
-	};
+	}
 
 	sortAccordingToProperties(force_sorting) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.sortAccordingToProperties (${force_sorting})`);
+		}
 		let sort_order;
 		if (
 			(globalProperties.TFsorting != globalProperties.TFsorting_default && force_sorting) ||
@@ -4641,9 +5170,12 @@ class oPlBrowser extends oBaseBrowser {
 		} catch (e) {
 			this.currently_sorted = false;
 		}
-	};
+	}
 
 	refresh_browser_images() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refresh_browser_images ( )`);
+		}
 		this.coverMask = false;
 		this.dateCircleBG = false;
 		for (var i = 0; i < this.groups.length; i++) {
@@ -4654,9 +5186,12 @@ class oPlBrowser extends oBaseBrowser {
 			this.groups[i].tid = -1;
 			this.groups[i].load_requested = 0;
 		}
-	};
+	}
 
 	refresh_browser_thumbnails() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refresh_browser_thumbnails ( )`);
+		}
 		this.coverMask = false;
 		this.dateCircleBG = false;
 		for (var i = 0; i < this.groups.length; i++) {
@@ -4664,15 +5199,21 @@ class oPlBrowser extends oBaseBrowser {
 			this.groups[i].mask_applied = false;
 			this.groups[i].tid = -1;
 		}
-	};
+	}
 
 	refresh_shadows() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refresh_shadows ( )`);
+		}
 		g_showlist.cover_shadow = null;
 		this.cover_shadow = null;
 		this.cover_shadow_hover = null;
-	};
+	}
 
 	refresh_one_image(albumIndex) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refresh_one_image (${albumIndex})`);
+		}
 		this.groups[albumIndex].cover_img = null;
 		if (g_showlist.idx == albumIndex) g_showlist.showlist_img = null;
 		this.groups[albumIndex].mask_applied = false;
@@ -4680,9 +5221,12 @@ class oPlBrowser extends oBaseBrowser {
 		this.groups[albumIndex].tid = -1;
 		this.groups[albumIndex].load_requested = 0;
 		g_image_cache.reset(this.groups[albumIndex].cachekey);
-	};
+	}
 
 	refresh_all_images() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.refresh_all_images ( )`);
+		}
 		this.coverMask = false;
 		this.dateCircleBG = false;
 		for (let i = 0; i < this.groups.length; i++) {
@@ -4694,13 +5238,19 @@ class oPlBrowser extends oBaseBrowser {
 			this.groups[i].tid = -1;
 		}
 		this.repaint();
-	};
+	}
 
 	freeMemory() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.freeMemory ( )`);
+		}
 		this.refresh_all_images();
-	};
+	}
 
 	GetFilteredTracks(idx) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.GetFilteredTracks (${idx})`);
+		}
 		if (globalProperties.filterBox_filter_tracks && g_filterbox.isActive) {
 			var pl = new FbMetadbHandleList();
 			for (var i = 0; i < this.groups[idx].filtered_tr.length; i++) {
@@ -4708,9 +5258,12 @@ class oPlBrowser extends oBaseBrowser {
 			}
 			return pl;
 		} else return this.groups[idx].pl;
-	};
+	}
 
 	GetAlbumCover(idx) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.GetAlbumCover (${idx})`);
+		}
 		var img_thumb = null;
 		var img_full = null;
 
@@ -4736,27 +5289,12 @@ class oPlBrowser extends oBaseBrowser {
 			}
 		}
 		this.groups[idx].cover_img_thumb = img_thumb;
-	};
-
-	SetAlbumCoverColorScheme(idx) {
-		if (isImage(this.groups[idx].cover_img_thumb)) {
-			let main_color = this.groups[idx].cover_img_thumb.GetColourScheme(1);
-
-			var tmp_HSL_colour = RGB2HSL(main_color[0]);
-			if (tmp_HSL_colour.L > 30) {
-				var new_H = tmp_HSL_colour.H;
-				var new_S = Math.min(85, tmp_HSL_colour.S);
-				var new_L = Math.max(70, tmp_HSL_colour.L + (100 - tmp_HSL_colour.L) / 3);
-				this.groups[idx].CoverMainColor = HSL2RGB(new_H, new_S, 40, "RGB");
-			} else {
-				this.groups[idx].CoverMainColor = main_color[0];
-			}
-		} else {
-			this.groups[idx].CoverMainColor = colors.cover_hoverOverlay;
-		}
-	};
+	}
 
 	DefineDateCircleBG(size, index) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.DefineDateCircleBG (${size}, ${index})`);
+		}
 		if (globalProperties.showdateOverCover || globalProperties.showDiscNbOverCover) {
 			var dateCircleBG = gdi.CreateImage(size, size);
 			let gb = dateCircleBG.GetGraphics();
@@ -4772,9 +5310,12 @@ class oPlBrowser extends oBaseBrowser {
 			dateCircleBG.ApplyMask(this.coverMask);
 			this.dateCircleBG = dateCircleBG;
 		}
-	};
+	}
 
 	draw(gr) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.draw (gr)`);
+		}
 		let repaint_f = false;
 		let coverMask, image_to_draw;
 		//gTime_draw = fb.CreateProfiler();
@@ -4785,12 +5326,14 @@ class oPlBrowser extends oBaseBrowser {
 			repaintforced = false;
 			gr.SetTextRenderingHint(globalProperties.TextRendering);
 
-			var rowPosition = 0;
-			var ax, ay, by, rowStart, row, coverTop;
-			var aw = this.coverRealWith;
-			var awhalf = this.coverHalfWidth;
-			var firstalbum_x = this.x + this.marginLR;
-			var firstalbum_y = Math.floor(this.y + this.marginTop - scroll_);
+			let rowPosition = 0;
+			let ax, ay, rowStart, row, column, coverTop;
+			let awhalf = this.coverHalfWidth;
+			let firstalbum_x = this.x + this.marginLR;
+			let firstalbum_y = Math.floor(this.y + this.marginTop - scroll_);
+			let start_;
+			let end_;
+			let drawn_cover_shadow = this.cover_shadow;
 
 			//Force showlist if there is only one group
 			if (this.groups_draw.length == 1 && g_showlist.idx < 0 && globalProperties.expandInPlace) {
@@ -4798,15 +5341,15 @@ class oPlBrowser extends oBaseBrowser {
 				g_showlist.reset(this.groups_draw[0], 0);
 			}
 			if (this.groups_draw.length <= this.totalRowsVis * this.totalColumns) {
-				var start_ = 0;
-				var end_ = this.groups_draw.length;
+				start_ = 0;
+				end_ = this.groups_draw.length;
 			} else {
 				if (g_showlist.idx > -1 && scroll_ > g_showlist.y + g_showlist.h) {
-					var start_ = Math.round((scroll_ - g_showlist.h) / this.rowHeight - 0.6) * this.totalColumns;
+					start_ = Math.round((scroll_ - g_showlist.h) / this.rowHeight - 0.6) * this.totalColumns;
 				} else {
-					var start_ = Math.round(scroll_ / this.rowHeight - 0.6) * this.totalColumns;
+					start_ = Math.round(scroll_ / this.rowHeight - 0.6) * this.totalColumns;
 				}
-				var end_ = Math.round((scroll_ + playlist.h) / this.rowHeight) * this.totalColumns;
+				end_ = Math.round((scroll_ + playlist.h) / this.rowHeight) * this.totalColumns;
 				//if(!globalProperties.showheaderbar)
 				end_ = end_ + this.totalColumns;
 				if (this.groups_draw.length < end_) end_ = this.groups_draw.length;
@@ -4848,8 +5391,8 @@ class oPlBrowser extends oBaseBrowser {
 				if (this.ellipse_size == 0) {
 					this.ellipse_size = this.coverRealWith;
 				} else this.ellipse_size += 4 * (cNowPlaying.flashCover ? -1 : 1);
-				var row = Math.floor(this.isPlayingIdx / this.totalColumns);
-				var column = (this.isPlayingIdx % this.totalColumns) * this.thumbnailWidth;
+				row = Math.floor(this.isPlayingIdx / this.totalColumns);
+				column = (this.isPlayingIdx % this.totalColumns) * this.thumbnailWidth;
 
 				ax = firstalbum_x + column;
 				ay = firstalbum_y + row * this.rowHeight;
@@ -4865,7 +5408,7 @@ class oPlBrowser extends oBaseBrowser {
 				//else gr.FillSolidRect(ax+1-(this.ellipse_size-this.coverRealWith)/2, coverTop+1-(this.ellipse_size-this.coverRealWith)/2, this.ellipse_size-2, this.ellipse_size-2, colors.nowplaying_animation_circle);
 			}
 
-			for (var i = start_; i < end_; i++) {
+			for (let i = start_; i < end_; i++) {
 				//console.log(this.activeIndex);
 				row = Math.floor(i / this.totalColumns);
 
@@ -4913,8 +5456,7 @@ class oPlBrowser extends oBaseBrowser {
 									globalProperties.circleMode && !globalProperties.CoverGridNoText
 								);
 							if (i == this.activeIndex && this.activeRow > -1)
-								var drawn_cover_shadow = this.cover_shadow_hover;
-							else var drawn_cover_shadow = this.cover_shadow;
+								drawn_cover_shadow = this.cover_shadow_hover;
 							gr.DrawImage(
 								drawn_cover_shadow,
 								ax - 8,
@@ -4994,7 +5536,7 @@ class oPlBrowser extends oBaseBrowser {
 						}
 
 						//date drawing black
-						var overlayTxt = "";
+						let overlayTxt = "";
 						if (globalProperties.showDiscNbOverCover && this.groups[this.groups_draw[i]].discnb != "?") {
 							if (this.groups[this.groups_draw[i]].discnb != "?")
 								overlayTxt = this.groups[this.groups_draw[i]].discnb;
@@ -5014,8 +5556,7 @@ class oPlBrowser extends oBaseBrowser {
 									if (this.groups[this.groups_draw[i]].dateWidth > this.coverRealWith)
 										this.groups[this.groups_draw[i]].dateWidth = this.coverRealWith;
 								}
-							} catch (e) {
-							}
+							} catch (e) {}
 							if (globalProperties.circleMode && !globalProperties.CoverGridNoText) {
 								if (!this.dateCircleBG)
 									this.DefineDateCircleBG(this.coverRealWith, this.groups_draw[i]);
@@ -5268,7 +5809,7 @@ class oPlBrowser extends oBaseBrowser {
 							)
 								gr.GdiDrawText(
 									this.groups[this.groups_draw[i]].firstRow,
-									ft.smallish_font,
+									f_ft.smallish_font,
 									colors.normal_txt,
 									ax,
 									this.groups[this.groups_draw[i]].text_y,
@@ -5290,7 +5831,7 @@ class oPlBrowser extends oBaseBrowser {
 							)
 								gr.GdiDrawText(
 									this.groups[this.groups_draw[i]].secondRow,
-									ft.small_italic,
+									f_ft.small_italic,
 									colors.faded_txt,
 									ax,
 									this.groups[this.groups_draw[i]].text_y + this.firstRowHeight + space_between_lines,
@@ -5305,15 +5846,14 @@ class oPlBrowser extends oBaseBrowser {
 							if (typeof this.groups[this.groups_draw[i]].firstRowLength == "undefined")
 								this.groups[this.groups_draw[i]].firstRowLength = gr.CalcTextWidth(
 									this.groups[this.groups_draw[i]].firstRow,
-									ft.smallish_font
+									f_ft.smallish_font
 								);
 							if (typeof this.groups[this.groups_draw[i]].secondRowLength == "undefined")
 								this.groups[this.groups_draw[i]].secondRowLength = gr.CalcTextWidth(
 									this.groups[this.groups_draw[i]].secondRow,
-									ft.small_font
+									f_ft.small_font
 								);
-						} catch (e) {
-						}
+						} catch (e) {}
 					}
 				}
 				if (rowPosition == this.totalColumns - 1) {
@@ -5342,12 +5882,12 @@ class oPlBrowser extends oBaseBrowser {
 
 			if (this.groups_draw.length == 0) {
 				// library empty
-				var px = playlist.x;
-				var py = this.y + Math.floor(this.h / 2);
+				let px = playlist.x;
+				let py = this.y + Math.floor(this.h / 2);
 				if (this.firstInitialisation) {
 					gr.GdiDrawText(
 						"Loading...",
-						ft.grd_key_lrg,
+						f_ft.pl_lrg,
 						colors.normal_txt,
 						px,
 						py - 80,
@@ -5361,7 +5901,7 @@ class oPlBrowser extends oBaseBrowser {
 					}
 					gr.GdiDrawText(
 						"Library browser",
-						ft.smallish_italic,
+						f_ft.smallish_italic,
 						colors.faded_txt,
 						px,
 						py - 38,
@@ -5370,11 +5910,11 @@ class oPlBrowser extends oBaseBrowser {
 						DT_CENTER | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX
 					);
 				} else {
-					var playlistname = plman.GetPlaylistName(this.SourcePlaylistIdx);
+					let playlistname = plman.GetPlaylistName(this.SourcePlaylistIdx);
 					if (LibraryItems_counter < 1) {
 						gr.GdiDrawText(
 							"No music found.",
-							ft.grd_key_lrg,
+							f_ft.pl_lrg,
 							colors.normal_txt,
 							px,
 							py - 80,
@@ -5388,7 +5928,7 @@ class oPlBrowser extends oBaseBrowser {
 						}
 						gr.GdiDrawText(
 							"Click here to configure the Media Library.",
-							ft.smallish_italic,
+							f_ft.smallish_italic,
 							colors.faded_txt,
 							px,
 							py - 38,
@@ -5406,7 +5946,7 @@ class oPlBrowser extends oBaseBrowser {
 						}
 						gr.GdiDrawText(
 							playlistname + " :",
-							ft.grd_key_lrg,
+							f_ft.pl_lrg,
 							colors.normal_txt,
 							px,
 							py - 80,
@@ -5416,7 +5956,7 @@ class oPlBrowser extends oBaseBrowser {
 						);
 						gr.GdiDrawText(
 							"Nothing to show.",
-							ft.smallish_italic,
+							f_ft.smallish_italic,
 							colors.faded_txt,
 							px,
 							py - 38,
@@ -5427,7 +5967,7 @@ class oPlBrowser extends oBaseBrowser {
 					} else {
 						gr.GdiDrawText(
 							playlistname + " :",
-							ft.grd_key_lrg,
+							f_ft.pl_lrg,
 							colors.normal_txt,
 							px,
 							py - 80,
@@ -5441,7 +5981,7 @@ class oPlBrowser extends oBaseBrowser {
 						}
 						gr.GdiDrawText(
 							"This playlist is empty.",
-							ft.smallish_italic,
+							f_ft.smallish_italic,
 							colors.faded_txt,
 							px,
 							py - 38,
@@ -5458,18 +5998,24 @@ class oPlBrowser extends oBaseBrowser {
 		//console.log(this.rowHeight);
 		//console.log(scroll/this.rowHeight);
 		//gr.DrawRect(this.x, this.y, this.w, this.h, 6, RGB(255, 0, 0));
-	};
+	}
 
 	stopResizing() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.stopResizing ( )`);
+		}
 		if (this.resize_click || this.resize_drag) {
 			this.resize_click = false;
 			this.resize_drag = false;
 			this.resize_bt.checkstate("up", g_cursor.x, g_cursor.y);
 			this.resize_bt.repaint();
 		}
-	};
+	}
 
 	stopDragging(x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.stopDragging (${x}, ${y})`);
+		}
 		if (g_dragA) {
 			g_dragA_idx = -1;
 			g_dragA = false;
@@ -5491,11 +6037,14 @@ class oPlBrowser extends oBaseBrowser {
 		this.dragEnable = false;
 		g_dragC = false;
 		this.setActiveRow(x, y);
-	};
+	}
 
 	playGroup(group_id) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.playGroup (${group_id})`);
+		}
 		if (group_id > -1 && !this.avoidDlbePlay) {
-			console.log(`asdas ${this.groups[this.groups_draw[group_id]].pl[0]}`)
+			//console.log(`asdas ${this.groups[this.groups_draw[group_id]].pl[0]}`);
 			plman.FlushPlaybackQueue();
 			var PlaybackPlaylist = this.getPlaybackPlaylist();
 			if (!getRightPlaylistState() || this.SourcePlaylistIdx == plman.PlayingPlaylist) {
@@ -5528,21 +6077,19 @@ class oPlBrowser extends oBaseBrowser {
 				this
 			);
 		}
-	};
+	}
 
 	on_mouse(event, x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.on_mouse (${event}, ${x}, ${y})`);
+		}
 		this.ishover = this._isHover(x, y);
 
 		switch (event) {
 			case "lbtn_down":
-				if (globalProperties.logFunctionCalls) {
-					console.log("this.on_mouse_lbtn_down called");
-				}
 				this.album_Rclicked_index = -1;
 				if (this.resize_bt.checkstate("hover", x, y)) {
 					this.resize_click = true;
-					this.resize_sourceX = x;
-					this.resize_sourceY = y;
 					this.resize_bt.checkstate("down", g_cursor.x, g_cursor.y);
 					this.moveResizeBtn(x, y);
 					this.repaint();
@@ -5567,9 +6114,6 @@ class oPlBrowser extends oBaseBrowser {
 				}
 				break;
 			case "lbtn_up":
-				if (globalProperties.logFunctionCalls) {
-					console.log("_playlist.on_mouse_lbtn_up called");
-				}
 				if (this.resize_click || this.resize_drag) {
 					this.resize_bt.checkstate("up", g_cursor.x, g_cursor.y);
 					this.resize_click = false;
@@ -5582,7 +6126,7 @@ class oPlBrowser extends oBaseBrowser {
 				this.clicked_id = -1;
 				if ((g_dragA || g_dragR) && globalProperties.DragToPlaylist) {
 					let len = g_plmanager.playlists.length;
-					for (var i = 0; i < len; i++) {
+					for (let i = 0; i < len; i++) {
 						if (g_plmanager.playlists[i].type == 2) {
 							g_plmanager.playlists[i].checkstate("up", x, y, i);
 						}
@@ -5604,7 +6148,10 @@ class oPlBrowser extends oBaseBrowser {
 				break;
 			case "mbtn_down":
 				if (this.activeIndex > -1) {
-					fb.RunContextCommandWithMetadb("globalProperties", this.groups[this.groups_draw[this.activeIndex]].pl);
+					fb.RunContextCommandWithMetadb(
+						"globalProperties",
+						this.groups[this.groups_draw[this.activeIndex]].pl
+					);
 				}
 				break;
 			case "move":
@@ -5674,7 +6221,7 @@ class oPlBrowser extends oBaseBrowser {
 					g_drag_timer = true;
 
 					let len = g_plmanager.playlists.length;
-					for (var i = 0; i < len; i++) {
+					for (let i = 0; i < len; i++) {
 						if (g_plmanager.playlists[i].type == 2) {
 							g_plmanager.playlists[i].checkstate("move", x, y, i);
 						}
@@ -5705,9 +6252,12 @@ class oPlBrowser extends oBaseBrowser {
 				g_headerbar.on_mouse("leave", x, y);
 				break;
 		}
-	};
+	}
 
 	setActiveRow(x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.setActiveRow (${x}, ${y})`);
+		}
 		//console.log(x,y);
 		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
 		if (!g_dragA && !g_dragR && !g_dragC) {
@@ -5778,16 +6328,21 @@ class oPlBrowser extends oBaseBrowser {
 				this.activeTextIndex = -1;
 			}
 		}
-	};
+	}
 
 	timerScript() {
+		pl_is_activated =  window.IsVisible && displayPlaylist;
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.timerScript ( )`);
+			console.log(`pl_is_activated: ${pl_is_activated}`)
+		}
 		let repaintIndexSaved, active_x, active_y, repaintIndex, active_x_saved, active_y_saved;
 		if (randomStartTime > 0 && Date.now() - 10000 > randomStartTime) {
 			window.NotifyOthers("Randomsetfocus", false);
 			randomStartTime = 0;
 		}
 
-		if (!window.IsVisible) return;
+		if (!pl_is_activated) return;
 
 		var repaint_1 = false,
 			repaint_2 = false;
@@ -5850,8 +6405,9 @@ class oPlBrowser extends oBaseBrowser {
 		}
 
 		// showList Drag scrollBar
-		if (g_showlist.hscr_cursor_width / 2 < 20) var x_hover_cursor_fix = 0;
-		else var x_hover_cursor_fix = 20;
+		let x_hover_cursor_fix;
+		if (g_showlist.hscr_cursor_width / 2 < 20) x_hover_cursor_fix = 0;
+		else x_hover_cursor_fix = 20;
 		if (
 			g_showlist.idx > -1 &&
 			g_showlist.drag_showlist_hscrollbar &&
@@ -5970,10 +6526,12 @@ class oPlBrowser extends oBaseBrowser {
 			window.RepaintRect(this.repaint_x, this.repaint_y, this.repaint_w, this.repaint_h);
 			this.repaint_rect = false;
 		}
-	};
+	}
 
 	updateCursorPos(pos) {
-		//console.log(`this.updateCursorPos called. pos: ${pos}`);
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.updateCursorPos (${pos})`);
+		}
 		let normalizedPos = Math.max(Math.min(pos, this.resize_bt.w), 0);
 		if (!(this.resize_bt.w >= normalizedPos >= 0) || isNaN(normalizedPos)) {
 			//console.log(`returning (1)`);
@@ -5985,7 +6543,6 @@ class oPlBrowser extends oBaseBrowser {
 			(this.thumbnailWidthMax - globalProperties.thumbnailWidthMin) * new_value +
 			globalProperties.thumbnailWidthMin
 		);
-		//console.log(`new_val: ${new_value}, r_bt.x: ${this.resize_bt.x}, r_bt.w: ${this.resize_bt.w}`);
 		if (globalProperties.thumbnailWidth > this.thumbnailWidthMax) {
 			globalProperties.thumbnailWidth = this.thumbnailWidthMax;
 			//console.log(`returning (3)`);
@@ -5996,19 +6553,19 @@ class oPlBrowser extends oBaseBrowser {
 			return;
 		}
 		window.SetProperty("PL_COVER Width", globalProperties.thumbnailWidth);
-		this.resizeFactor = new_value;
 		this.resizeCursorPos = normalizedPos;
 		this.resizeCursorX = normalizedPos + this.resize_bt.x;
-		//console.log("normalizedPos: " + normalizedPos);
-		//console.log(!(this.resize_bt.w >= normalizedPos >= 0) || isNaN(normalizedPos));
 		this.refresh_browser_thumbnails();
 		this.refresh_shadows();
 		this.refreshDates();
 		playlist.on_size(adjW, adjH);
-	};
+	}
 
 	//this.scaleThumbs = function
 	setResizeButton(w, h) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.setResizeButton (${w}, ${h})`);
+		}
 		var gb;
 		this.thumbnailWidthMax = Math.min((this.w - this.marginLR) / 2, globalProperties.thumbnailWidthMax);
 		this.ResizeButton_off = gdi.CreateImage(w, h);
@@ -6036,9 +6593,12 @@ class oPlBrowser extends oBaseBrowser {
 		}
 		this.resize_bt.w = w;
 		this.resize_bt.h = h;
-	};
+	}
 
 	drawResizeButton(gr, x, y) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.drawResizeButton (gr, ${x}, ${y})`);
+		}
 		this.resize_bt.draw(gr, x, y, 255);
 		let newCursorPos = Math.min(
 			Math.round(
@@ -6059,21 +6619,30 @@ class oPlBrowser extends oBaseBrowser {
 		if (globalProperties.drawDebugRects) {
 			gr.DrawRect(x + newCursorPos, y + Math.round(this.resize_bt.h / 2) - 6, 1, 10, 2, RGB(0, 255, 0));
 		}
-	};
+	}
 
 	moveResizeBtn(x) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.moveResizeBtn (${x})`);
+		}
 		let newCursorPos = Math.max(x - this.resize_bt.x, 0);
 		this.updateCursorPos(newCursorPos);
-	};
+	}
 
 	stopFlashNowPlaying() {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.stopFlashNowPlaying ( )`);
+		}
 		cNowPlaying.flashEnable = false;
 		cNowPlaying.flashescounter = 0;
 		cNowPlaying.flash = false;
 		this.ellipse_size = 0;
-	};
+	}
 
 	seek_track(metadb, albumIdx) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.seek_track (${metadb}, ${albumIdx})`);
+		}
 		var total_albums = this.groups_draw.length;
 		var total_tracks = 0;
 
@@ -6142,9 +6711,12 @@ class oPlBrowser extends oBaseBrowser {
 		}
 
 		return found;
-	};
+	}
 
 	focus_on_track(track) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.focus_on_track (${track})`);
+		}
 		FocusOnNowPlaying = true;
 		if (!track) return;
 		var isFound = this.seek_track(track);
@@ -6160,9 +6732,12 @@ class oPlBrowser extends oBaseBrowser {
 			cNowPlaying.flashescounter = -2;
 			cNowPlaying.flash = false;
 		} else this.dontFlashNowPlaying = false;
-	};
+	}
 
 	focus_on_nowplaying(track) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPlBrowser.focus_on_nowplaying (${track})`);
+		}
 		let results;
 		FocusOnNowPlaying = true;
 		if (!track) return;
@@ -6223,13 +6798,7 @@ class oPlBrowser extends oBaseBrowser {
 			cNowPlaying.flashescounter = -2;
 			cNowPlaying.flash = false;
 		} else this.dontFlashNowPlaying = false;
-	};
-
-	Dispose() {
-		for (var i = 0; i < this.groups.length; i++) {
-			this.groups[i].pl = undefined;
-		}
-	};
+	}
 }
 
 globalProperties.show2linesCustomTag_tf = fb.TitleFormat(globalProperties.show2linesCustomTag);
@@ -6237,14 +6806,14 @@ globalProperties.smooth_scroll_value =
 	globalProperties.smooth_scroll_value < 0
 		? 0
 		: globalProperties.smooth_scroll_value > 0.9
-		? 0.9
-		: globalProperties.smooth_scroll_value;
+			? 0.9
+			: globalProperties.smooth_scroll_value;
 globalProperties.smooth_expand_value =
 	globalProperties.smooth_expand_value < 0
 		? 0
 		: globalProperties.smooth_expand_value > 0.9
-		? 0.9
-		: globalProperties.smooth_expand_value;
+			? 0.9
+			: globalProperties.smooth_expand_value;
 
 globalProperties.showFilterBox = globalProperties.showFilterBox_filter_inactive;
 var TF = {
@@ -6276,12 +6845,12 @@ var TF = {
 	),
 	titlePCB: fb.TitleFormat(
 		globalProperties.TFtitle +
-			" ^^ " +
-			globalProperties.TFplaycount +
-			" - " +
-			globalProperties.TFcodec +
-			" - " +
-			globalProperties.TFbitrate
+		" ^^ " +
+		globalProperties.TFplaycount +
+		" - " +
+		globalProperties.TFcodec +
+		" - " +
+		globalProperties.TFbitrate
 	),
 	showlist: fb.TitleFormat(globalProperties.TFshowlistReduced),
 	showlistReduced: fb.TitleFormat(globalProperties.TFshowlistReduced),
@@ -6311,12 +6880,13 @@ timers = {
 	mouseDown: false,
 	addItems: false,
 	showMenu: false,
-	populate : false,
+	populate: false,
 	showPlaylistManager: false,
 	hidePlaylistManager: false,
 	avoidPlaylistSwitch: false,
 	avoid_on_library_items_added: false,
 	avoid_on_library_items_removed: false,
+	debugCheck: false,
 };
 cNowPlaying = {
 	flashEnable: false,
@@ -6382,10 +6952,16 @@ let popup = {
 };
 
 function _q(value) {
+	if (globalProperties.logFunctions) {
+		console.log(`called _q (${value})`);
+	}
 	return '"' + value + '"';
 }
 
 function _run() {
+	if (globalProperties.logFunctions) {
+		console.log(`called _run ( )`);
+	}
 	try {
 		WshShell.Run(
 			[...arguments]
@@ -6400,34 +6976,28 @@ function _run() {
 	}
 }
 
-function dynamicSort(property) {
-	var sortOrder = 1;
-	if (property[0] === "-") {
-		sortOrder = -1;
-		property = property.substr(1);
-	}
-	return function (a, b) {
-		/* next line works with strings and numbers,
-		 * and you may want to customize it to your needs
-		 */
-		var result = a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
-		return result * sortOrder;
-	};
-}
-
 let sfso = new ActiveXObject("Scripting.FileSystemObject");
 
 function libraryQuery(args) {
+	if (globalProperties.logFunctions) {
+		console.log(`called libraryQuery (${args})`);
+	}
 	return fb.GetQueryItems(libItems, args);
 }
 
 function _createFolder(folder) {
+	if (globalProperties.logFunctions) {
+		console.log(`called _createFolder (${folder})`);
+	}
 	if (!_isFolder(folder)) {
 		sfso.CreateFolder(folder);
 	}
 }
 
 function _isFolder(folder) {
+	if (globalProperties.logFunctions) {
+		console.log(`called _isFolder (${folder})`);
+	}
 	return _.isString(folder) ? sfso.FolderExists(folder) : false;
 }
 
@@ -6440,32 +7010,18 @@ function _isFolder(folder) {
  * See http://pajhome.org.uk/crypt/md5 for more info.
  */
 var hexcase = 0;
+
 function md5(a) {
+	if (globalProperties.logFunctions) {
+		console.log(`called md5 (${a})`);
+	}
 	return rstr2hex(rstr_md5(str2rstr_utf8(a)));
 }
-function hex_hmac_md5(a, b) {
-	return rstr2hex(rstr_hmac_md5(str2rstr_utf8(a), str2rstr_utf8(b)));
-}
-function md5_vm_test() {
-	return md5("abc").toLowerCase() == "900150983cd24fb0d6963f7d28e17f72";
-}
+
 function rstr_md5(a) {
 	return binl2rstr(binl_md5(rstr2binl(a), a.length * 8));
 }
-function rstr_hmac_md5(c, f) {
-	var e = rstr2binl(c);
-	if (e.length > 16) {
-		e = binl_md5(e, c.length * 8);
-	}
-	var a = Array(16),
-		d = Array(16);
-	for (var b = 0; b < 16; b++) {
-		a[b] = e[b] ^ 909522486;
-		d[b] = e[b] ^ 1549556828;
-	}
-	var g = binl_md5(a.concat(rstr2binl(f)), 512 + f.length * 8);
-	return binl2rstr(binl_md5(d.concat(g), 512 + 128));
-}
+
 function rstr2hex(c) {
 	try {
 		hexcase;
@@ -6481,6 +7037,7 @@ function rstr2hex(c) {
 	}
 	return b;
 }
+
 function str2rstr_utf8(c) {
 	var b = "";
 	var d = -1;
@@ -6515,6 +7072,7 @@ function str2rstr_utf8(c) {
 	}
 	return b;
 }
+
 function rstr2binl(b) {
 	var a = Array(b.length >> 2);
 	for (let c = 0; c < a.length; c++) {
@@ -6525,6 +7083,7 @@ function rstr2binl(b) {
 	}
 	return a;
 }
+
 function binl2rstr(b) {
 	var a = "";
 	for (var c = 0; c < b.length * 32; c += 8) {
@@ -6532,6 +7091,7 @@ function binl2rstr(b) {
 	}
 	return a;
 }
+
 function binl_md5(p, k) {
 	p[k >> 5] |= 128 << k % 32;
 	p[(((k + 64) >>> 9) << 4) + 14] = k;
@@ -6615,31 +7175,41 @@ function binl_md5(p, k) {
 	}
 	return Array(o, n, m, l);
 }
+
 function md5_cmn(h, e, d, c, g, f) {
 	return safe_add(bit_rol(safe_add(safe_add(e, h), safe_add(c, f)), g), d);
 }
+
 function md5_ff(g, f, k, j, e, i, h) {
 	return md5_cmn((f & k) | (~f & j), g, f, e, i, h);
 }
+
 function md5_gg(g, f, k, j, e, i, h) {
 	return md5_cmn((f & j) | (k & ~j), g, f, e, i, h);
 }
+
 function md5_hh(g, f, k, j, e, i, h) {
 	return md5_cmn(f ^ k ^ j, g, f, e, i, h);
 }
+
 function md5_ii(g, f, k, j, e, i, h) {
 	return md5_cmn(k ^ (f | ~j), g, f, e, i, h);
 }
+
 function safe_add(a, d) {
 	var c = (a & 65535) + (d & 65535);
 	var b = (a >> 16) + (d >> 16) + (c >> 16);
 	return (b << 16) | (c & 65535);
 }
+
 function bit_rol(a, b) {
 	return (a << b) | (a >>> (32 - b));
 }
 
 const get = (obj, path, defaultValue) => {
+	if (globalProperties.logFunctions) {
+		console.log(`called get (${obj}, ${path}, ${defaultValue})`);
+	}
 	const result = path.split(".").reduce((r, p) => {
 		if (typeof r === "object") {
 			p = p.startsWith("[") ? p.replace(/\D/g, "") : p;
@@ -6654,112 +7224,107 @@ const get = (obj, path, defaultValue) => {
 };
 
 function _jsonParse(value) {
+	if (globalProperties.logFunctions) {
+		console.log(`called _jsonParse (${value})`);
+	}
 	try {
-		let data = JSON.parse(value);
-		return data;
+		return JSON.parse(value);
 	} catch (e) {
 		return null;
 	}
 }
 
-function _toRGB(a) {
-	const b = a - 0xff000000;
-	return [b >> 16, (b >> 8) & 0xff, b & 0xff];
-}
-
-function _blendColours(c1, c2, f) {
-	c1 = _toRGB(c1);
-	c2 = _toRGB(c2);
-	const r = Math.round(c1[0] + f * (c2[0] - c1[0]));
-	const g = Math.round(c1[1] + f * (c2[1] - c1[1]));
-	const b = Math.round(c1[2] + f * (c2[2] - c1[2]));
-	return RGB(r, g, b);
-}
 
 
 oPanelSetting = function (name, default_value, min_value, max_value, int_value) {
+	if (globalProperties.logFunctions) {
+		console.log(`called oPanelSetting (${name}, ${default_value}, ${min_value}, ${max_value}, ${int_value})`);
+	}
 	this.name = name;
 	this.default_value = default_value;
 	this.max_value = max_value;
 	this.min_value = min_value;
-	this.int_value = typeof int_value !== 'undefined' ? int_value : true;
-	this.getValue = function () {
-		return this.value;
-	}
+	this.int_value = typeof int_value !== "undefined" ? int_value : true;
 	this.getNumberOfState = function () {
-		return (this.max_value-this.min_value);
-	}
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.getNumberOfState ( )`);
+		}
+		return this.max_value - this.min_value;
+	};
 	this.setValue = function (new_value) {
-		if(new_value==this.value) return;
-		if(new_value>this.max_value) new_value = this.max_value;
-		else if(new_value<this.min_value) new_value = this.min_value;
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.setValue (${new_value})`);
+		}
+		if (new_value == this.value) return;
+		if (new_value > this.max_value) new_value = this.max_value;
+		else if (new_value < this.min_value) new_value = this.min_value;
 		g_avoid_on_metadb_changed = true;
 		this.value = new_value;
-		window.NotifyOthers("g_avoid_on_metadb_changed",true);
-		window.NotifyOthers(this.name,this.value);
-	}
+		window.NotifyOthers("g_avoid_on_metadb_changed", true);
+		window.NotifyOthers(this.name, this.value);
+	};
 	this.setDefault = function () {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.setDefault ( )`);
+		}
 		this.setValue(this.default_value);
-	}
+	};
 	this.toggleValue = function () {
-		if(this.value==0) this.setValue(1);
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.toggleValue ( )`);
+		}
+		if (this.value == 0) this.setValue(1);
 		else this.setValue(0);
-	}
+	};
 	this.isEqual = function (test_value) {
-		return (this.value==test_value);
-	}
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.isEqual (${test_value})`);
+		}
+		return this.value == test_value;
+	};
 	this.isActive = function () {
-		return (this.value>0);
-	}
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.isActive ( )`);
+		}
+		return this.value > 0;
+	};
 	this.isMaximumValue = function () {
-		return (this.value==this.max_value);
-	}
-	this.isMinimumValue = function () {
-		return (this.value==this.min_value);
-	}
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.isMaximumValue ( )`);
+		}
+		return this.value == this.max_value;
+	};
 	this.decrement = function (decrement_value) {
-		this.setValue(parseInt(this.value)-decrement_value);
-	}
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.decrement (${decrement_value})`);
+		}
+		this.setValue(parseInt(this.value) - decrement_value);
+	};
 	this.increment = function (increment_value) {
-		this.setValue(parseInt(this.value)+increment_value);
-	}
-	this.cycleIncrement = function (increment_value) {
-		var new_value = parseInt(this.value)+increment_value;
-		if(new_value>this.max_value) new_value = this.min_value;
-		this.setValue(new_value);
-	}
-	this.cycleDecrement = function (decrement_value) {
-		var new_value = parseInt(this.value)-decrement_value;
-		if(new_value<this.min_value) new_value = this.max_value;
-		this.setValue(new_value);
-	}
-	this.userInputValue = function (msg,title) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.increment (${increment_value})`);
+		}
+		this.setValue(parseInt(this.value) + increment_value);
+	};
+	this.userInputValue = function (msg, title) {
+		if (globalProperties.logFunctions) {
+			console.log(`called oPanelSetting.userInputValue (${msg}, ${title})`);
+		}
 		try {
 			new_value = utils.InputBox(window.ID, msg, title, this.value, true);
-			if (!(new_value == "" || typeof new_value == 'undefined')) {
+			if (!(new_value == "" || typeof new_value == "undefined")) {
 				this.setValue(new_value);
 			}
-		} catch(e) {
-		}
-	}
-}
+		} catch (e) {}
+	};
+};
 
 var main_panel_state = new oPanelSetting("main_panel_state", 0, 0, 3);
 var layout_state = new oPanelSetting("layout_state", 0, 0, 1);
 
-var darkplaylist_state = new oPanelSetting("darkplaylist_state", 0, 0, 1);
-var showtrackinfo_big = new oPanelSetting("showtrackinfo_big", 1, 0, 1);
-var showtrackinfo_small = new oPanelSetting("showtrackinfo_small", 0, 0, 1);
-
-var coverpanel_state_mini = new oPanelSetting("coverpanel_state_mini", 1, 0, 1);
-var coverpanel_state_big = new oPanelSetting("coverpanel_state_big", 1, 0, 1);
 var filters_panel_state = new oPanelSetting("filters_panel_state", 1, 0, 5);
 var libraryfilter_state = new oPanelSetting("libraryfilter_state", 1, 0, 1);
-var screensaver_state = new oPanelSetting("screensaver_state", 0, 0, 1);
-var lyrics_state = new oPanelSetting("lyrics_state", 1, 0, 5);
 var librarytree = new oPanelSetting("librarytree", 0, 0, 1);
-var mini_controlbar = new oPanelSetting("mini_controlbar", 1, 0, 1);
-var compact_titlebar = new oPanelSetting("compacttitlebar", 0, 0, 1);
 
 //Individual Filter state
 var filter1_state = new oPanelSetting("filter1_state", 1, 0, 1);
@@ -6781,65 +7346,12 @@ var trackinfostext_state = new oPanelSetting("trackinfostext_state", 1, 0, 1);
 
 //Panels width
 var libraryfilter_width = new oPanelSetting("libraryfilter_width", 210, 100, 900);
-var playlistpanel_width = new oPanelSetting("playlistpanel_width", 180, 100, 900);
-var rightplaylist_width = new oPanelSetting("rightplaylist_width", 210, 100, 900);
 
-//Get Now playing state according to main panel
-function getNowPlayingState(){
-	switch(main_panel_state.value){
-		case 0:
-			return nowplayinglib_state.value;
-			break;
-		case 1:
-			return nowplayingplaylist_state.value;
-			break;
-		case 2:
-			return nowplayingbio_state.value;
-			break;
-		case 3:
-			return nowplayingvisu_state.value;
-			break;
+
+function getRightPlaylistState() {
+	if (globalProperties.logFunctions) {
+		console.log(`called getRightPlaylistState ( )`);
 	}
-}
-//Get Track Infos state according to main panel
-function getTrackInfosState(){
-	switch(main_panel_state.value){
-		case 0:
-			return trackinfoslib_state.value;
-			break;
-		case 1:
-			return trackinfosplaylist_state.value;
-			break;
-		case 2:
-			return trackinfosbio_state.value;
-			break;
-		case 3:
-			return trackinfosvisu_state.value;
-			break;
-	}
-}
-function getTrackInfosVisibility(){
-	switch(main_panel_state.value){
-		case 0:
-			return (trackinfoslib_state.value>=1 && nowplayinglib_state.value==1);
-			break;
-		case 1:
-			return (trackinfosplaylist_state.value>=1 && nowplayingbio_state.value==1);
-			break;
-		case 2:
-			return (trackinfosbio_state.value>=1 && nowplayinglib_state.value==1);
-			break;
-		case 3:
-			return (trackinfosvisu_state.value>=1 && nowplayingvisu_state.value==1);
-			break;
-	}
-}
-function getRightPlaylistState(){
-	return (nowplayinglib_state.isActive());
+	return nowplayinglib_state.isActive();
 	//return (!trackinfoslib_state.isActive() && nowplayinglib_state.isActive());
 }
-
-// Example of use in a PSS :
-// The first line set a panel stack global variable according to the panel current state, the second line switch the visibility of a panel named library, it show the panel when the current state is 3
-// $set_ps_global(MAIN_PANEL_SWITCH,$right($findfile(themes/eole/Settings/MAINPANEL_*),1))
-// $showpanel_c(library,$ifequal(%MAIN_PANEL_SWITCH%,3,1,0))

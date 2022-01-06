@@ -187,3 +187,123 @@ function Hyperlinks_on_mouse_move (hyperlink, x, y) {
 	}
 	return handled;
 }
+
+
+
+class PlHyperlink extends Hyperlink {
+	/**
+	 *
+	 * @param {string} text The text that will be displayed in the hyperlink
+	 * @param {GdiFont} font
+	 * @param {string} type The field name which will be searched when clicking on the hyperlink
+	 * @param {number} xOffset x-offset of the hyperlink. Negative values will be subtracted from the containerWidth to right justify.
+	 * @param {number} yOffset y-offset of the hyperlink.
+	 * @param {number} containerWidth The width of the container the hyperlink will be in. Used for right justification purposes.
+	 * @param {boolean} [inPlaylist=false] If the hyperlink is drawing in a scrolling container like a playlist, then it is drawn differently
+	 */
+	constructor (text, font, type, xOffset, yOffset, containerWidth, inPlaylist = false) {
+		super (text, font, type, xOffset, yOffset, containerWidth, inPlaylist = false)
+	}
+
+	click() {
+		let mask = GetKeyboardMask();
+		const populatePlaylist = (query) => {
+			debugLog(query);
+			let pl_oldname = "";
+			if (mask === KMask.ctrl){
+				pl_oldname = plman.GetPlaylistName(plman.ActivePlaylist) + " | ";
+			}
+			const handle_list = mask === KMask.ctrl ? fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), query) : fb.GetQueryItems(fb.GetLibraryItems(), query);
+			if (handle_list.Count) {
+				const pl = plman.FindOrCreatePlaylist(pl_oldname + this.text, true);
+				handle_list.Sort();
+				const index = fb.IsPlaying ? handle_list.BSearch(fb.GetNowPlaying()) : -1;
+				if (pl === plman.PlayingPlaylist && plman.GetPlayingItemLocation().PlaylistIndex === pl && index !== -1) {
+					// remove everything in playlist except currently playing song
+					plman.ClearPlaylistSelection(pl);
+					plman.SetPlaylistSelection(pl, [plman.GetPlayingItemLocation().PlaylistItemIndex], true);
+					plman.RemovePlaylistSelection(pl, true);
+					plman.ClearPlaylistSelection(pl);
+
+					handle_list.RemoveById(index);
+				} else {
+					// nothing playing or Search playlist is not active
+					plman.ClearPlaylist(pl);
+				}
+				plman.InsertPlaylistItems(pl, 0, handle_list);
+				plman.SortByFormat(pl, settings.defaultSortString);
+				plman.ActivePlaylist = pl;
+				return true;
+			}
+			return false;
+		}
+		/** @type {string} */
+		let query;
+		switch (this.type) {
+			case 'date':
+				if (pref.showPlaylistFulldate) {
+					query = '"' + tf.date + '" IS ' + this.text;
+				} else {
+					query = '"$year(%date%)" IS ' + this.text;
+				}
+				break;
+			case 'artist':
+				query = `Artist HAS ${this.text} OR ARTISTFILTER HAS ${this.text}`;
+				break;
+			default:
+				query = this.type + ' IS ' + this.text;
+				break;
+		}
+
+		if (!populatePlaylist(query)) {
+			var start = this.text.indexOf('[');
+			if (start > 0) {
+				query = this.type + ' IS ' + this.text.substr(0, start - 3);	// remove ' - [...]' from end of string in case we're showing "Album - [Deluxe Edition]", etc.
+				populatePlaylist(query);
+			}
+		}
+	}
+
+}
+
+class PlLinkGroup {
+	constructor (values, type, font, initXOffset, initYOffset, x, y, w, h, xspacer = 12,yspacer=12, rowspacer=0, expandedOnInit = false) {
+		this.links = [];
+		this.expanded = expandedOnInit;
+		this.rowcount = 0;
+		this.createLinks(values, type, font, initXOffset, initYOffset, x, w, xspacer, yspacer, rowspacer);
+	}
+
+	measureTextW(str, font){
+		let gb_img = gdi.CreateImage(1, 1);
+		let gb = gb_img.GetGraphics();
+		let w = gb.MeasureString(str, font, 0, 0, 0, 0).Width;
+		gb_img.ReleaseGraphics(gb);
+		return w;
+	}
+
+	createLinks(values, type, font, initXOffset, initYOffset, x, w, xspacer, yspacer, rowspacer){
+		let add_x = initXOffset;
+		let add_y = initYOffset;
+		this.rowcount += 1;
+		for (let i = 0; i < values.length; i++) {
+			let thisW = this.measureTextW(values[i], font);
+			//console.log(` w: ${x + w}, add_x: ${add_x}`);
+			if (i > 0) {
+				add_x -= xspacer; // spacing between genres
+			}
+			add_x -= thisW;
+			let row_check = w + add_x;
+			if (this.rowcount <= 1 && type === 'genre') row_check -= rowspacer;
+			if (row_check < 0) {
+				if (!this.expanded) continue;
+				add_x = initXOffset - thisW;
+				add_y += yspacer;
+				this.rowcount += 1;
+			}
+			this.links[i] = new PlHyperlink(values[i], font, type, add_x, add_y, x + w);
+		}
+	}
+
+
+}
