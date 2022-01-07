@@ -117,37 +117,11 @@ function createFonts() {
 		ft.lower_bar_artist = font(fontThin, 31, g_font_style.italic);
 		ft.lower_bar_artist_sml = font(fontThin, 27, g_font_style.italic);
 	}
-	ft.guifx = font(fontGuiFx, Math.floor(pref.transport_buttons_size / 2), 0);
+	ft.guifx = font(fontGuiFx, 16, 0);
 	ft.Marlett = font("Marlett", 13, 0);
 	ft.SegoeUi = font("Segoe Ui Semibold", pref.menu_font_size, 0);
 	ft.library_tree = font("Segoe UI", libraryProps.baseFontSize, 0);
 	ft.lyrics = font(fontRegular, pref.lyricsFontSize || 20, 1);
-}
-
-function newColorScheme() {
-	var ColorScheme = window.ColorScheme;
-
-	var scheme = new ColorScheme();
-	scheme
-		.from_hue(263) // Start the scheme
-		.scheme("analogic")
-		.distance(0.2)
-
-		.variation("pastel");
-	var colors = scheme.colors();
-	colors.forEach((c, i) => {
-		//console.log(c);
-		colors[i] = `#${c}`;
-		colors[i] = new Color(c);
-		colors[i] = colors[i].val;
-	});
-	return {
-		bg: colors[0],
-		menu_bg: colors[1],
-		progress_bar: colors[1],
-		now_playing: colors[2],
-		shadow: colors[5],
-	};
 }
 
 function pleaseMakeScheme(hex) {
@@ -251,6 +225,30 @@ function initColors() {
 	col.tl_unplayed = RGB(126, 173, 195);
 }
 initColors();
+
+
+function SetColorShiftTimer() {
+	if (timings.logFunctionCalls) {
+		console.log("SetColorShiftTimer called");
+	}
+	t_interval = 10;
+
+	if (timings.showDebugTiming)
+		console.log(`ColorShiftTimer will update every ${t_interval}ms or ${1000 / t_interval} times per second.`);
+
+	ColorShiftTimer && clearInterval(ColorShiftTimer);
+	ColorShiftTimer = null;
+	if (!fb.IsPaused) {
+		// only create ColorShiftTimer if actually playing
+		ColorShiftTimer = setInterval(() => {
+			colorShift();
+		}, t_interval);
+	}
+}
+
+function colorShift() {
+
+}
 
 function setGeometry() {
 	if (timings.logFunctionCalls) {
@@ -485,6 +483,7 @@ let progressBarTimer; // 40ms repaint of progress bar
 let albumArtTimeout; // setTimeout ID for rotating album art
 let hideCursorTimeout; // setTimeout ID for hiding cursor
 let cdartRotationTimer;
+let ColorShiftTimer;
 
 // STATUS VARIABLES
 let ww = 0;
@@ -1588,9 +1587,7 @@ function on_paint(gr) {
 	//debugLog(heartX);
 	const start = new Date();
 	draw_ui(gr);
-	if (transport.showVolume) {
-		volume_btn.on_paint(gr);
-	}
+	volume_btn.on_paint(gr);
 
 	if (timings.showDrawTiming || timings.showExtraDrawTiming) {
 		const end = Date.now();
@@ -1820,107 +1817,6 @@ function onOptionsMenu(x, y) {
 	);
 	menuFontMenu.appendTo(menu);
 
-	var transportMenu = new Menu("Transport controls");
-	transportMenu.addToggleItem("Show transport controls", transport, "enableTransportControls", () => {
-		createButtonImages();
-		createButtonObjects(ww, wh);
-		ResizeArtwork(true);
-		RepaintWindow();
-	});
-	transportMenu.addToggleItem(
-		"Show transport below art",
-		transport,
-		"displayBelowArtwork",
-		() => {
-			createButtonImages();
-			createButtonObjects(ww, wh);
-			ResizeArtwork(true);
-			if (displayPlaylist) {
-				playlist.on_size(ww, wh);
-			}
-			if (displayLibrary) {
-				setLibrarySize();
-			}
-			RepaintWindow();
-		},
-		!transport.enableTransportControls
-	);
-	transportMenu.addToggleItem(
-		"Show random button",
-		transport,
-		"showRandom",
-		() => {
-			createButtonObjects(ww, wh);
-			RepaintWindow();
-		},
-		!transport.enableTransportControls
-	);
-	transportMenu.addToggleItem(
-		"Show volume control",
-		transport,
-		"showVolume",
-		() => {
-			createButtonObjects(ww, wh);
-			RepaintWindow();
-		},
-		!transport.enableTransportControls
-	);
-	transportMenu.addToggleItem(
-		"Show reload button",
-		transport,
-		"showReload",
-		() => {
-			createButtonObjects(ww, wh);
-			RepaintWindow();
-		},
-		!transport.enableTransportControls
-	);
-	transportMenu.appendTo(menu);
-
-	const transportSizeMenu = new Menu("Transport Button Size");
-	transportSizeMenu.addRadioItems(
-		["-2", "28px", "32px (default)", "36px", "40px", "44px", "+2"],
-		pref.transport_buttons_size,
-		[-1, 28, 32, 36, 40, 44, 999],
-		(size) => {
-			if (size === -1) {
-				pref.transport_buttons_size -= 2;
-			} else if (size === 999) {
-				pref.transport_buttons_size += 2;
-			} else {
-				pref.transport_buttons_size = size;
-			}
-			ft.guifx = gdi.Font(fontGuiFx, scaleForDisplay(Math.floor(pref.transport_buttons_size / 2)), 0);
-			createButtonImages();
-			createButtonObjects(ww, wh);
-			if (transport.displayBelowArtwork) {
-				ResizeArtwork(true);
-			}
-			RepaintWindow();
-		}
-	);
-	transportSizeMenu.appendTo(transportMenu);
-
-	const transportSpacingMenu = new Menu("Transport Button Spacing");
-	transportSpacingMenu.addRadioItems(
-		["-2", "3px", "5px (default)", "7px", "10px", "15px", "+2"],
-		pref.transport_buttons_spacing,
-		[-1, 3, 5, 7, 10, 15, 999],
-		(size) => {
-			if (size === -1) {
-				pref.transport_buttons_spacing -= 2;
-			} else if (size === 999) {
-				pref.transport_buttons_spacing += 2;
-			} else {
-				pref.transport_buttons_spacing = size;
-			}
-			createButtonImages();
-			createButtonObjects(ww, wh);
-			RepaintWindow();
-		}
-	);
-	transportSpacingMenu.appendTo(transportMenu);
-
 	menu.addToggleItem("Show timeline tooltips", pref, "show_timeline_tooltips");
 	menu.addToggleItem("Show progress bar", pref, "show_progress_bar", () => {
 		setGeometry();
@@ -2121,9 +2017,6 @@ function onOptionsMenu(x, y) {
 			window.Repaint();
 		}
 	});
-	debugMenu.addToggleItem("Show reload button", pref, "show_reload_button", () => {
-		window.Reload();
-	});
 	debugMenu.appendTo(menu);
 
 	const configMenu = new Menu("Configuration File");
@@ -2258,7 +2151,7 @@ function setLibrarySize() {
 	if (typeof libraryPanel !== "undefined") {
 		var x = Math.round(ww * 0.5);
 		var y = btns[30].y + btns[30].h + scaleForDisplay(16) + 2;
-		var lowerSpace = calcLowerSpace();
+		var lowerSpace = geo.lower_bar_h + scaleForDisplay(42);
 		var library_w = ww - x;
 		var library_h = Math.max(0, wh - lowerSpace - scaleForDisplay(16) - y);
 
@@ -2790,9 +2683,7 @@ function on_mouse_move(x, y, m) {
 		} else if (str.timeline && str.timeline.mouseInThis(x, y)) {
 			str.timeline.on_mouse_move(x, y, m);
 		}
-		//if (transport.enableTransportControls && transport.showVolume && volume_btn) {
-		//	volume_btn.on_mouse_move(x, y, m);
-		//}
+
 		// UIHacks
 		if (!mouseInPanel) mouseInPanel = true;
 		if (!componentUiHacks) return;
@@ -2820,9 +2711,7 @@ function on_mouse_move(x, y, m) {
 }
 
 function on_mouse_wheel(delta) {
-	if (transport.showVolume) {
-		if (volume_btn.on_mouse_wheel(delta)) return;
-	}
+	if (volume_btn.on_mouse_wheel(delta)) return;
 	if (state.mouse_y > wh - geo.lower_bar_h) {
 		fb.PlaybackTime = fb.PlaybackTime - delta * pref.mouse_wheel_seek_speed;
 		refresh_seekbar();
@@ -2847,9 +2736,7 @@ function on_mouse_wheel(delta) {
 // =================================================== //
 
 function on_mouse_leave() {
-	if (transport.showVolume) {
-		volume_btn.on_mouse_leave();
-	}
+	volume_btn.on_mouse_leave();
 	if (displayPlaylist) {
 		playlist.on_mouse_leave();
 	} else if (displayLibrary) {
@@ -3609,16 +3496,6 @@ function CreateRotatedCDImage() {
 	}
 }
 
-function calcLowerSpace() {
-	if (timings.logFunctionCalls) {
-		console.log("calcLowerSpace called");
-	}
-	//debugLog(heartX);
-	return transport.displayBelowArtwork
-		? geo.lower_bar_h + scaleForDisplay(pref.transport_buttons_size + 10)
-		: geo.lower_bar_h + scaleForDisplay(16);
-}
-
 function ResizeArtwork(resetCDPosition) {
 	if (timings.logFunctionCalls) {
 		console.log("ResizeArtwork called");
@@ -3626,7 +3503,7 @@ function ResizeArtwork(resetCDPosition) {
 	//debugLog(heartX);
 	debugLog("Resizing artwork");
 	var hasArtwork = false;
-	var lowerSpace = calcLowerSpace();
+	var lowerSpace = geo.lower_bar_h + scaleForDisplay(42);
 	if (albumart && albumart.Width && albumart.Height) {
 		// Size for big albumart
 		let xCenter = 0;
@@ -3657,11 +3534,11 @@ function ResizeArtwork(resetCDPosition) {
 				Math.floor((wh - geo.top_art_spacing - lowerSpace - scaleForDisplay(16)) / 2 - albumart_size.h / 2);
 			albumart_size.y = Math.min(y, scaleForDisplay(150) + 10); // 150 or 300 + 10? Not sure where 160 comes from
 		} else {
-			const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false; // add a bit of extra space because we move transport down slightly
+			const showingMinMaxButtons = UIHacks && UIHacks.FrameStyle ? true : false;
 			albumart_size.y = geo.top_art_spacing + (showingMinMaxButtons ? scaleForDisplay(10) : 0); // height of menu bar + spacing + height of Artist text (32+32+32)
 		}
 		if (btns.playlist && albumart_size.x + albumart_size.w > btns.playlist.x - 50) {
-			albumart_size.y += 16 - transport.enableTransportControls * 6;
+			albumart_size.y += 10;
 		}
 
 		if (albumart_scaled) {
@@ -3996,8 +3873,8 @@ function createButtonObjects(ww, wh) {
 		createButtonImages();
 	}
 
-	const btSizeLg = pref.transport_buttons_size * 2;
-	const btSizeSm = pref.transport_buttons_size;
+	const btSizeLg = 64;
+	const btSizeSm = 32;
 	const btPad = scaleForDisplay(15);
 	const btPad2 = (btPad * 2) / 3;
 	const smY = wh - geo.lower_bar_h - scaleForDisplay(2) - btSizeSm / 2;
@@ -4015,29 +3892,27 @@ function createButtonObjects(ww, wh) {
 
 	let btHeartX = heartX + btSizeSm;
 	let btHeartY = wh - geo.lower_bar_h;
-	//---> Transport buttons
-	if (transport.enableTransportControls) {
-		let plImg = btnImg.Play;
-		btns.play = new Button(
-			btPlayX,
-			lgY,
-			btSizeLg,
-			btSizeLg,
-			"Play/Pause",
-			!fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause,
-			"Play"
-		);
-		plImg = btnImg.Previous;
-		btns.prev = new Button(btPrevX, smY, btSizeSm, btSizeSm, "Previous", btnImg.Previous, "Previous");
-		plImg = btnImg.Shuffle;
-		btns.shuffle = new Button(btShuffleX, smY, btSizeSm, btSizeSm, "Shuffle", plImg);
-		plImg = btnImg.Next;
-		btns.next = new Button(btNextX, smY, btSizeSm, btSizeSm, "Next", btnImg.Next, "Next");
-		plImg = btnImg.Repeat;
-		btns.repeat = new Button(btRepeatX, smY, btSizeSm, btSizeSm, "Repeat", plImg);
-		plImg = btnImg.LastFmHeart;
-		btns.heart = new Button(btHeartX, btHeartY, btSizeSm, btSizeSm, "Heart", plImg);
-	}
+
+	let plImg = btnImg.Play;
+	btns.play = new Button(
+		btPlayX,
+		lgY,
+		btSizeLg,
+		btSizeLg,
+		"Play/Pause",
+		!fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause,
+		"Play"
+	);
+	plImg = btnImg.Previous;
+	btns.prev = new Button(btPrevX, smY, btSizeSm, btSizeSm, "Previous", btnImg.Previous, "Previous");
+	plImg = btnImg.Shuffle;
+	btns.shuffle = new Button(btShuffleX, smY, btSizeSm, btSizeSm, "Shuffle", plImg);
+	plImg = btnImg.Next;
+	btns.next = new Button(btNextX, smY, btSizeSm, btSizeSm, "Next", btnImg.Next, "Next");
+	plImg = btnImg.Repeat;
+	btns.repeat = new Button(btRepeatX, smY, btSizeSm, btSizeSm, "Repeat", plImg);
+	plImg = btnImg.LastFmHeart;
+	btns.heart = new Button(btHeartX, btHeartY, btSizeSm, btSizeSm, "Heart", plImg);
 
 	//---> Caption buttons
 	if (showingMinMaxButtons) {
@@ -4136,10 +4011,9 @@ function createButtonImages() {
 	//debugLog(heartX);
 	let createButtonProfiler = null;
 	let btSize;
-	let btSizeLg = pref.transport_buttons_size * 2;
-	let btSizeSm = pref.transport_buttons_size;
+	let btSizeLg = 64;
+	let btSizeSm = 32;
 	createButtonProfiler = fb.CreateProfiler("createButtonImages");
-	const transportCircleSize = Math.round(pref.transport_buttons_size * 0.93333);
 	let btns = {};
 
 	try {
@@ -4191,20 +4065,6 @@ function createButtonImages() {
 				type: "playback",
 				w: btSizeSm,
 				h: btSizeSm,
-			},
-			ShowVolume: {
-				ico: g_guifx.volume_up,
-				font: ft.guifx,
-				type: "transport",
-				w: transportCircleSize,
-				h: transportCircleSize,
-			},
-			Reload: {
-				ico: g_guifx.power,
-				font: ft.guifx,
-				type: "transport",
-				w: transportCircleSize,
-				h: transportCircleSize,
 			},
 			Minimize: {
 				ico: "0",
@@ -4347,10 +4207,7 @@ function createButtonImages() {
 		let w = btns[i].w;
 		let h = btns[i].h;
 		let lw = scaleForDisplay(2);
-		if (is_4k && btns[i].type === "transport") {
-			w *= 2;
-			h *= 2;
-		} else if (is_4k && btns[i].type !== "menu") {
+		if (is_4k && btns[i].type !== "menu") {
 			w = Math.round(btns[i].w * 1.5);
 			h = Math.round(btns[i].h * 1.6);
 		} else if (is_4k) {
@@ -4366,44 +4223,23 @@ function createButtonImages() {
 			var img = gdi.CreateImage(w, h);
 			const g = img.GetGraphics();
 			g.SetSmoothingMode(SmoothingMode.AntiAlias);
-			if (btns[i].type !== "transport") {
-				g.SetTextRenderingHint(TextRenderingHint.AntiAliasGridFit); // positions playback icons weirdly
-			} else {
-				g.SetTextRenderingHint(TextRenderingHint.AntiAlias);
-			}
-			var useDarkTransport = !pref.darkMode && transport.displayBelowArtwork;
-			var transportButtonColor = useDarkTransport ? rgb(110, 112, 114) : rgb(150, 152, 154);
-			var transportOutlineColor = useDarkTransport ? rgb(100, 100, 100) : rgb(120, 120, 120);
+			g.SetTextRenderingHint(TextRenderingHint.AntiAlias);
 
 			var menuTextColor = RGB(140, 142, 144);
 			var menuRectColor = RGB(120, 122, 124);
 			let minMaxIcoColor = RGB(140, 142, 144);
-			var transportIconColor = transportButtonColor;
-			var transportEllipseColor = transportOutlineColor;
 			var iconAlpha = 140;
 			switch (s) {
 				case ButtonState.Hovered:
 					menuTextColor = RGB(180, 182, 184);
 					menuRectColor = RGB(160, 162, 164);
 					minMaxIcoColor = RGB(190, 192, 194);
-					transportIconColor = useDarkTransport
-						? shadeColor(transportButtonColor, 40)
-						: tintColor(transportButtonColor, 30);
-					transportEllipseColor = useDarkTransport
-						? shadeColor(transportOutlineColor, 35)
-						: tintColor(transportOutlineColor, 35);
 					iconAlpha = 215;
 					break;
 				case ButtonState.Down:
 					menuTextColor = RGB(180, 182, 184);
 					menuRectColor = RGB(160, 162, 164);
 					minMaxIcoColor = RGB(100, 102, 104);
-					transportIconColor = useDarkTransport
-						? tintColor(transportButtonColor, 15)
-						: shadeColor(transportButtonColor, 20);
-					transportEllipseColor = useDarkTransport
-						? tintColor(transportOutlineColor, 15)
-						: shadeColor(transportOutlineColor, 20);
 					iconAlpha = 0;
 					break;
 				case ButtonState.Enabled:
@@ -4422,25 +4258,6 @@ function createButtonImages() {
 			} else if (btns[i].type == "window") {
 				// min/max/close controls for UIHacks
 				g.DrawString(btns[i].ico, btns[i].font, minMaxIcoColor, 0, 0, w, h, StringFormat(1, 1));
-			} else if (btns[i].type == "transport") {
-				g.DrawEllipse(
-					Math.floor(lw / 2) + 1,
-					Math.floor(lw / 2) + 1,
-					w - lw - 2,
-					h - lw - 2,
-					lw,
-					transportEllipseColor
-				);
-				g.DrawString(
-					btns[i].ico,
-					btns[i].font,
-					transportIconColor,
-					1,
-					i == "Stop" || i == "Reload" ? 0 : 1,
-					w,
-					h,
-					StringFormat(1, 1)
-				);
 			} else if (btns[i].type == "image") {
 				g.DrawImage(
 					btns[i].ico,

@@ -36,8 +36,8 @@ var globalProperties = {
 	use_ratings_file_tags: window.GetProperty("PL_GLOBAL use ratings in file tags", false),
 
 	//===Debug===//
-	logFunctions: window.GetProperty("PL_DEBUG spam console with function calls", false),
-
+	//logFns: window.GetProperty("PL_DEBUG logFns - spam console with function calls", false),
+	logFns_Misc: window.GetProperty("PL_DEBUG logFns_Misc", false),
 	drawDebugRects: window.GetProperty("PL_DEBUG draw object area rects", false),
 
 	//===Album Covers===//
@@ -180,13 +180,36 @@ globalProperties.coverCacheWidthMax = Math.max(50, Math.min(2000, Number(globalP
 if (isNaN(globalProperties.coverCacheWidthMax)) globalProperties.coverCacheWidthMax = 200;
 globalProperties.thumbnailWidthMax = Math.max(50, globalProperties.coverCacheWidthMax);
 
+//Debug Function Logging Settings
+globalProperties.logFns_oFileSystObject = window.GetProperty("PL_DEBUG logFns_oFileSystObject", false);
+globalProperties.logFns_oCursor = window.GetProperty("PL_DEBUG logFns_oCursor", false);
+globalProperties.logFns_RGB = window.GetProperty("PL_DEBUG logFns_RGB", false);
+globalProperties.logFns_oGenreCache = window.GetProperty("PL_DEBUG logFns_oGenreCache", false);
+globalProperties.logFns_var_cache = window.GetProperty("PL_DEBUG logFns_var_cache", false);
+globalProperties.logFns_oImageCache = window.GetProperty("PL_DEBUG logFns_oImageCache", false);
+globalProperties.logFns_oInputBox = window.GetProperty("PL_DEBUG logFns_oInputBox", false);
+globalProperties.logFns_oBrowser = window.GetProperty("PL_DEBUG logFns_oBrowser", false);
+globalProperties.logFns_oPanelSetting = window.GetProperty("PL_DEBUG logFns_oPanelSetting", false);
+globalProperties.logFns_PlaylistPanel = window.GetProperty("PL_DEBUG logFns_PlaylistPanel", false);
+globalProperties.logFns_oPlaylistHistory = window.GetProperty("PL_DEBUG logFns_oPlaylistHistory", false);
+globalProperties.logFns_Timers = window.GetProperty("PL_DEBUG logFns_Timers", false);
+globalProperties.logFns_oPlaylistManager = window.GetProperty("PL_DEBUG logFns_oPlaylistManager", false);
+globalProperties.logFns_oPlaylistItem = window.GetProperty("PL_DEBUG logFns_oPlaylistItem", false);
+globalProperties.logFns_oRow = window.GetProperty("PL_DEBUG logFns_oRow", false);
+globalProperties.logFns_oShowList = window.GetProperty("PL_DEBUG logFns_oShowList", false);
+globalProperties.logFns_oHeaderBar = window.GetProperty("PL_DEBUG logFns_oHeaderBar", false);
+globalProperties.logFns_settings_menu = window.GetProperty("PL_DEBUG logFns_settings_menu", false);
+globalProperties.logFns_Callbacks = window.GetProperty("PL_DEBUG logFns_Callbacks", false);
+
+
+
 oFileSystObject = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oFileSystObject) {
 		console.log("called oFileSystObject ( )");
 	}
 	this.fileObject = new ActiveXObject("Scripting.FileSystemObject");
 	this.CreateTextFile = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.CreateTextFile (${path})`);
 		}
 		try {
@@ -197,7 +220,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.FileExists = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.FileExists (${path})`);
 		}
 		try {
@@ -209,7 +232,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.MoveFile = function (target, dest) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.MoveFile (${target}, ${dest})`);
 		}
 		try {
@@ -223,13 +246,13 @@ oFileSystObject = function () {
 		}
 	};
 	this.DeleteFile = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.DeleteFile (${path})`);
 		}
 		return this.fileObject.DeleteFile(path);
 	};
 	this.FolderExists = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.FolderExists (${path})`);
 		}
 		try {
@@ -240,7 +263,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.CreateFolder = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.CreateFolder (${path})`);
 		}
 		try {
@@ -251,7 +274,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.DeleteFolder = function (path, force) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.DeleteFolder (${path}, ${force})`);
 		}
 		try {
@@ -265,7 +288,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.GetFolder = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.GetFolder (${path})`);
 		}
 		try {
@@ -276,7 +299,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.GetExtensionName = function (path) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.GetExtensionName (${path})`);
 		}
 		try {
@@ -287,7 +310,7 @@ oFileSystObject = function () {
 		}
 	};
 	this.OpenTextFile = function (path, openMode) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oFileSystObject) {
 			console.log(`called oFileSystObject.OpenTextFile (${path}, ${openMode})`);
 		}
 		try {
@@ -310,7 +333,7 @@ if (!g_files.FolderExists(SettingsPath)) g_files.CreateFolder(SettingsPath);
 
 
 function setMemoryParameters() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log("called setMemoryParameters ( )");
 	}
 	switch (true) {
@@ -336,7 +359,7 @@ function setMemoryParameters() {
 setMemoryParameters();
 
 function setGlobalParameter(parameter_name, parameter_value, notify_others = false) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called setGlobalParameter (${parameter_name}, ${parameter_value}, ${notify_others})`);
 	}
 	window.SetProperty("GLOBAL " + parameter_name, parameter_value);
@@ -368,9 +391,17 @@ var cScrollBar = {
 	timerCounter: -1,
 };
 
+var drop_effect = {
+	none: 0,
+	copy: 1,
+	move: 2,
+	link: 4,
+	scroll: 0x80000000
+};
+
 var oCursor = function () {
-	if (globalProperties.logFunctions) {
-		console.log("called oCursor ( )");
+	if (globalProperties.logFns_oCursor) {
+		//console.log("called oCursor ( )");
 	}
 	this.x = -10;
 	this.y = -10;
@@ -378,8 +409,8 @@ var oCursor = function () {
 	this.g_timer = false;
 	this.cursor = IDC_ARROW;
 	this.onMouse = function (state, x, y, m) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oCursor.onMouse (${state}, ${x}, ${y}, ${m})`);
+		if (globalProperties.logFns_oCursor) {
+			//console.log(`called oCursor.onMouse (${state}, ${x}, ${y}, ${m})`);
 		}
 		//console.log(state, x, y);
 		switch (state) {
@@ -407,8 +438,8 @@ var oCursor = function () {
 		}
 	};
 	this.setCursor = function (cursor_code, active_zone = "", numberOfTry = 1) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oCursor.setCursor (${cursor_code}, ${active_zone}, ${numberOfTry})`);
+		if (globalProperties.logFns_oCursor) {
+			//console.log(`called oCursor.setCursor (${cursor_code}, ${active_zone}, ${numberOfTry})`);
 		}
 		//console.log(cursor_code, active_zone, numberOfTry);
 
@@ -436,8 +467,8 @@ var oCursor = function () {
 		}
 	};
 	this.getActiveZone = function () {
-		if (globalProperties.logFunctions) {
-			console.log(`called oCursor.getActiveZone ( )`);
+		if (globalProperties.logFns_oCursor) {
+			//console.log(`called oCursor.getActiveZone ( )`);
 		}
 		//console.log(`active_zone: ${this.active_zone}`)
 		return this.active_zone;
@@ -445,23 +476,16 @@ var oCursor = function () {
 };
 
 function SetPlaylistFocusItemByHandle(playlist_id, metadb) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called SetPlaylistFocusItemByHandle (${playlist_id}, ${metadb})`);
 	}
 	plman.ActivePlaylist = playlist_id;
 	plman.SetPlaylistFocusItem(playlist_id, metadb);
 }
 
-function GetGrey(grey, alpha = 255) {
-	if (globalProperties.logFunctions) {
-		console.log(`called GetGrey (${grey}, ${alpha})`);
-	}
-	return RGBA(grey, grey, grey, alpha);
-}
-
 // HTML dialogs ---------------------------------------------------------------------
 function get_windows_version() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called get_windows_version ( )`);
 	}
 	let version = "";
@@ -488,7 +512,7 @@ function get_windows_version() {
 }
 
 function htmlCode(directory, filename) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called htmlCode (${directory}, ${filename})`);
 	}
 	let htmlCode = utils.ReadTextFile(directory + "\\" + filename);
@@ -504,7 +528,7 @@ function htmlCode(directory, filename) {
 }
 
 function HtmlMsg(msg_title, msg_content, btn_label) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called HtmlMsg (${msg_title}, ${msg_content}, ${btn_label})`);
 	}
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "MsgBox.html"), {
@@ -513,7 +537,7 @@ function HtmlMsg(msg_title, msg_content, btn_label) {
 }
 
 function HtmlDialog(msg_title, msg_content, btn_yes_label, btn_no_label, confirm_callback) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called HtmlDialog (${msg_title}, ${msg_content}, ${btn_yes_label}, ${btn_no_label}, ${confirm_callback})`);
 	}
 	utils.ShowHtmlDialog(window.ID, htmlCode(skin_global_path + "\\html", "ConfirmDialog.html"), {
@@ -522,11 +546,11 @@ function HtmlDialog(msg_title, msg_content, btn_yes_label, btn_no_label, confirm
 }
 
 function customGraphicBrowserGrouping(title, top_msg, bottom_msg, input_default_values, input_labels) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called customGraphicBrowserGrouping (${title}, ${top_msg}, ${bottom_msg}, ${input_default_values}, ${input_labels})`);
 	}
 	function ok_callback(status, input_values) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Misc) {
 			console.log(`called ok_callback (${status}, ${input_values})`);
 		}
 		if (status != "cancel") {
@@ -553,11 +577,11 @@ function customGraphicBrowserGrouping(title, top_msg, bottom_msg, input_default_
 }
 
 function customTracklistDetails(title, top_msg, bottom_msg, input_default_values, input_labels) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called customGraphicBrowserGrouping (${title}, ${top_msg}, ${bottom_msg}, ${input_default_values}, ${input_labels})`);
 	}
 	function ok_callback(status, input_values) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Misc) {
 			console.log(`called ok_callback (${status}, ${input_values})`);
 		}
 		if (status != "cancel") {
@@ -577,7 +601,8 @@ function customTracklistDetails(title, top_msg, bottom_msg, input_default_values
 	});
 }
 
-//Colors ------------------------------------------------------------------------------
+//RGB / Colors ------------------------------------------------------------------------------
+
 /**
  * @typedef {Object} ColorsObj
  * @property {number=} shadow color of the shadow
@@ -604,9 +629,22 @@ var col = {}; // colors
 
 var colors = {};
 var darkcolors = {};
+const patternDir = fb.ProfilePath + "patterns\\";
+const patternDirDark = fb.ProfilePath + "patterns\\dark\\";
+const patternDirDarkSm = fb.ProfilePath + "patterns\\dark\\small\\";
+const patternDirLight = fb.ProfilePath + "patterns\\light\\";
+const patternDirLightSm = fb.ProfilePath + "patterns\\light\\small\\";
+
+
+function GetGrey(grey, alpha = 255) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called GetGrey (${grey}, ${alpha})`);
+	}
+	return RGBA(grey, grey, grey, alpha);
+}
 
 function get_colors_global() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_RGB) {
 		console.log(`called get_colors_global ( )`);
 	}
 	darkcolors.normal_txt = GetGrey(240);
@@ -775,6 +813,264 @@ function get_colors_global() {
 	}
 }
 
+function getMask(imgname) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called getMask (${imgname})`);
+	}
+	let mask;
+	console.log(`mask: ${imgname}`);
+	if (utils.IsFile(patternDirDark + imgname + ".png")) {
+		mask = gdi.Image(patternDirDark + imgname + ".png");
+	} else if (utils.IsFile(patternDirLight + imgname + ".png")) {
+		mask = gdi.Image(patternDirLight + imgname + ".png");
+		mask = mask.InvertColours();
+	} else if (utils.IsFile(patternDirDarkSm + imgname + ".png")) {
+		mask = gdi.Image(patternDirDarkSm + imgname + ".png");
+	} else if (utils.IsFile(patternDirLightSm + imgname + ".png")) {
+		mask = gdi.Image(patternDirLightSm + imgname + ".png");
+		mask = mask.InvertColours();
+	} else if (utils.IsFile(patternDirDark + imgname + ".jpg")) {
+		mask = gdi.Image(patternDirDark + imgname + ".jpg");
+	} else if (utils.IsFile(patternDirLight + imgname + ".jpg")) {
+		mask = gdi.Image(patternDirLight + imgname + ".jpg");
+		mask = mask.InvertColours();
+	}
+	return mask;
+}
+function tileMask(gr, w, h, rgb, mask) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called tileMask (${gr}, ${w}, ${h}, ${rgb}, ${mask})`);
+	}
+	//console.log(calcBrightness(rgb));
+	let maskColorA = invert(rgb);
+	let maskColorB = RGB(0, 0, 0);
+	let maskColorC = RGB(255, 255, 255);
+	let contrastA = getContrastRatio(rgb, maskColorA);
+	let contrastB = getContrastRatio(rgb, maskColorB);
+	let contrastC = getContrastRatio(rgb, maskColorC);
+	let largest;
+	let maskColor;
+	// check the condition
+	if (contrastA >= contrastB && contrastA >= contrastC) {
+		maskColor = maskColorA;
+	} else if (contrastB >= contrastA && contrastB >= contrastC) {
+		maskColor = maskColorB;
+	} else {
+		maskColor = maskColorC;
+	}
+	//while (getContrastRatio(maskColor, rgb) < 6) {
+	//	maskColor = new Color(maskColor);
+	//	let cRatio = getContrastRatio(maskColor, rgb);
+	//	console.log("contrast ratio: " + cRatio);
+	//	let cTint = getContrastRatio(tintColor(maskColor, 5), rgb);
+	//	console.log("cTint ratio: " + cTint);
+	//	if (cTint > cRatio) {
+	//		console.log(">>> Theme primary color is too close to text color. Tinting theme color.");
+	//		maskColor = tintColor(maskColor, 5);
+	//	} else {
+	//		console.log(">>> Theme primary color is too close to text color. Shading theme color.");
+	//		maskColor = shadeColor(maskColor, 5);
+	//	}
+	//}
+	//maskColor = invert(maskColor);
+	mask = mask.InvertColours();
+	let white = gdi.CreateImage(mask.Width, mask.Height);
+	let g = white.GetGraphics();
+	g.FillSolidRect(0, 0, mask.Width, mask.Height, maskColor);
+	white.ReleaseGraphics(g);
+	white.ApplyMask(mask);
+	//white = white.InvertColours();
+	let img = gdi.CreateImage(mask.Width, mask.Height);
+	g = img.GetGraphics();
+	g.FillSolidRect(0, 0, mask.Width, mask.Height, rgb);
+	g.DrawImage(white, 0, 0, mask.Width, mask.Height, 0, 0, mask.Width, mask.Height);
+	img.ReleaseGraphics(g);
+	//img = img.InvertColours();
+	//img = img.CreateRawBitmap();
+	for (let i = 0; i < h; i += img.Height) {
+		for (let k = 0; k < w; k += img.Width) {
+			gr.DrawImage(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
+			//gr.GdiDrawBitmap(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
+		}
+	}
+}
+
+const getLuminanace = (color) => {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called getLuminanace (${color})`);
+	}
+	const values = [color.format("%r%"), color.format("%g%"), color.format("%b%")];
+	const rgb = values.map((v) => {
+		const val = v / 255;
+		return val <= 0.03928 ? val / 12.92 : ((val + 0.055) / 1.055) ** 2.4;
+	});
+	return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
+};
+
+const getContrastRatio = (a, b) => {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called getContrastRatio (${a}, ${b})`);
+	}
+	const aCol = new Color(a);
+	const bCol = new Color(b);
+	const lumA = getLuminanace(aCol);
+	const lumB = getLuminanace(bCol);
+
+	return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
+};
+
+function invert(color, bBW = false) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called invert (${color}, ${bBW})`);
+	}
+	let r = getRed(color);
+	let g = getGreen(color);
+	let b = getBlue(color);
+	if (bBW) {
+		return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? RGB(0, 0, 0) : RGB(255, 255, 255);
+	} else {
+		return RGB(255 - r, 255 - g, 255 - b);
+	}
+}
+
+function calcBrightness(c) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called calcBrightness (${c})`);
+	}
+	var r = getRed(c);
+	var g = getGreen(c);
+	var b = getBlue(c);
+	return Math.round(Math.sqrt(0.299 * r * r + 0.587 * g * g + 0.114 * b * b));
+}
+
+function HSL2RGB(zH, zS, zL, result) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called HSL2RGB (${zH}, ${zS}, ${zL}, ${result})`);
+	}
+	var L = zL / 100;
+	var S = zS / 100;
+	var H = zH / 100;
+	var R, G, B, var_1, var_2;
+	if (S == 0) {
+		//HSL from 0 to 1
+		R = L * 255; //RGB results from 0 to 255
+		G = L * 255;
+		B = L * 255;
+	} else {
+		if (L < 0.5) var_2 = L * (1 + S);
+		else var_2 = L + S - S * L;
+
+		var_1 = 2 * L - var_2;
+
+		R = 255 * Hue2RGB(var_1, var_2, H + 1 / 3);
+		G = 255 * Hue2RGB(var_1, var_2, H);
+		B = 255 * Hue2RGB(var_1, var_2, H - 1 / 3);
+	}
+	switch (result) {
+		case "R":
+			return Math.round(R);
+		case "G":
+			return Math.round(G);
+		case "B":
+			return Math.round(B);
+		default:
+			return RGB(Math.round(R), Math.round(G), Math.round(B));
+	}
+}
+
+function Hue2RGB(v1, v2, vH) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called Hue2RGB (${v1}, ${v2}, ${vH})`);
+	}
+	if (vH < 0) vH += 1;
+	if (vH > 1) vH -= 1;
+	if (6 * vH < 1) return v1 + (v2 - v1) * 6 * vH;
+	if (2 * vH < 1) return v2;
+	if (3 * vH < 2) return v1 + (v2 - v1) * (2 / 3 - vH) * 6;
+	return v1;
+}
+
+function RGB2HSL(RGB_colour) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called RGB2HSL (${RGB_colour})`);
+	}
+	var R = getRed(RGB_colour) / 255;
+	var G = getGreen(RGB_colour) / 255;
+	var B = getBlue(RGB_colour) / 255;
+	var HSL_colour = { RGB: 0, H: 0, S: 0, L: 0 };
+
+	var_Min = Math.min(R, G, B); //Min. value of RGB
+	var_Max = Math.max(R, G, B); //Max. value of RGB
+	del_Max = var_Max - var_Min; //Delta RGB value
+
+	L = (var_Max + var_Min) / 2;
+
+	if (del_Max == 0) {
+		//This is a gray, no chroma...
+		H = 0; //HSL results from 0 to 1
+		S = 0;
+	} else {
+		//Chromatic data...
+		if (L < 0.5) S = del_Max / (var_Max + var_Min);
+		else S = del_Max / (2 - var_Max - var_Min);
+
+		del_R = ((var_Max - R) / 6 + del_Max / 2) / del_Max;
+		del_G = ((var_Max - G) / 6 + del_Max / 2) / del_Max;
+		del_B = ((var_Max - B) / 6 + del_Max / 2) / del_Max;
+
+		if (R == var_Max) H = del_B - del_G;
+		else if (G == var_Max) H = 1 / 3 + del_R - del_B;
+		else if (B == var_Max) H = 2 / 3 + del_G - del_R;
+
+		if (H < 0) H += 1;
+		if (H > 1) H -= 1;
+	}
+	HSL_colour.RGB = RGB_colour;
+	HSL_colour.H = Math.round(H * 100);
+	HSL_colour.S = Math.round(S * 100);
+	HSL_colour.L = Math.round(L * 100);
+	return HSL_colour;
+}
+
+function setAlpha(color, alpha) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called setAlpha (${color}, ${alpha})`);
+	}
+	colorRGB = toRGB(color);
+	return RGBA(colorRGB[0], colorRGB[1], colorRGB[2], alpha);
+}
+
+function toRGB(d) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called toRGB (${d})`);
+	}
+	// convert back to RGB values
+	d = d - 0xff000000;
+	var r = d >> 16;
+	var g = (d >> 8) & 0xff;
+	var b = d & 0xff;
+	return [r, g, b];
+}
+
+// When factor is 0, result is 100% color1, when factor is 1, result is 100% color2.
+function blendColors(c1, c2, factor) {
+	if (globalProperties.logFns_RGB) {
+		console.log(`called blendColors (${c1}, ${c2}, ${factor})`);
+	}
+	c1 = toRGB(c1);
+	c2 = toRGB(c2);
+	var r = Math.round(c1[0] + factor * (c2[0] - c1[0]));
+	var g = Math.round(c1[1] + factor * (c2[1] - c1[1]));
+	var b = Math.round(c1[2] + factor * (c2[2] - c1[2]));
+	return 0xff000000 | (r << 16) | (g << 8) | b;
+}
+
+
+// *****************************************************************************************************************************************
+// Common functions & flags by Br3tt aka Falstaff (c)2013-2015
+// *****************************************************************************************************************************************
+
+
 var mouse_move_suppress = new qwr_utils.MouseMoveSuppress();
 var key_down_suppress = new qwr_utils.KeyModifiersSuppress();
 var trace_call = false;
@@ -788,7 +1084,7 @@ var randomStartTime = 0;
 var PlaylistExclude = Array(globalProperties.whole_library, globalProperties.filter_playlist);
 
 function rescalePlaylist() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called rescalePlaylist ( )`);
 	}
 	playlist_geo.row_h = scaleForDisplay(g_properties.row_h);
@@ -800,7 +1096,7 @@ function rescalePlaylist() {
 }
 
 function ExcludePlaylist(name) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called ExcludePlaylist (${name})`);
 	}
 	for (var i = 0; i < PlaylistExclude.length; i++) {
@@ -810,7 +1106,7 @@ function ExcludePlaylist(name) {
 }
 
 function enableCoversAtStartupGlobally() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called enableCoversAtStartupGlobally ( )`);
 	}
 	globalProperties.load_covers_at_startup = !globalProperties.load_covers_at_startup;
@@ -905,14 +1201,14 @@ FontTypeDUI = {
 };
 
 oGenreCache = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oGenreCache) {
 		console.log("called oGenreCache ( )");
 	}
 	this.genreList = Array();
 	this.tf_genre = globalProperties.tf_genre;
 	this.initialized = false;
 	this.genreExist = function (genre) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.genreExist (${genre})`);
 		}
 		for (let i = 0; i < this.genreList.length; i++) {
@@ -921,7 +1217,7 @@ oGenreCache = function () {
 		return false;
 	};
 	this.add = function (genre) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.add (${genre})`);
 		}
 		//genre = genre.replace("&","&&");
@@ -932,7 +1228,7 @@ oGenreCache = function () {
 		return false;
 	};
 	this.onFinish = function (genre) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.onFinish (${genre})`);
 		}
 		this.sort();
@@ -940,7 +1236,7 @@ oGenreCache = function () {
 		this.initialized = true;
 	};
 	this.setHierarchy = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log("called oGenreCache.setHierarchy ( )");
 		}
 		var submenu = false;
@@ -953,19 +1249,19 @@ oGenreCache = function () {
 		}
 	};
 	this.sort = function (genre) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.sort (${genre})`);
 		}
 		this.genreList.sort(sortNumber);
 	};
 	this.isEmpty = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.isEmpty ( )`);
 		}
 		return this.genreList.length == 0;
 	};
 	this.trace = function (genre) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.trace (${genre})`);
 		}
 		for (let i = 0; i < this.genreList.length; i++) {
@@ -973,7 +1269,7 @@ oGenreCache = function () {
 		}
 	};
 	this.on_metadb_changed = function (metadbs, fromhook) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log(`called oGenreCache.on_metadb_changed (${metadbs}, ${fromhook})`);
 		}
 		if (fromhook) return;
@@ -992,7 +1288,7 @@ oGenreCache = function () {
 		if (genre_added) this.onFinish();
 	};
 	this.build_from_library = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oGenreCache) {
 			console.log("called oGenreCache.build_from_library ( )");
 		}
 		var libraryList = fb.GetLibraryItems();
@@ -1013,43 +1309,44 @@ oGenreCache = function () {
 		this.onFinish();
 	};
 };
+
 var_cache = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_var_cache) {
 		console.log("called var_cache ( )");
 	}
 	this.vars = {};
 	this.set = function (name, value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log(`called var_cache.set (${name}, ${value})`);
 		}
 		this.vars[name] = value;
 	};
 	this.get = function (name) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log(`called var_cache.get (${name}`);
 		}
 		return this.vars[name];
 	};
 	this.setOnce = function (name, value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log(`called var_cache.setOnce (${name}, ${value})`);
 		}
 		if (!this.isdefined(name)) this.vars[name] = value;
 	};
 	this.isdefined = function (name) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log(`called var_cache.isdefined (${name}`);
 		}
 		return typeof this.vars[name] != "undefined" && this.vars[name] != null;
 	};
 	this.reset = function (name) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log(`called var_cache.reset (${name}`);
 		}
 		delete this.vars[name];
 	};
 	this.resetAll = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_var_cache) {
 			console.log("called var_cache.resetAll ( )");
 		}
 		this.vars = {};
@@ -1057,7 +1354,7 @@ var_cache = function () {
 };
 
 function sortNumber(a, b) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called sortNumber (${a}, ${b})`);
 	}
 	if (a[0] < b[0]) return -1;
@@ -1066,7 +1363,7 @@ function sortNumber(a, b) {
 }
 
 function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = window.CreatePopupMenu()) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called createGenrePopupMenu (${firstFile}, ${checked_item}, ${genrePopupMenu})`);
 	}
 	let showBelow = false;
@@ -1180,7 +1477,7 @@ function createGenrePopupMenu(firstFile, checked_item = -1, genrePopupMenu = win
 }
 
 function SetGenre(GenreNumber, plist_items, max_items = 9000, clean_file = false) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called SetGenre (${GenreNumber}, ${plist_items}, ${max_items}, ${clean_file})`);
 	}
 	if (plist_items.Count > max_items) {
@@ -1215,7 +1512,7 @@ function SetGenre(GenreNumber, plist_items, max_items = 9000, clean_file = false
 
 
 String.prototype.sanitise = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called String.prototype.sanitise ( )`);
 	}
 	return this.replace(/[\/\\|:]/g, "-")
@@ -1228,7 +1525,7 @@ String.prototype.sanitise = function () {
 		.replace(/^\s+|[\n\s]+$/g, "");
 };
 String.prototype.extract_year = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called String.prototype.extract_year ( )`);
 	}
 	var year = this.match(/[0-9]{4}/);
@@ -1237,17 +1534,17 @@ String.prototype.extract_year = function () {
 };
 
 function trim1(str) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called trim1 (${str})`);
 	}
 	return str.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
 }
 
 function apply_playlist(itemsList, play_results, order_list, undobackup = true) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called apply_playlist (${itemsList}, ${play_results}, ${order_list}, ${undobackup})`);
 	}
-	console.log("apply_playlist");
+	//console.log("apply_playlist");
 	var pl_idx = -1;
 	playlist_2remove = -1;
 	for (i = 0; i < plman.PlaylistCount; i++) {
@@ -1280,7 +1577,7 @@ function apply_playlist(itemsList, play_results, order_list, undobackup = true) 
 }
 
 function match(input, str) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called match (${input}, ${str})`);
 	}
 	input = input.removeAccents().toLowerCase();
@@ -1291,7 +1588,7 @@ function match(input, str) {
 }
 
 function process_string(str) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called process_string (${str})`);
 	}
 	var str_ = [];
@@ -1304,7 +1601,7 @@ function process_string(str) {
 }
 
 function quickSearch(start, search_function, idx) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called match (${start}, ${search_function}, ${idx})`);
 	}
 	let arr;
@@ -1394,7 +1691,7 @@ function quickSearch(start, search_function, idx) {
 }
 
 function arrayContains(array, name) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called arrayContains (${array}, ${name})`);
 	}
 	for (let i = 0; i < array.length; i++) {
@@ -1404,7 +1701,7 @@ function arrayContains(array, name) {
 }
 
 function delete_tags_except(track_metadb, except_array) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called delete_tags_except (${track_metadb}, ${except_array})`);
 	}
 	var track_FileInfo = track_metadb.GetFileInfo();
@@ -1415,14 +1712,10 @@ function delete_tags_except(track_metadb, except_array) {
 	}
 }
 
-// *****************************************************************************************************************************************
-// Common functions & flags by Br3tt aka Falstaff (c)2013-2015
-// *****************************************************************************************************************************************
-
 //=================================================// General declarations
 
 function GetKeyboardMask() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called GetKeyboardMask ( )`);
 	}
 	var c = utils.IsKeyPressed(VK_CONTROL);
@@ -1438,293 +1731,8 @@ function GetKeyboardMask() {
 	return ret;
 }
 
-// Used everywhere!
-
-
-const patternDir = fb.ProfilePath + "patterns\\";
-const patternDirDark = fb.ProfilePath + "patterns\\dark\\";
-const patternDirDarkSm = fb.ProfilePath + "patterns\\dark\\small\\";
-const patternDirLight = fb.ProfilePath + "patterns\\light\\";
-const patternDirLightSm = fb.ProfilePath + "patterns\\light\\small\\";
-/*
-var pattern_list = findRecursivefile("*.png", [patternDirLight]).filter((path) => {
-	return !path.split("\\").pop().startsWith("_");
-});
-const pattern_list_total = pattern_list.length;
-*/
-function getMask(imgname) {
-	if (globalProperties.logFunctions) {
-		console.log(`called getMask (${imgname})`);
-	}
-	let mask;
-	console.log(`mask: ${imgname}`);
-	if (utils.IsFile(patternDirDark + imgname + ".png")) {
-		mask = gdi.Image(patternDirDark + imgname + ".png");
-	} else if (utils.IsFile(patternDirLight + imgname + ".png")) {
-		mask = gdi.Image(patternDirLight + imgname + ".png");
-		mask = mask.InvertColours();
-	} else if (utils.IsFile(patternDirDarkSm + imgname + ".png")) {
-		mask = gdi.Image(patternDirDarkSm + imgname + ".png");
-	} else if (utils.IsFile(patternDirLightSm + imgname + ".png")) {
-		mask = gdi.Image(patternDirLightSm + imgname + ".png");
-		mask = mask.InvertColours();
-	} else if (utils.IsFile(patternDirDark + imgname + ".jpg")) {
-		mask = gdi.Image(patternDirDark + imgname + ".jpg");
-	} else if (utils.IsFile(patternDirLight + imgname + ".jpg")) {
-		mask = gdi.Image(patternDirLight + imgname + ".jpg");
-		mask = mask.InvertColours();
-	}
-	return mask;
-}
-/*
-function getRandomMask() {
-	let randNum = Math.floor(Math.random() * pattern_list.length);
-	let maskPth = pattern_list.splice(randNum, 1).toString();
-	// on_load_image_done will be triggered when the image has been loaded
-	let mask = gdi.Image(maskPth);
-	if (mask == null) {
-		pattern_list = findRecursivefile("*.png", [patternDirLight]).filter((path) => {
-			return !path.split("\\").pop().startsWith("_");
-		});
-		return getRandomMask();
-	}
-	if (maskPth.includes("light")) mask = mask.InvertColours();
-	console.log(
-		`mask: ${utils.SplitFilePath(maskPth)[1]} (${pattern_list_total - pattern_list.length} / ${pattern_list_total})`
-	);
-	return mask;
-}
-*/
-function tileMask(gr, w, h, rgb, mask) {
-	if (globalProperties.logFunctions) {
-		console.log(`called tileMask (${gr}, ${w}, ${h}, ${rgb}, ${mask})`);
-	}
-	//console.log(calcBrightness(rgb));
-	let maskColorA = invert(rgb);
-	let maskColorB = RGB(0, 0, 0);
-	let maskColorC = RGB(255, 255, 255);
-	let contrastA = getContrastRatio(rgb, maskColorA);
-	let contrastB = getContrastRatio(rgb, maskColorB);
-	let contrastC = getContrastRatio(rgb, maskColorC);
-	let largest;
-	let maskColor;
-	// check the condition
-	if (contrastA >= contrastB && contrastA >= contrastC) {
-		maskColor = maskColorA;
-	} else if (contrastB >= contrastA && contrastB >= contrastC) {
-		maskColor = maskColorB;
-	} else {
-		maskColor = maskColorC;
-	}
-	//while (getContrastRatio(maskColor, rgb) < 6) {
-	//	maskColor = new Color(maskColor);
-	//	let cRatio = getContrastRatio(maskColor, rgb);
-	//	console.log("contrast ratio: " + cRatio);
-	//	let cTint = getContrastRatio(tintColor(maskColor, 5), rgb);
-	//	console.log("cTint ratio: " + cTint);
-	//	if (cTint > cRatio) {
-	//		console.log(">>> Theme primary color is too close to text color. Tinting theme color.");
-	//		maskColor = tintColor(maskColor, 5);
-	//	} else {
-	//		console.log(">>> Theme primary color is too close to text color. Shading theme color.");
-	//		maskColor = shadeColor(maskColor, 5);
-	//	}
-	//}
-	//maskColor = invert(maskColor);
-	mask = mask.InvertColours();
-	let white = gdi.CreateImage(mask.Width, mask.Height);
-	let g = white.GetGraphics();
-	g.FillSolidRect(0, 0, mask.Width, mask.Height, maskColor);
-	white.ReleaseGraphics(g);
-	white.ApplyMask(mask);
-	//white = white.InvertColours();
-	let img = gdi.CreateImage(mask.Width, mask.Height);
-	g = img.GetGraphics();
-	g.FillSolidRect(0, 0, mask.Width, mask.Height, rgb);
-	g.DrawImage(white, 0, 0, mask.Width, mask.Height, 0, 0, mask.Width, mask.Height);
-	img.ReleaseGraphics(g);
-	//img = img.InvertColours();
-	//img = img.CreateRawBitmap();
-	for (let i = 0; i < h; i += img.Height) {
-		for (let k = 0; k < w; k += img.Width) {
-			gr.DrawImage(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
-			//gr.GdiDrawBitmap(img, k, i, img.Width, img.Height, 0, 0, img.Width, img.Height);
-		}
-	}
-}
-
-const getLuminanace = (color) => {
-	if (globalProperties.logFunctions) {
-		console.log(`called getLuminanace (${color})`);
-	}
-	const values = [color.format("%r%"), color.format("%g%"), color.format("%b%")];
-	const rgb = values.map((v) => {
-		const val = v / 255;
-		return val <= 0.03928 ? val / 12.92 : ((val + 0.055) / 1.055) ** 2.4;
-	});
-	return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
-};
-
-const getContrastRatio = (a, b) => {
-	if (globalProperties.logFunctions) {
-		console.log(`called getContrastRatio (${a}, ${b})`);
-	}
-	const aCol = new Color(a);
-	const bCol = new Color(b);
-	const lumA = getLuminanace(aCol);
-	const lumB = getLuminanace(bCol);
-
-	return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
-};
-
-function invert(color, bBW = false) {
-	if (globalProperties.logFunctions) {
-		console.log(`called invert (${color}, ${bBW})`);
-	}
-	let r = getRed(color);
-	let g = getGreen(color);
-	let b = getBlue(color);
-	if (bBW) {
-		return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? RGB(0, 0, 0) : RGB(255, 255, 255);
-	} else {
-		return RGB(255 - r, 255 - g, 255 - b);
-	}
-}
-
-function calcBrightness(c) {
-	if (globalProperties.logFunctions) {
-		console.log(`called calcBrightness (${c})`);
-	}
-	var r = getRed(c);
-	var g = getGreen(c);
-	var b = getBlue(c);
-	return Math.round(Math.sqrt(0.299 * r * r + 0.587 * g * g + 0.114 * b * b));
-}
-
-function HSL2RGB(zH, zS, zL, result) {
-	if (globalProperties.logFunctions) {
-		console.log(`called HSL2RGB (${zH}, ${zS}, ${zL}, ${result})`);
-	}
-	var L = zL / 100;
-	var S = zS / 100;
-	var H = zH / 100;
-	var R, G, B, var_1, var_2;
-	if (S == 0) {
-		//HSL from 0 to 1
-		R = L * 255; //RGB results from 0 to 255
-		G = L * 255;
-		B = L * 255;
-	} else {
-		if (L < 0.5) var_2 = L * (1 + S);
-		else var_2 = L + S - S * L;
-
-		var_1 = 2 * L - var_2;
-
-		R = 255 * Hue2RGB(var_1, var_2, H + 1 / 3);
-		G = 255 * Hue2RGB(var_1, var_2, H);
-		B = 255 * Hue2RGB(var_1, var_2, H - 1 / 3);
-	}
-	switch (result) {
-		case "R":
-			return Math.round(R);
-		case "G":
-			return Math.round(G);
-		case "B":
-			return Math.round(B);
-		default:
-			return RGB(Math.round(R), Math.round(G), Math.round(B));
-	}
-}
-
-function Hue2RGB(v1, v2, vH) {
-	if (globalProperties.logFunctions) {
-		console.log(`called Hue2RGB (${v1}, ${v2}, ${vH})`);
-	}
-	if (vH < 0) vH += 1;
-	if (vH > 1) vH -= 1;
-	if (6 * vH < 1) return v1 + (v2 - v1) * 6 * vH;
-	if (2 * vH < 1) return v2;
-	if (3 * vH < 2) return v1 + (v2 - v1) * (2 / 3 - vH) * 6;
-	return v1;
-}
-
-function RGB2HSL(RGB_colour) {
-	if (globalProperties.logFunctions) {
-		console.log(`called RGB2HSL (${RGB_colour})`);
-	}
-	var R = getRed(RGB_colour) / 255;
-	var G = getGreen(RGB_colour) / 255;
-	var B = getBlue(RGB_colour) / 255;
-	var HSL_colour = { RGB: 0, H: 0, S: 0, L: 0 };
-
-	var_Min = Math.min(R, G, B); //Min. value of RGB
-	var_Max = Math.max(R, G, B); //Max. value of RGB
-	del_Max = var_Max - var_Min; //Delta RGB value
-
-	L = (var_Max + var_Min) / 2;
-
-	if (del_Max == 0) {
-		//This is a gray, no chroma...
-		H = 0; //HSL results from 0 to 1
-		S = 0;
-	} else {
-		//Chromatic data...
-		if (L < 0.5) S = del_Max / (var_Max + var_Min);
-		else S = del_Max / (2 - var_Max - var_Min);
-
-		del_R = ((var_Max - R) / 6 + del_Max / 2) / del_Max;
-		del_G = ((var_Max - G) / 6 + del_Max / 2) / del_Max;
-		del_B = ((var_Max - B) / 6 + del_Max / 2) / del_Max;
-
-		if (R == var_Max) H = del_B - del_G;
-		else if (G == var_Max) H = 1 / 3 + del_R - del_B;
-		else if (B == var_Max) H = 2 / 3 + del_G - del_R;
-
-		if (H < 0) H += 1;
-		if (H > 1) H -= 1;
-	}
-	HSL_colour.RGB = RGB_colour;
-	HSL_colour.H = Math.round(H * 100);
-	HSL_colour.S = Math.round(S * 100);
-	HSL_colour.L = Math.round(L * 100);
-	return HSL_colour;
-}
-
-function setAlpha(color, alpha) {
-	if (globalProperties.logFunctions) {
-		console.log(`called setAlpha (${color}, ${alpha})`);
-	}
-	colorRGB = toRGB(color);
-	return RGBA(colorRGB[0], colorRGB[1], colorRGB[2], alpha);
-}
-
-function toRGB(d) {
-	if (globalProperties.logFunctions) {
-		console.log(`called toRGB (${d})`);
-	}
-	// convert back to RGB values
-	d = d - 0xff000000;
-	var r = d >> 16;
-	var g = (d >> 8) & 0xff;
-	var b = d & 0xff;
-	return [r, g, b];
-}
-
-// When factor is 0, result is 100% color1, when factor is 1, result is 100% color2.
-function blendColors(c1, c2, factor) {
-	if (globalProperties.logFunctions) {
-		console.log(`called blendColors (${c1}, ${c2}, ${factor})`);
-	}
-	c1 = toRGB(c1);
-	c2 = toRGB(c2);
-	var r = Math.round(c1[0] + factor * (c2[0] - c1[0]));
-	var g = Math.round(c1[1] + factor * (c2[1] - c1[1]));
-	var b = Math.round(c1[2] + factor * (c2[2] - c1[2]));
-	return 0xff000000 | (r << 16) | (g << 8) | b;
-}
-
 function TrackType(metadb) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called TrackType (${metadb})`);
 	}
 	var taggable;
@@ -2026,7 +2034,7 @@ function DrawPolyStar(gr, x, y, out_radius, in_radius, points, line_thickness, l
 }
 
 function zoom(value, factor) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called zoom (${value}, ${factor})`);
 	}
 	return Math.ceil((value * factor) / 100);
@@ -2271,7 +2279,7 @@ String.prototype.removeAccents = function () {
 
 // ========================================= IMAGES =========================================
 function FormatCover(image, w, h, rawBitmap, callID, keepratio = false) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called FormatCover (${image}, ${w}, ${h}, ${rawBitmap}, ${callID}, ${keepratio})`);
 	}
 	let ratio, pw, ph;
@@ -2299,14 +2307,14 @@ function FormatCover(image, w, h, rawBitmap, callID, keepratio = false) {
 }
 
 function isImage(variable) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called isImage (${variable})`);
 	}
 	return typeof variable == "object" && variable != null;
 }
 
 function process_cachekey(metadb, titleformat = globalProperties.tf_crc, str = titleformat.EvalWithMetadb(metadb)) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called process_cachekey (${metadb}, ${titleformat}, ${str})`);
 	}
 	var str_return = "";
@@ -2321,7 +2329,7 @@ function process_cachekey(metadb, titleformat = globalProperties.tf_crc, str = t
 }
 
 function check_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called check_cache (${metadb}, ${albumIndex}, ${crc})`);
 	}
 	var filename = cover_img_cache + "\\" + crc + "." + globalProperties.ImageCacheExt;
@@ -2333,7 +2341,7 @@ function check_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey)
 }
 
 function delete_file_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cachekey, delete_at_startup) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called delete_file_cache (${metadb}, ${albumIndex}, ${crc}, ${delete_at_startup})`);
 	}
 	var filename = cover_img_cache + "\\" + crc + "." + globalProperties.ImageCacheExt;
@@ -2377,7 +2385,7 @@ function delete_file_cache(metadb, albumIndex, crc = pBrw.groups[albumIndex].cac
 }
 
 function delete_full_cache() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called delete_full_cache ( )`);
 	}
 	if (globalProperties.deleteDiskCache) {
@@ -2404,7 +2412,7 @@ function delete_full_cache() {
 }
 
 function load_image_from_cache(filename) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called load_image_from_cache (${filename})`);
 	}
 	try {
@@ -2416,7 +2424,7 @@ function load_image_from_cache(filename) {
 }
 
 function load_image_from_cache_direct(filename) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called load_image_from_cache_direct (${filename})`);
 	}
 	try {
@@ -2427,7 +2435,7 @@ function load_image_from_cache_direct(filename) {
 }
 
 function get_albumArt(metadb, cachekey = process_cachekey(metadb)) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called get_albumArt (${metadb}, ${cachekey})`);
 	}
 	try {
@@ -2449,7 +2457,7 @@ function get_albumArt(metadb, cachekey = process_cachekey(metadb)) {
 }
 
 function get_fallbackCover(metadb, tracktype = TrackType(metadb)) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called get_fallbackCover (${metadb}, ${tracktype})`);
 	}
 	if (tracktype < 2) {
@@ -2460,7 +2468,7 @@ function get_fallbackCover(metadb, tracktype = TrackType(metadb)) {
 }
 
 const get_albumArt_async = async (metadb, albumIndex, cachekey, need_stub, only_embed, no_load, addArgs) => {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called get_albumArt_async (${metadb}, ${albumIndex}, ${cachekey}, ${need_stub}, ${only_embed}, ${no_load}, ${addArgs})`);
 	}
 	need_stub = true;
@@ -2510,7 +2518,7 @@ const get_albumArt_async = async (metadb, albumIndex, cachekey, need_stub, only_
 };
 
 function save_image_to_cache(image, albumIndex, cachekey = false, metadb) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called save_image_to_cache (${image}, ${albumIndex}, ${cachekey}, ${metadb})`);
 	}
 	let save2cache;
@@ -2558,7 +2566,7 @@ function save_image_to_cache(image, albumIndex, cachekey = false, metadb) {
 }
 
 function createDragText(line1, line2, cover_size) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called createDragText (${line1}, ${line2}, ${cover_size})`);
 	}
 	var drag_img = gdi.CreateImage(cover_size, cover_size);
@@ -2631,7 +2639,7 @@ function createDragText(line1, line2, cover_size) {
 }
 
 function createDragImg(img, cover_size, count) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called createDragImg (${img}, ${cover_size}, ${count})`);
 	}
 	var drag_zone_size = 220;
@@ -2669,7 +2677,7 @@ function createDragImg(img, cover_size, count) {
 }
 
 function freeCacheMemory(force = false) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called freeCacheMemory (${force})`);
 	}
 	if (window.TotalMemoryUsage > window.MemoryLimit * 0.8 || force) {
@@ -2681,13 +2689,13 @@ function freeCacheMemory(force = false) {
 }
 
 oImageCache = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log("called oImageCache");
 	}
 	this.cachelist = Array();
 	this.coverCacheWidthMax = -1;
 	this.addToCache = function (image, cachekey, resize_width, resize_height) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.addToCache (${image}, ${cachekey}, ${resize_width}, ${resize_height})`);
 		}
 		if (!globalProperties.loaded_covers2memory || freeCacheMemory()) return;
@@ -2706,7 +2714,7 @@ oImageCache = function () {
 		}
 	};
 	this.resetCache = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log("called oImageCache.resetCache ( )");
 		}
 		debugger_hint("-------------- image cache reset --------------");
@@ -2716,7 +2724,7 @@ oImageCache = function () {
 		this.cachelist = Array();
 	};
 	this.load_image_from_cache_async = async (albumIndex, cachekey, filename, save = false, metadb) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.load_image_from_cache_async (${albumIndex}, ${cachekey}, ${filename}, ${save}, ${metadb})`);
 		}
 		if (pBrw.groups[albumIndex].load_requested == 0) {
@@ -2751,7 +2759,7 @@ oImageCache = function () {
 		cachekey = pBrw.groups[albumIndex].cachekey,
 		artist_name = ""
 	) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.hit (${metadb}, ${albumIndex}, ${direct_return}, ${cachekey}, ${artist_name})`);
 		}
 		var img = this.cachelist[cachekey];
@@ -2826,26 +2834,26 @@ oImageCache = function () {
 		return img;
 	};
 	this.reset = function (key) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.reset (${key})`);
 		}
 		this.cachelist[key] = null;
 	};
 	this.resetMetadb = function (metadb) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.resetMetadb (${metadb})`);
 		}
 		this.cachelist[process_cachekey(metadb)] = null;
 	};
 	this.resetAll = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log("called oImageCache.resetAll ( )");
 		}
 		this.cachelist = Array();
 	};
 	this.getit = function (metadb, albumId, image, cw = globalProperties.thumbnailWidthMax) {
 		let ratio, pw, ph;
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oImageCache) {
 			console.log(`called oImageCache.getit (${metadb}, ${albumId}, ${image}, ${cw})`);
 		}
 		var ch = cw;
@@ -2894,7 +2902,7 @@ oImageCache = function () {
 //=========================================================================
 
 function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, overlay_color, quality = 1) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called draw_blurred_image (${image}, ${ix}, ${iy}, ${iw}, ${ih}, ${bx}, ${by}, ${bw}, ${bh}, ${blur_value}, ${overlay_color}, ${quality})`);
 	}
 	image.StackBlur(50);
@@ -2938,7 +2946,7 @@ function setWallpaperImgV2(
 	rawBitmap = false,
 	quality = 1
 ) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called setWallpaperImgV2 (${image}, ${metadb}, ${progressbar_art}, ${width}, ${height}, ${blur_value}, ${rawBitmap}, ${quality})`);
 	}
 	let tmp_img;
@@ -2986,7 +2994,7 @@ function setWallpaperImg(
 	rawBitmap = false,
 	quality = 1
 ) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called setWallpaperImg (${defaultpath}, ${metadb}, ${progressbar_art}, ${width}, ${height}, ${blur_value}, ${rawBitmap}, ${quality})`);
 	}
 	let display;
@@ -3038,7 +3046,7 @@ function FormatWallpaper(
 	blur_value = globalProperties.wallpaperblurvalue,
 	quality = 1
 ) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called FormatWallpaper (${image}, ${iw}, ${ih}, ${interpolation_mode}, ${display_mode}, ${angle}, ${txt}, ${rawBitmap}, ${force_blur}, ${blur_value}, ${quality})`);
 	}
 	if (!image || !iw || !ih) return image;
@@ -3157,7 +3165,7 @@ function FormatWallpaper(
 
 // Debugger functions
 function debugger_hint(string) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called debugger_hint (${string})`);
 	}
 	//console.log(string)	;
@@ -3165,7 +3173,7 @@ function debugger_hint(string) {
 
 //JSON wrappers
 function JSON_stringify(info) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called JSON_stringify (${info})`);
 	}
 	try {
@@ -3186,7 +3194,7 @@ const f_fontLight = "HelveticaNeueLT Pro 45 Lt";
 const f_fontRegular = "HelveticaNeueLT Pro 55 Roman";
 
 function createForkFonts() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called createForkFonts ( )`);
 	}
 	pref.fontAdjustement = Math.min(pref.fontAdjustement_max, Math.max(pref.fontAdjustement_min, pref.fontAdjustement));
@@ -3225,6 +3233,7 @@ cFilterBox = {
 	h: 40,
 	paddingInboxCursor: 7,
 };
+
 
 class oInputBox {
 	constructor(
@@ -3282,7 +3291,7 @@ class oInputBox {
 	}
 
 	onFontChanged() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.onFontChanged ( )`);
 		}
 		this.font_search = eval(this.font_search_string);
@@ -3383,7 +3392,7 @@ class oInputBox {
 	}
 
 	drawcursor(gr) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.drawcursor (gr)`);
 		}
 		if (cInputbox.cursor_state) {
@@ -3401,21 +3410,21 @@ class oInputBox {
 	}
 
 	repaint() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.repaint ( )`);
 		}
 		pBrw.repaint();
 	}
 
 	CalcText() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.CalcText ( )`);
 		}
 		this.TWidth = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset), this.font_search);
 	}
 
 	GetCx(pos) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.GetCx (${pos})`);
 		}
 		let x;
@@ -3428,7 +3437,7 @@ class oInputBox {
 	}
 
 	GetCPos(x) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.GetCPos (${x})`);
 		}
 		var tx = x - this.x;
@@ -3443,7 +3452,7 @@ class oInputBox {
 	}
 
 	on_focus(is_focused) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.on_focus (${is_focused})`);
 		}
 		if (!is_focused && this.edit) {
@@ -3464,7 +3473,7 @@ class oInputBox {
 	}
 
 	resetCursorTimer() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.resetCursorTimer ( )`);
 		}
 		if (cInputbox.timer_cursor) {
@@ -3479,7 +3488,7 @@ class oInputBox {
 	}
 
 	activate(x) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.activate (${x})`);
 		}
 		this.dblclk = false;
@@ -3493,15 +3502,15 @@ class oInputBox {
 	}
 
 	checkActive() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.checkActive ( )`);
 		}
 		return this.edit;
 	}
 
 	check(callback, x, y, force_activate = false) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oInputBox.check (${callback}, ${x}, ${y}, ${force_activate})`);
+		if (globalProperties.logFns_oInputBox) {
+			//console.log(`called oInputBox.check (${callback}, ${x}, ${y}, ${force_activate})`);
 		}
 		this.hover = x >= this.x - 2 && x <= this.x + this.w + 1 && y > this.y && y < this.y + this.h;
 		switch (callback) {
@@ -3617,7 +3626,7 @@ class oInputBox {
 	}
 
 	show_context_menu(x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.show_context_menu (${x}, ${y})`);
 		}
 		let p1, p2;
@@ -3703,7 +3712,7 @@ class oInputBox {
 	}
 
 	on_key_down(vkey) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.on_key_down (${vkey})`);
 		}
 		this.resetCursorTimer();
@@ -3713,7 +3722,7 @@ class oInputBox {
 	}
 
 	on_key(vkey, mask, autovalidate = this.autovalidation) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.on_key (${vkey}, ${mask}, ${autovalidate})`);
 		}
 		//console.log("on_key");
@@ -4101,7 +4110,7 @@ class oInputBox {
 	}
 
 	on_char(code, mask, autovalidate = this.autovalidation) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oInputBox.on_char (${code}, ${mask}, ${autovalidate})`);
 		}
 		let p1, p2;
@@ -4161,7 +4170,7 @@ class oInputBox {
 
 class oFilterBox extends oInputBox {
 	constructor() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox ( )`);
 		}
 		super(
@@ -4192,7 +4201,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	getImages(w = 18, btText = undefined) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.getImages (${w}, ${btText})`);
 		}
 		let gb;
@@ -4248,7 +4257,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	on_init() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.on_init ( )`);
 		}
 		g_headerbar.RightTextLength = -1;
@@ -4260,7 +4269,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	draw(gr, x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.draw (gr, ${x}, ${y})`);
 		}
 		this.x = x;
@@ -4284,7 +4293,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	clearInputbox() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.clearInputbox ( )`);
 		}
 		if (this.text.length > 0) {
@@ -4297,7 +4306,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	setSize(w, h) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.setSize (${w}, ${h})`);
 		}
 		this.w = w;
@@ -4307,8 +4316,8 @@ class oFilterBox extends oInputBox {
 	}
 
 	on_mouse(event, x, y) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oFilterBox.on_mouse (${event}, ${x}, ${y})`);
+		if (globalProperties.logFns_oInputBox) {
+			//console.log(`called oFilterBox.on_mouse (${event}, ${x}, ${y})`);
 		}
 		switch (event) {
 			case "lbtn_down":
@@ -4339,7 +4348,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	on_char(code) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.on_char (${code})`);
 		}
 		super.on_char(code);
@@ -4347,7 +4356,7 @@ class oFilterBox extends oInputBox {
 	}
 
 	search(string) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oInputBox) {
 			console.log(`called oFilterBox.search (${string})`);
 		}
 		let group_match = false;
@@ -4386,7 +4395,7 @@ class oFilterBox extends oInputBox {
 }
 
 function g_sendResponse() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called g_sendResponse ( )`);
 	}
 	g_hiddenLoadTimer && clearTimeout(g_hiddenLoadTimer);
@@ -4411,8 +4420,8 @@ class oBaseBrowser {
 	}
 
 	repaint() {
-		if (globalProperties.logFunctions) {
-			console.log(`called oBaseBrowser.repaint ( )`);
+		if (globalProperties.logFns_oBrowser) {
+			//console.log(`called oBaseBrowser.repaint ( )`);
 		}
 		repaint_main1 = repaint_main2;
 	}
@@ -4425,7 +4434,7 @@ class oBaseBrowser {
 	}
 
 	DefineCircleMask(size) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oBaseBrowser.DefineCircleMask (${size})`);
 		}
 		let Mimg = gdi.CreateImage(size, size);
@@ -4438,14 +4447,14 @@ class oBaseBrowser {
 	}
 
 	_isHover(x, y) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oBaseBrowser._isHover (${x}, ${y})`);
+		if (globalProperties.logFns_oBrowser) {
+			//console.log(`called oBaseBrowser._isHover (${x}, ${y})`);
 		}
 		return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
 	}
 
 	resetTimer() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Timers) {
 			console.log(`called oBaseBrowser.resetTimer ( )`);
 		}
 		if (this.g_time) {
@@ -4455,7 +4464,7 @@ class oBaseBrowser {
 	}
 
 	startTimer() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Timers) {
 			console.log(`called oBaseBrowser.startTimer ( )`);
 		}
 		this.resetTimer();
@@ -4487,7 +4496,7 @@ class oBaseBrowser {
 
 class oPlBrowser extends oBaseBrowser {
 	constructor(name) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser (${name})`);
 		}
 		super(name);
@@ -4544,9 +4553,6 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	RepaintRect(x, y, w, h) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.RepaintRect (${x}, ${y}, ${w}, ${h})`);
-		}
 		if (this.repaint_rect) {
 			this.repaint();
 			this.repaint_rect = false;
@@ -4560,7 +4566,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	FormatTime(time) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.FormatTime (${time})`);
 		}
 		let time_txt = "";
@@ -4583,7 +4589,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	showheaderbar() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.showheaderbar ( )`);
 		}
 		if (globalProperties.showheaderbar) this.headerBarHeight = globalProperties.CoverGridNoText ? 39 : 43;
@@ -4596,7 +4602,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	toggle_grid_mode(circleMode = null, gridMode = null) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.toggle_grid_mode (${circleMode}, ${gridMode})`);
 		}
 
@@ -4623,7 +4629,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	switch_display_mode() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.switch_display_mode ( )`);
 		}
 		if (!globalProperties.CoverGridNoText && !globalProperties.circleMode) {
@@ -4636,7 +4642,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	on_font_changed(refreshDates) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.on_font_changed (${refreshDates})`);
 		}
 		this.fontDate = gdi.Font("Arial", pref.g_fsize - 1, 2);
@@ -4645,7 +4651,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	on_init() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.on_init ( )`);
 		}
 		if (globalProperties.CoverGridNoText) {
@@ -4662,7 +4668,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	setSize(x, y, w, h) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.setSize (${x}, ${y}, ${w}, ${h})`);
 		}
 		super.setSize(x, y, w, h);
@@ -4693,6 +4699,7 @@ class oPlBrowser extends oBaseBrowser {
 
 		if (globalProperties.showheaderbar) {
 			g_headerbar.setSize(this.x, this.y, this.w, this.headerBarHeight);
+			/*
 			if (this.showFilterBox)
 				g_filterbox.setSize(
 					adjW -
@@ -4705,6 +4712,8 @@ class oPlBrowser extends oBaseBrowser {
 					g_headerbar.h,
 					pref.g_fsize + 2
 				);
+
+			 */
 		}
 
 		this.totalRows = Math.ceil(this.h / this.rowHeight);
@@ -4718,15 +4727,12 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	get_metrics(gr) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.get_metrics (gr)`);
-		}
 		super.get_metrics(gr);
 		this.setResizeButton(65, 14);
 	}
 
 	get_albums(start, str_comp) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.get_albums (${start}, ${str_comp})`);
 		}
 		let group_string, groupinfoscustom, groupinfos, string_compare_timeout, groupinfos_rows;
@@ -4943,7 +4949,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refreshDates() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refreshDates ( )`);
 		}
 		for (var i = 0; i < this.groups.length; i++) {
@@ -4955,7 +4961,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	getPlaybackPlaylist() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.getPlaybackPlaylist ( )`);
 		}
 		g_avoid_on_playlists_changed = true;
@@ -4979,7 +4985,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	getSelectionPlaylist() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.getSelectionPlaylist ( )`);
 		}
 		g_avoid_on_playlists_changed = true;
@@ -5003,7 +5009,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	getWholeLibraryPlaylist() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.getWholeLibraryPlaylist ( )`);
 		}
 		g_avoid_on_playlists_changed = true;
@@ -5032,7 +5038,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	setSourcePlaylist() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.setSourcePlaylist ( )`);
 		}
 		this.SourcePlaylistIdx = this.calculateSourcePlaylist();
@@ -5040,7 +5046,7 @@ class oPlBrowser extends oBaseBrowser {
 
 	calculateSourcePlaylist() {
 		pl_is_activated =  window.IsVisible && displayPlaylist;
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.calculateSourcePlaylist ( )`);
 		}
 		var new_SourcePlaylistIdx = -1;
@@ -5095,14 +5101,14 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	getSourcePlaylist() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.getSourcePlaylist ( )`);
 		}
 		return this.SourcePlaylistIdx;
 	}
 
 	populate(call_id, force_sorting = false, keep_showlist = false, playlistIdx = -1) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.populate (${call_id}, ${force_sorting}, ${keep_showlist}, ${playlistIdx})`);
 		}
 		this.currentSorting = "";
@@ -5144,7 +5150,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	sortAccordingToProperties(force_sorting) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.sortAccordingToProperties (${force_sorting})`);
 		}
 		let sort_order;
@@ -5173,7 +5179,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refresh_browser_images() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refresh_browser_images ( )`);
 		}
 		this.coverMask = false;
@@ -5189,7 +5195,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refresh_browser_thumbnails() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refresh_browser_thumbnails ( )`);
 		}
 		this.coverMask = false;
@@ -5202,7 +5208,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refresh_shadows() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refresh_shadows ( )`);
 		}
 		g_showlist.cover_shadow = null;
@@ -5211,7 +5217,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refresh_one_image(albumIndex) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refresh_one_image (${albumIndex})`);
 		}
 		this.groups[albumIndex].cover_img = null;
@@ -5224,7 +5230,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	refresh_all_images() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.refresh_all_images ( )`);
 		}
 		this.coverMask = false;
@@ -5241,14 +5247,14 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	freeMemory() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.freeMemory ( )`);
 		}
 		this.refresh_all_images();
 	}
 
 	GetFilteredTracks(idx) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.GetFilteredTracks (${idx})`);
 		}
 		if (globalProperties.filterBox_filter_tracks && g_filterbox.isActive) {
@@ -5261,7 +5267,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	GetAlbumCover(idx) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.GetAlbumCover (${idx})`);
 		}
 		var img_thumb = null;
@@ -5292,7 +5298,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	DefineDateCircleBG(size, index) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.DefineDateCircleBG (${size}, ${index})`);
 		}
 		if (globalProperties.showdateOverCover || globalProperties.showDiscNbOverCover) {
@@ -5313,9 +5319,6 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	draw(gr) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.draw (gr)`);
-		}
 		let repaint_f = false;
 		let coverMask, image_to_draw;
 		//gTime_draw = fb.CreateProfiler();
@@ -6001,7 +6004,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	stopResizing() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.stopResizing ( )`);
 		}
 		if (this.resize_click || this.resize_drag) {
@@ -6013,7 +6016,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	stopDragging(x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.stopDragging (${x}, ${y})`);
 		}
 		if (g_dragA) {
@@ -6040,7 +6043,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	playGroup(group_id) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.playGroup (${group_id})`);
 		}
 		if (group_id > -1 && !this.avoidDlbePlay) {
@@ -6080,8 +6083,8 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	on_mouse(event, x, y) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.on_mouse (${event}, ${x}, ${y})`);
+		if (globalProperties.logFns_oBrowser) {
+		//	console.log(`called oPlBrowser.on_mouse (${event}, ${x}, ${y})`);
 		}
 		this.ishover = this._isHover(x, y);
 
@@ -6213,11 +6216,6 @@ class oPlBrowser extends oBaseBrowser {
 					g_dragA_idx = this.clicked_id;
 					g_plmanager.isOpened = true;
 					g_plmanager.setPlaylistList();
-					if (this.sourceX > this.x + Math.round(this.w / 2)) {
-						g_plmanager.side = "right";
-					} else {
-						g_plmanager.side = "right";
-					}
 					g_drag_timer = true;
 
 					let len = g_plmanager.playlists.length;
@@ -6255,8 +6253,8 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	setActiveRow(x, y) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.setActiveRow (${x}, ${y})`);
+		if (globalProperties.logFns_oBrowser) {
+			//console.log(`called oPlBrowser.setActiveRow (${x}, ${y})`);
 		}
 		//console.log(x,y);
 		//console.log(`this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
@@ -6332,9 +6330,9 @@ class oPlBrowser extends oBaseBrowser {
 
 	timerScript() {
 		pl_is_activated =  window.IsVisible && displayPlaylist;
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.timerScript ( )`);
-			console.log(`pl_is_activated: ${pl_is_activated}`)
+		if (globalProperties.logFns_oBrowser) {
+			//console.log(`called oPlBrowser.timerScript ( )`);
+			//console.log(`pl_is_activated: ${pl_is_activated}`)
 		}
 		let repaintIndexSaved, active_x, active_y, repaintIndex, active_x_saved, active_y_saved;
 		if (randomStartTime > 0 && Date.now() - 10000 > randomStartTime) {
@@ -6529,7 +6527,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	updateCursorPos(pos) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.updateCursorPos (${pos})`);
 		}
 		let normalizedPos = Math.max(Math.min(pos, this.resize_bt.w), 0);
@@ -6563,9 +6561,6 @@ class oPlBrowser extends oBaseBrowser {
 
 	//this.scaleThumbs = function
 	setResizeButton(w, h) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.setResizeButton (${w}, ${h})`);
-		}
 		var gb;
 		this.thumbnailWidthMax = Math.min((this.w - this.marginLR) / 2, globalProperties.thumbnailWidthMax);
 		this.ResizeButton_off = gdi.CreateImage(w, h);
@@ -6596,9 +6591,6 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	drawResizeButton(gr, x, y) {
-		if (globalProperties.logFunctions) {
-			console.log(`called oPlBrowser.drawResizeButton (gr, ${x}, ${y})`);
-		}
 		this.resize_bt.draw(gr, x, y, 255);
 		let newCursorPos = Math.min(
 			Math.round(
@@ -6622,7 +6614,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	moveResizeBtn(x) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.moveResizeBtn (${x})`);
 		}
 		let newCursorPos = Math.max(x - this.resize_bt.x, 0);
@@ -6630,7 +6622,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	stopFlashNowPlaying() {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.stopFlashNowPlaying ( )`);
 		}
 		cNowPlaying.flashEnable = false;
@@ -6640,7 +6632,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	seek_track(metadb, albumIdx) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.seek_track (${metadb}, ${albumIdx})`);
 		}
 		var total_albums = this.groups_draw.length;
@@ -6714,7 +6706,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	focus_on_track(track) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.focus_on_track (${track})`);
 		}
 		FocusOnNowPlaying = true;
@@ -6735,7 +6727,7 @@ class oPlBrowser extends oBaseBrowser {
 	}
 
 	focus_on_nowplaying(track) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oBrowser) {
 			console.log(`called oPlBrowser.focus_on_nowplaying (${track})`);
 		}
 		let results;
@@ -6952,14 +6944,14 @@ let popup = {
 };
 
 function _q(value) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called _q (${value})`);
 	}
 	return '"' + value + '"';
 }
 
 function _run() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called _run ( )`);
 	}
 	try {
@@ -6979,14 +6971,14 @@ function _run() {
 let sfso = new ActiveXObject("Scripting.FileSystemObject");
 
 function libraryQuery(args) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called libraryQuery (${args})`);
 	}
 	return fb.GetQueryItems(libItems, args);
 }
 
 function _createFolder(folder) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called _createFolder (${folder})`);
 	}
 	if (!_isFolder(folder)) {
@@ -6995,7 +6987,7 @@ function _createFolder(folder) {
 }
 
 function _isFolder(folder) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called _isFolder (${folder})`);
 	}
 	return _.isString(folder) ? sfso.FolderExists(folder) : false;
@@ -7012,7 +7004,7 @@ function _isFolder(folder) {
 var hexcase = 0;
 
 function md5(a) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called md5 (${a})`);
 	}
 	return rstr2hex(rstr_md5(str2rstr_utf8(a)));
@@ -7207,7 +7199,7 @@ function bit_rol(a, b) {
 }
 
 const get = (obj, path, defaultValue) => {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called get (${obj}, ${path}, ${defaultValue})`);
 	}
 	const result = path.split(".").reduce((r, p) => {
@@ -7224,7 +7216,7 @@ const get = (obj, path, defaultValue) => {
 };
 
 function _jsonParse(value) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called _jsonParse (${value})`);
 	}
 	try {
@@ -7235,9 +7227,8 @@ function _jsonParse(value) {
 }
 
 
-
 oPanelSetting = function (name, default_value, min_value, max_value, int_value) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oPanelSetting) {
 		console.log(`called oPanelSetting (${name}, ${default_value}, ${min_value}, ${max_value}, ${int_value})`);
 	}
 	this.name = name;
@@ -7246,13 +7237,13 @@ oPanelSetting = function (name, default_value, min_value, max_value, int_value) 
 	this.min_value = min_value;
 	this.int_value = typeof int_value !== "undefined" ? int_value : true;
 	this.getNumberOfState = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.getNumberOfState ( )`);
 		}
 		return this.max_value - this.min_value;
 	};
 	this.setValue = function (new_value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.setValue (${new_value})`);
 		}
 		if (new_value == this.value) return;
@@ -7264,50 +7255,50 @@ oPanelSetting = function (name, default_value, min_value, max_value, int_value) 
 		window.NotifyOthers(this.name, this.value);
 	};
 	this.setDefault = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.setDefault ( )`);
 		}
 		this.setValue(this.default_value);
 	};
 	this.toggleValue = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.toggleValue ( )`);
 		}
 		if (this.value == 0) this.setValue(1);
 		else this.setValue(0);
 	};
 	this.isEqual = function (test_value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.isEqual (${test_value})`);
 		}
 		return this.value == test_value;
 	};
 	this.isActive = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.isActive ( )`);
 		}
 		return this.value > 0;
 	};
 	this.isMaximumValue = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.isMaximumValue ( )`);
 		}
 		return this.value == this.max_value;
 	};
 	this.decrement = function (decrement_value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.decrement (${decrement_value})`);
 		}
 		this.setValue(parseInt(this.value) - decrement_value);
 	};
 	this.increment = function (increment_value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.increment (${increment_value})`);
 		}
 		this.setValue(parseInt(this.value) + increment_value);
 	};
 	this.userInputValue = function (msg, title) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPanelSetting) {
 			console.log(`called oPanelSetting.userInputValue (${msg}, ${title})`);
 		}
 		try {
@@ -7349,7 +7340,7 @@ var libraryfilter_width = new oPanelSetting("libraryfilter_width", 210, 100, 900
 
 
 function getRightPlaylistState() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oPanelSetting) {
 		console.log(`called getRightPlaylistState ( )`);
 	}
 	return nowplayinglib_state.isActive();

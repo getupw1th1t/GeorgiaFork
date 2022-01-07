@@ -283,12 +283,16 @@ class PlLinkGroup {
 	}
 
 	createLinks(values, type, font, initXOffset, initYOffset, x, w, xspacer, yspacer, rowspacer){
+		if (globalProperties.logFns_oShowList) {
+	//		console.log(`called PlLinkGroup.createLinks (${initXOffset}, ${initYOffset}, ${x}, ${w}, ${xspacer}, ${yspacer}, ${rowspacer})`);
+		}
 		let add_x = initXOffset;
 		let add_y = initYOffset;
 		this.rowcount += 1;
 		for (let i = 0; i < values.length; i++) {
+			if (w < 0) break;
 			let thisW = this.measureTextW(values[i], font);
-			//console.log(` w: ${x + w}, add_x: ${add_x}`);
+			//console.log(` w + x: ${x + w}, add_x: ${add_x}, w: ${w}`);
 			if (i > 0) {
 				add_x -= xspacer; // spacing between genres
 			}
@@ -296,7 +300,8 @@ class PlLinkGroup {
 			let row_check = w + add_x;
 			if (this.rowcount <= 1 && type === 'genre') row_check -= rowspacer;
 			if (row_check < 0) {
-				if (!this.expanded) continue;
+				if (!this.expanded) break;
+				if (this.rowcount > 6) break;
 				add_x = initXOffset - thisW;
 				add_y += yspacer;
 				this.rowcount += 1;

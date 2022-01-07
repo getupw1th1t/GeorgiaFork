@@ -8,8 +8,7 @@
 //
 
 var g_showlist = null;
-var g_scrollbar = null;
-var pBrw = null;
+
 var g_genre_cache = null;
 var g_seconds = 0;
 var TimeElapsed = ".";
@@ -34,6 +33,8 @@ var brw_populate_keep_showlist = false;
 var drag_x = 0,
 	drag_y = 0;
 var g_ishover = false;
+var pBrw = null;
+var g_scrollbar = null;
 var repaint_main = true,
 	repaint_main1 = true,
 	repaint_main2 = true;
@@ -79,8 +80,29 @@ var already_saved = false;
 var playlist_geo = {};
 var pl_is_activated = window.IsVisible;
 
+function on_drag_enter(action, x, y, mask) {
+	trace_call && console.log(qwr_utils.function_name());
+	playlist.on_drag_enter(action, x, y, mask);
+}
+
+function on_drag_leave() {
+	trace_call && console.log(qwr_utils.function_name());
+	playlist.on_drag_leave();
+}
+
+function on_drag_drop(action, x, y, mask) {
+	trace_call && console.log(qwr_utils.function_name());
+	playlist.on_drag_drop(action, x, y, mask);
+}
+
+function on_drag_over(action, x, y, mask) {
+	trace_call && console.log(qwr_utils.function_name());
+	playlist.on_drag_over(action, x, y, mask);
+}
+
+
 function setShowInLibrary() {
-	if (globalProperties.logFunctions && globalProperties) {
+	if (globalProperties.logFns_oPanelSetting) {
 		console.log(`called setShowInLibrary ( )`);
 	}
 	if (getRightPlaylistState()) globalProperties.showInLibrary = globalProperties.showInLibrary_RightPlaylistOn;
@@ -94,6 +116,7 @@ if (libraryfilter_state.isActive()) {
 } else {
 	globalProperties.showFilterBox = globalProperties.showFilterBox_filter_inactive;
 }
+
 
 function PlaylistPanel(x, y) {
 	//<editor-fold desc="Callback Implementation">
@@ -109,26 +132,23 @@ function PlaylistPanel(x, y) {
 	this.on_size = function (w, h) {
 		adjW = Math.max(w, globalProperties.fullMode_minwidth);
 		adjH = Math.max(h, globalProperties.fullMode_minheight);
-		rescalePlaylist();
-		var x = Math.round(adjW * 0.5);
-		var y = btns[30].y + btns[30].h + scaleForDisplay(16) + 2;
-		var lowerSpace = calcLowerSpace();
-		var playlist_w = w - x;
-		var playlist_h = Math.max(0, h - lowerSpace - scaleForDisplay(16) - y);
+
+		let x = Math.round(adjW * 0.5);
+		let y = 69 + scaleForDisplay(16) + 2;
+		let lowerSpace = geo.lower_bar_h + scaleForDisplay(42);
+		let playlist_w = w - x;
+		let playlist_h = Math.max(0, h - lowerSpace - scaleForDisplay(16) - y);
 
 		this.h = playlist_h;
 		this.w = playlist_w;
 		this.x = x;
 		this.y = y;
 
-		playlist_info_h = scaleForDisplay(g_properties.row_h + 4);
-		playlist_info_and_gap_h = playlist_info_h + scaleForDisplay(2);
 		playlist.on_size(
 			playlist_w,
-			playlist_h - (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0),
+			playlist_h,
 			x,
-			y + (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0)
-		);
+			y);
 		pl_is_activated = window.IsVisible && displayPlaylist;
 	};
 
@@ -178,13 +198,6 @@ function PlaylistPanel(x, y) {
 
 	this.on_key_down = function (vkey) {
 		playlist.on_key_down(vkey);
-
-		var modifiers = {
-			ctrl: utils.IsKeyPressed(VK_CONTROL),
-			alt: utils.IsKeyPressed(VK_MENU),
-			shift: utils.IsKeyPressed(VK_SHIFT),
-		};
-		key_handler.invoke_key_action(vkey, modifiers);
 	};
 
 	this.on_key_up = function (vkey) {
@@ -340,14 +353,14 @@ function PlaylistPanel(x, y) {
 	};
 
 	this.on_notify_data = function (name, info) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_PlaylistPanel) {
 			console.log("called PlaylistPanel.on_notify_data ( )");
 		}
 		playlist.on_notify_data(name, info);
 	};
 
 	this.initialize = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_PlaylistPanel) {
 			console.log("called PlaylistPanel.initialize ( )");
 		}
 		playlist.on_init();
@@ -355,7 +368,7 @@ function PlaylistPanel(x, y) {
 
 	// TODO: Mordred - Do this elsewhere?
 	this.mouse_in_this = function (x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_PlaylistPanel) {
 			//	console.log("called PlaylistPanel.mouse_in_this ( )");
 		}
 		return x >= this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h;
@@ -368,33 +381,19 @@ function PlaylistPanel(x, y) {
 
 	var that = this;
 
-	/**
-	 * @var
-	 * @type {number}
-	 */
-	var playlist_info_h = scaleForDisplay(g_properties.row_h);
-
-	/**
-	 * @var
-	 * @type {number}
-	 */
-	var playlist_info_and_gap_h = playlist_info_h + scaleForDisplay(4);
-
 	pl_is_activated = window.IsVisible && displayPlaylist;
 
-	var key_handler = new KeyActionHandler();
-
 	// Panel parts
-	var playlist = new _playlist(that.x, that.y + (g_properties.show_playlist_info ? playlist_info_and_gap_h : 0));
+	var playlist = new _playlist(that.x, that.y);
 }
 
 oPlaylistHistory = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oPlaylistHistory) {
 		console.log("called oPlaylistHistory ( )");
 	}
 	this.history = Array();
 	this.trace = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistHistory) {
 			console.log("called oPlaylistHistory.trace ( )");
 		}
 		for (i = 1; i < this.history.length; i++) {
@@ -402,7 +401,7 @@ oPlaylistHistory = function () {
 		}
 	};
 	this.saveCurrent = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistHistory) {
 			console.log("called oPlaylistHistory.saveCurrent ( )");
 		}
 		if (g_avoid_history) {
@@ -423,7 +422,7 @@ oPlaylistHistory = function () {
 		}
 	};
 	this.fullLibrary = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistHistory) {
 			console.log("called oPlaylistHistory.fullLibrary ( )");
 		}
 		var whole_library_index = pBrw.getWholeLibraryPlaylist();
@@ -440,7 +439,7 @@ oPlaylistHistory = function () {
 		if (!pBrw.followActivePlaylist) pBrw.populate(45, false, false, whole_library_index);
 	};
 	this.reset = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistHistory) {
 			console.log("called oPlaylistHistory.reset ( )");
 		}
 		this.history = Array();
@@ -451,14 +450,14 @@ function oTimers() {
 	var timer_arr = ["populate"];
 	for (var i = 0; i < timer_arr.length; i++) this[timer_arr[i]] = false;
 	this.reset = function (g_timer, n) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Timers) {
 			console.log(`called oTimers.reset (${g_timer}, ${n})`);
 		}
 		if (g_timer) clearTimeout(g_timer);
 		this[timer_arr[n]] = false;
 	};
 	this.brw_populate = function (callID, force_sorting, keep_showlist) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Timers) {
 			console.log(`called oTimers.brw_populate (${callID}, ${force_sorting}, ${keep_showlist})`);
 		}
 		brw_populate_callID = callID;
@@ -474,21 +473,24 @@ function oTimers() {
 }
 
 oPlaylistManager = function (parentObjName) {
+	this.isOpened = false;
 	this.delta = 0;
 	this.x = 0;
-	this.y = 5;
+	this.y = playlist.y + 5;
 	this.h = adjH;
 	this.w = 250;
 	this.headerHeight = 50;
-	this.side = "right";
 	this.scrollStep = 50;
 	this.playlists = Array();
 	this.scrollOffset = 0;
 	this.totalPlaylistsVis = 0;
 	this.rowHeight = pref.g_fsize * 3;
 	this.refresh_required = false;
+	if (globalProperties.logFns_oPlaylistManager) {
+		console.log(`called oPlaylistManager (this.y: ${this.y} headerHeight: ${this.headerHeight}, ishover: ${this.ishover}, ishoverHeader: ${this.ishoverHeader})`);
+	}
 	this.setPlaylistList = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistManager) {
 			console.log("called oPlaylistManager.setPlaylistList ( )");
 		}
 		this.totalPlaylists = plman.PlaylistCount;
@@ -501,37 +503,28 @@ oPlaylistManager = function (parentObjName) {
 		this.totalVisibleRows = Math.floor((adjH - this.headerHeight) / this.rowHeight);
 	};
 	this.close = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistManager) {
 			console.log("called oPlaylistManager.close ( )");
 		}
+		this.isOpened = false;
 	};
+
 	this.draw = function (gr) {
-		if (globalProperties.logFunctions) {
-			//	console.log("called oPlaylistManager.draw ( )");
-		}
 		if (this.refresh_required) this.setPlaylistList();
 
-		if (this.side == "right") {
-			this.x = adjW - this.delta;
-		} else {
-			this.x = 0 - this.w + this.delta;
-		}
+		this.x = adjW - this.delta;
 		this.h = adjH;
 
-		gr.FillSolidRect(pBrw.x, 0, pBrw.w, adjH, colors.pm_overlay);
+		gr.FillSolidRect(pBrw.x, playlist.y, pBrw.w, adjH, colors.pm_overlay);
 		if (globalProperties.drawDebugRects) {
-			gr.DrawRect(pBrw.x, 0, pBrw.w, adjH, 2, RGB(255, 0, 0));
+			gr.DrawRect(pBrw.x, playlist.y, pBrw.w, adjH, 2, RGB(255, 0, 0));
 		}
-		gr.FillSolidRect(this.x, 0, this.w, this.h, colors.pm_bg);
+		gr.FillSolidRect(this.x, playlist.y, this.w, this.h, colors.pm_bg);
 		if (globalProperties.drawDebugRects) {
-			gr.DrawRect(this.x, 0, this.w, this.h, 2, RGB(255, 0, 0));
+			gr.DrawRect(this.x, playlist.y, this.w, this.h, 2, RGB(255, 0, 0));
 		}
 
-		if (this.side == "right") {
-			gr.DrawLine(this.x, 0, this.x - 0, this.y + this.h, 1.0, colors.pm_border);
-		} else {
-			gr.DrawLine(this.x + this.w, 0, this.x + 0 + this.w, this.y + this.h, 1.0, colors.pm_border);
-		}
+		gr.DrawLine(this.x, playlist.y, this.x - 0, this.y + this.h, 1.0, colors.pm_border);
 		//gr.FillGradRect(this.x, 0, this.w, colors.fading_bottom_height-30, 90,colors.pm_bgtopstart,  colors.pm_bgtopend,1);
 
 		gr.DrawLine(
@@ -589,11 +582,11 @@ oPlaylistManager = function (parentObjName) {
 	};
 
 	this.checkstate = function (event, x, y, delta) {
-		if (globalProperties.logFunctions) {
-			//	console.log("called oPlaylistManager.checkstate ( )");
-		}
 		this.ishover = x > this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h;
 		this.ishoverHeader = x > this.x && x < this.x + this.w && y >= this.y && y < this.y + this.headerHeight;
+		if (globalProperties.logFns_oPlaylistManager) {
+			console.log(`called oPlaylistManager.checkstate (${event}, ${x}, ${y}, this.y: ${this.y} headerHeight: ${this.headerHeight}, ishover: ${this.ishover}, ishoverHeader: ${this.ishoverHeader})`);
+		}
 		switch (event) {
 			case "up":
 				if (this.ishoverHeader) {
@@ -683,7 +676,7 @@ oPlaylistManager = function (parentObjName) {
 };
 
 oPlaylistItem = function (id, name, parentObjName) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oPlaylistItem) {
 		//console.log("called oPlaylistItem ( )");
 	}
 	this.id = id;
@@ -713,7 +706,7 @@ oPlaylistItem = function (id, name, parentObjName) {
 			break;
 	}
 	this.setSize = function (x, y, w, h) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistItem) {
 			//console.log("called oPlaylistItem.setSize ( )");
 		}
 		this.x = x;
@@ -722,7 +715,7 @@ oPlaylistItem = function (id, name, parentObjName) {
 		this.h = h;
 	};
 	this.draw = function (gr, drawIdx) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistItem) {
 			//	console.log("called oPlaylistItem.draw ( )");
 		}
 		this.x = g_plmanager.x;
@@ -797,7 +790,7 @@ oPlaylistItem = function (id, name, parentObjName) {
 	};
 
 	this.checkstate = function (event, x, y, id) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oPlaylistItem) {
 			//	console.log("called oPlaylistItem.checkstate ( )");
 		}
 		this.ishover = x > this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h;
@@ -843,7 +836,7 @@ oPlaylistItem = function (id, name, parentObjName) {
 };
 
 oRow = function (metadb, itemIndex) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oRow) {
 		//	console.log("called oRow ( )");
 	}
 	this.metadb = metadb;
@@ -901,19 +894,19 @@ oRow = function (metadb, itemIndex) {
 	};
 	this.getTags();
 	this.repaint = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oRow) {
 			//	console.log("called oRow.repaint ( )");
 		}
 		window.RepaintRect(this.x, this.y, this.w, this.h);
 	};
 	this.refresh = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oRow) {
 			//console.log("called oRow.refresh ( )");
 		}
 		this.getTags();
 	};
 	this.draw = function (gr, x, y, w) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oRow) {
 			//	console.log("called oRow.draw ( )");
 		}
 		this.x = x;
@@ -1555,7 +1548,7 @@ oRow = function (metadb, itemIndex) {
 	};
 	this.check = function (event, x, y) {
 		let playlistTrackId;
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oRow) {
 			//	console.log("called oRow.check ( )");
 		}
 		//console.log(x,y);
@@ -1573,7 +1566,7 @@ oRow = function (metadb, itemIndex) {
 
 		switch (event) {
 			case "down":
-				if (globalProperties.logFunctions) {
+				if (globalProperties.logFns_oRow) {
 					console.log("called oRow.on_mouse_lbtn_down ( )");
 				}
 				if (this.ishover && y > pBrw.y) {
@@ -1743,11 +1736,6 @@ oRow = function (metadb, itemIndex) {
 						g_plmanager.isOpened = true;
 						// rebuild playlists list
 						g_plmanager.setPlaylistList();
-						if (this.sourceX > this.x + Math.round(this.w / 2)) {
-							g_plmanager.side = "right";
-						} else {
-							g_plmanager.side = "right";
-						}
 						g_drag_timer = true;
 
 						pBrw.repaint();
@@ -1760,18 +1748,18 @@ oRow = function (metadb, itemIndex) {
 };
 
 oColumn = function () {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oRow) {
 		//console.log("called oColumn ( )");
 	}
 	this.rows = [];
 };
 
 oShowList = function (parentPanelName) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oShowList) {
 		//console.log("called oShowList ( )");
 	}
 	this.parentPanelName = parentPanelName;
-	this.x = playlist.x;
+	this.x = pBrw.x;
 	this.y = 0;
 	this.h = 0;
 	this.heightMin = globalProperties.showlistheightMin;
@@ -1830,7 +1818,7 @@ oShowList = function (parentPanelName) {
 	this.hyperlinks_total_rows = 0;
 
 	this.on_init = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oColumn.on_init ( )");
 		}
 		if (globalProperties.CoverGridNoText) {
@@ -1849,7 +1837,7 @@ oShowList = function (parentPanelName) {
 		this.margins_plus_paddings = this.paddingTop + this.paddingBot + (this.marginTop + this.marginBot);
 	};
 	this.onFontChanged = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oColumn.onFontChanged ( )");
 		}
 		this.ratingImages = false;
@@ -1860,7 +1848,7 @@ oShowList = function (parentPanelName) {
 	};
 	this.onFontChanged();
 	this.setCover = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setCover ( )");
 		}
 		if (!isImage(pBrw.groups[this.idx].cover_img)) {
@@ -1874,7 +1862,7 @@ oShowList = function (parentPanelName) {
 		this.setPlayButton();
 	};
 	this.getColorSchemeFromImage = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.getColorSchemeFromImage ( )");
 		}
 		if (!isImage(this.showlist_img)) this.setCover();
@@ -1960,7 +1948,7 @@ oShowList = function (parentPanelName) {
 		this.getColorSchemeFromImageDone = true;
 	};
 	this.setImages = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setImages ( )");
 		}
 		this.setShowListArrow();
@@ -1971,7 +1959,7 @@ oShowList = function (parentPanelName) {
 		this.reset();
 	};
 	this.setShowListArrow = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setShowListArrow ( )");
 		}
 		var gb;
@@ -1985,7 +1973,7 @@ oShowList = function (parentPanelName) {
 		this.showListArrow.ReleaseGraphics(gb);
 	};
 	this.SetRatingImages = function (width, height, on_color, off_color, border_color, save_imgs = true) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.SetRatingImages ( )");
 		}
 		if (typeof on_color == "undefined" || typeof off_color == "undefined" || typeof border_color == "undefined")
@@ -2030,7 +2018,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.setPlayButton = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setPlayButton ( )");
 		}
 		if (!this.play_bt) {
@@ -2284,8 +2272,8 @@ oShowList = function (parentPanelName) {
 	};
 
 	this.check = function (event, x, y) {
-		if (globalProperties.logFunctions) {
-			//	console.log("called oShowList.check ( )");
+		if (globalProperties.logFns_oShowList) {
+		//	console.log(this.text_w);
 		}
 
 		if (window.IsVisible && !timers.debugCheck) {
@@ -2384,7 +2372,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.getHeaderInfos = function (EvalWithMetadb) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log(`called oShowList.getHeaderInfos (${EvalWithMetadb})`);
 		}
 		EvalWithMetadb = typeof EvalWithMetadb !== "undefined" ? EvalWithMetadb : false;
@@ -2446,7 +2434,7 @@ oShowList = function (parentPanelName) {
 		} else this.avoid_sending_album_infos = false;
 	};
 	this.setColors = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setColors ( )");
 		}
 		this.color_showlist_arrow = this.colorSchemeBack;
@@ -2535,8 +2523,8 @@ oShowList = function (parentPanelName) {
 		this.setPlayButton();
 	};
 	this.setSize = function () {
-		if (globalProperties.logFunctions) {
-			//console.log("called oShowList.setSize ( )");
+		if (globalProperties.logFns_oShowList) {
+			console.log("called oShowList.setSize ( )");
 		}
 		if (this.idx > -1) {
 			try {
@@ -2555,8 +2543,8 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.close = function () {
-		if (globalProperties.logFunctions) {
-			//console.log("called oShowList.close ( )");
+		if (globalProperties.logFns_oShowList) {
+			console.log("called oShowList.close ( )");
 		}
 		this.drawn_idx = -1;
 		this.idx = -1;
@@ -2565,13 +2553,10 @@ oShowList = function (parentPanelName) {
 		this.delta = 0;
 		this.delta_ = 0;
 	};
-	this.reset = function (idx, rowIdx, update_static_infos) {
-		if (globalProperties.logFunctions) {
+	this.reset = function (idx = -1, rowIdx = -1, update_static_infos = true) {
+		if (globalProperties.logFns_oShowList) {
 			console.log(`called oShowList.reset (${idx}, ${rowIdx}, ${update_static_infos})`);
 		}
-		idx = typeof idx !== "undefined" ? idx : -1;
-		rowIdx = typeof rowIdx !== "undefined" ? rowIdx : -1;
-		update_static_infos = typeof update_static_infos !== "undefined" ? update_static_infos : true;
 
 		nbRows = Math.round((this.h / pBrw.rowHeight) * 100) / 100;
 		height = Math.round(nbRows * pBrw.rowHeight);
@@ -2579,7 +2564,6 @@ oShowList = function (parentPanelName) {
 		delete this.firstRowLength;
 		delete this.secondRowLength;
 		delete this.showlist_img;
-		this.reset_hyperlinks();
 
 		//this.notoffsetted = true;
 		if (this.idx < 0 && idx < 0) return;
@@ -2674,9 +2658,13 @@ oShowList = function (parentPanelName) {
 		this.hscr_step_width = this.hscr_width / this.totalCols;
 		this.hscr_cursor_width = this.hscr_step_width * this.totalColsVis + 41;
 		this.hscr_cursor_pos = this.columnsOffset * this.hscr_step_width;
+		this.reset_hyperlinks();
+		if (!this.hyperlinks_initialized) {
+			this.initialize_hyperlinks(this.x + 17 + this.MarginLeft);
+		}
 	};
 	this.CheckIfPlaying = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.CheckIfPlaying ( )");
 		}
 		if (this.idx < 0) this.isPlaying = false;
@@ -2690,7 +2678,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.haveSelectedRows = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.haveSelectedRows ( )");
 		}
 		for (var i = 0; i < this.rows_.length; i++) {
@@ -2701,7 +2689,7 @@ oShowList = function (parentPanelName) {
 		return false;
 	};
 	this.getFirstSelectedRow = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.getFirstSelectedRow ( )");
 		}
 		for (var i = 0; i < this.rows_.length; i++) {
@@ -2712,7 +2700,7 @@ oShowList = function (parentPanelName) {
 		return this.rows_[0];
 	};
 	this.selectAll = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.selectAll ( )");
 		}
 		var listIndex = [];
@@ -2727,7 +2715,7 @@ oShowList = function (parentPanelName) {
 		plman.SetPlaylistSelection(pBrw.getSourcePlaylist(), listIndex, true);
 	};
 	this.clearSelection = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.clearSelection ( )");
 		}
 		plman.ClearPlaylistSelection(pBrw.getSourcePlaylist());
@@ -2741,7 +2729,7 @@ oShowList = function (parentPanelName) {
 		return changed;
 	};
 	this.resetSelection = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.resetSelection ( )");
 		}
 		for (var i = 0; i < this.rows_.length; i++) {
@@ -2749,7 +2737,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.removeSelectedItems = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.removeSelectedItems ( )");
 		}
 		for (var i = this.rows_.length; i--; ) {
@@ -2759,8 +2747,8 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.setMarginRight = function () {
-		if (globalProperties.logFunctions) {
-			//console.log("called oShowList.setMarginRight ( )");
+		if (globalProperties.logFns_oShowList) {
+			console.log("called oShowList.setMarginRight ( )");
 		}
 		if (
 			globalProperties.showlistShowCover > 0 &&
@@ -2780,7 +2768,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.saveCurrent = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.saveCurrent ( )");
 		}
 		this.saved_idx = this.idx;
@@ -2788,7 +2776,7 @@ oShowList = function (parentPanelName) {
 		this.saved_rowIdx = this.rowIdx;
 	};
 	this.restore = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.restore ( )");
 		}
 		this.idx = this.saved_idx;
@@ -2797,7 +2785,7 @@ oShowList = function (parentPanelName) {
 		this.refresh();
 	};
 	this.refresh = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.refresh ( )");
 		}
 		this.on_init();
@@ -2808,7 +2796,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.refreshRows = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.refreshRows ( )");
 		}
 		for (var i = this.rows_.length; i--; ) {
@@ -2816,7 +2804,7 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.setFilteredPlaylist = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log("called oShowList.setFilteredPlaylist ( )");
 		}
 		var pl = new FbMetadbHandleList();
@@ -2825,19 +2813,14 @@ oShowList = function (parentPanelName) {
 		}
 		this.pl = pl;
 	};
-	this.calcHeight = function (pl, drawn_idx, columnsOffset, update_tracks, send_albums_info) {
-		if (globalProperties.logFunctions) {
+	this.calcHeight = function (pl, drawn_idx, columnsOffset = 0, update_tracks = true, send_albums_info = true) {
+		if (globalProperties.logFns_oShowList) {
 			console.log(
 				`called oShowList.calcHeight (${pl}, ${drawn_idx}, ${columnsOffset}, ${update_tracks}, ${send_albums_info})`
 			);
 		}
-		columnsOffset = typeof columnsOffset !== "undefined" ? columnsOffset : 0;
-		update_tracks = typeof update_tracks !== "undefined" ? update_tracks : true;
-		send_albums_info = typeof send_albums_info !== "undefined" ? send_albums_info : true;
 		if (update_tracks) {
-			this.reset_hyperlinks();
-			this.paddingTop = this.paddingTopLinks;
-			var pl = pBrw.groups[pBrw.groups_draw[drawn_idx]].pl;
+			pl = pBrw.groups[pBrw.groups_draw[drawn_idx]].pl;
 			this.drawn_idx = drawn_idx;
 
 			try {
@@ -2851,16 +2834,8 @@ oShowList = function (parentPanelName) {
 
 			this.album_info_sent = !send_albums_info;
 
-			if (!this.hyperlinks_initialized) {
-				console.log('initializing')
-				this.hyperlinks_expand = false;
-				this.initialize_hyperlinks(this.x + 17 + this.MarginLeft);
-			}
 		}
 		//this.loop_thru_hlinks(this.get_hlink_pos);
-		this.add_hlink_row_offset();
-		this.paddingTop = this.add_hlink_row_offset();
-		this.margins_plus_paddings = this.paddingTop + this.paddingBot + (this.marginTop + this.marginBot);
 		//console.log(this.hyperlinks_total_rows);
 		if (
 			globalProperties.showlistShowCover > 0 &&
@@ -2941,6 +2916,10 @@ oShowList = function (parentPanelName) {
 		if (this.odd_tracks_count) {
 			a += this.textHeight;
 		}
+		this.reset_hyperlinks();
+		if (!this.hyperlinks_initialized) {
+			this.initialize_hyperlinks(this.x + 17 + this.MarginLeft);
+		}
 		switch (true) {
 			case this.totalHeight < this.heightMin - this.margins_plus_paddings:
 				this.h = this.heightMin;
@@ -2975,7 +2954,7 @@ oShowList = function (parentPanelName) {
 	};
 
 	this.setColumns = function (columnsOffset) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log(`called oShowList.setColumns (${columnsOffset})`);
 		}
 		this.columnsOffset = columnsOffset;
@@ -3017,8 +2996,8 @@ oShowList = function (parentPanelName) {
 		}
 	};
 	this.isHover_hscrollbar = function (x, y) {
-		if (globalProperties.logFunctions) {
-			console.log("called oShowList.isHover_hscrollbar ( )");
+		if (globalProperties.logFns_oShowList) {
+			console.log(`called oShowList.isHover_hscrollbar (${x}, ${y})`);
 		}
 		if (!this.hscr_visible) {
 			this.scrollbar_hover = false;
@@ -3035,7 +3014,7 @@ oShowList = function (parentPanelName) {
 		return this.scrollbar_hover;
 	};
 	this.setColumnsOffset = function (offset_value) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oShowList) {
 			console.log(`called oShowList.setColumnsOffset (${offset_value})`);
 		}
 		this.columnsOffset = offset_value;
@@ -3082,7 +3061,6 @@ oShowList = function (parentPanelName) {
 
 		const genres = getMetaValues("%genre%", this.pl[0]);
 		let genre_left = -13;
-		let genre_containerW = hx - 13 + this.text_w;
 		let genre_y = hy + item_height * 2 + 1;
 		let isBlocking = true;
 
@@ -3094,7 +3072,7 @@ oShowList = function (parentPanelName) {
 			genre_y,
 			hx - 13,
 			hy,
-			this.text_w,
+			Math.floor(pBrw.w - this.MarginLeft - this.MarginRight) + 5,
 			this.h,
 			bulletWidth + spaceWidth * 2, item_height + 1,this.hyperlinks.artist.getWidth(),true
 		);
@@ -3137,62 +3115,21 @@ oShowList = function (parentPanelName) {
 			desc_y,
 			hx - 13,
 			hy,
-			this.text_w,
+			Math.floor(pBrw.w - this.MarginLeft - this.MarginRight) + 5,
 			this.h,
 			bulletWidth + spaceWidth * 2, item_height + 1,this.hyperlinks.artist.getWidth(), true
 		);
 
-		/*
-		for (let i = 0; i < descs.length; i++) {
-			var desc_w = gb.MeasureString(descs[i], f_ft.small_font, 0, 0, 0, 0).Width;
-			if (
-				genre_containerW + desc_left - desc_w < album_left + this.hyperlinks.artist.getWidth() + 40 &&
-				isBlocking
-			) {
-				if (this.hyperlinks_expand){
-					desc_left = -13;
-					desc_y += item_height + 1;
-				} else {
-					break;
-				}
-				//isBlocking = false;
-			} else if (i > 0) {
-				desc_left -= bulletWidth + spaceWidth * 2; // spacing between genres
-			}
-			desc_left -= desc_w;
-			this.hyperlinks["desc" + i] = new PlHyperlink(
-				descs[i],
-				f_ft.small_font,
-				"mood",
-				desc_left,
-				desc_y,
-				genre_containerW
-			);
-		}
-	*/
 		this.hyperlinks_gr.ReleaseGraphics(gb);
 		this.hyperlinks_total_rows += this.hyperlinks.genres.rowcount;
 		this.hyperlinks_total_rows += this.hyperlinks.descs.rowcount;
-		/*
-const genres = getMetaValues('%genre%', this.pl[0]);
-let oldTotalHeight;
-let current_offset = this.paddingTop + 11 + 5;
-if (this.notoffsetted) oldTotalHeight = this.totalHeight;
-try {
-    if ( this.paddingTop + 11 + 5 <   this.hyperlinks["genre" + (genres.length - 1)].y + (this.textHeight * 2)  ) {
-        while (this.paddingTop + 11 + 5 < this.hyperlinks["genre" + (genres.length - 1)].y + this.textHeight ){
-            this.paddingTop += this.textHeight;
-        }
-    } else {
-        this.paddingOffset = Math.max(this.paddingOffset - this.textHeight, 0);
-        this.totalHeight = oldTotalHeight;
-    }
-} catch (e) {}
-*/
+		this.add_hlink_row_offset();
 
-		//console.log(`genreText: x: ${tx - 13}, y: ${ty + item_height + 1}, w: ${this.text_w}, h: ${item_height}`)
 	};
 	this.reset_hyperlinks = () => {
+		if (globalProperties.logFns_oShowList) {
+			console.log("called oShowList.reset_hyperlinks ( )");
+		}
 		this.paddingLink = 0;
 		this.hyperlinks_initialized = false;
 		this.hyperlinks = {};
@@ -3246,18 +3183,16 @@ try {
 		}
 	};
 	this.get_hlink_pos = (hlink) => {
-		console.log(`hlink: ${hlink.text} x: ${hlink.x_offset} y: ${hlink.y}`);
+		console.log(`hlink: ${hlink.text} x: ${hlink.x_offset} y: ${hlink.y} w: ${hlink.container_w}`);
 	}
 	this.add_hlink_row_offset = () => {
 		//console.log(this.hyperlinks_total_rows);
-		return this.paddingTopLinks + (6 + pref.g_fsize) * (this.hyperlinks_total_rows);
+		this.paddingTop = this.paddingTopLinks + (6 + pref.g_fsize) * (this.hyperlinks_total_rows);
+		this.margins_plus_paddings = this.paddingTop + this.paddingBot + (this.marginTop + this.marginBot);
 	}
 
 
 	this.draw = function (gr) {
-		if (globalProperties.logFunctions) {
-			//	console.log("called oShowList.draw ( )");
-		}
 		if (this.idx < 0) return;
 		if (!isImage(this.showlist_img)) {
 			this.setCover();
@@ -3585,7 +3520,6 @@ try {
 				var tx = this.x + 17 + this.MarginLeft;
 				var ty = this.y + this.paddingTopLinks - pref.g_fsize * 3;
 				if (ty < this.y + slh) {
-					//console.log(ty < this.y + slh);
 					this.text_w = Math.floor(pBrw.w - this.MarginLeft - this.MarginRight) + 5;
 
 					rowWidth = this.totalColsVis === 1 ? this.columnWidth + 10 : this.columnWidth;
@@ -3620,11 +3554,8 @@ try {
 						DT_RIGHT | DT_BOTTOM | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX
 					);
 
-					if (!this.hyperlinks_initialized) {
-						this.initialize_hyperlinks(this.x + 17 + this.MarginLeft);
-					}
-
 					this.loop_thru_hlinks(this.draw_hyperlinks, gr, this.y, tx - 13 + this.text_w);
+
 
 					// close button
 					if (slh > this.paddingBot * 2 && pBrw.groups_draw.length > 1 && this.w > 0) {
@@ -3740,6 +3671,7 @@ try {
 						}
 					}
 				}
+				//console.log(this.h);
 			}
 		} else {
 			this.y = -1;
@@ -3748,7 +3680,7 @@ try {
 };
 
 oHeaderBar = function (name) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oHeaderBar) {
 		console.log(`called oHeaderBar (${name})`);
 	}
 	this.x = playlist.x;
@@ -3770,7 +3702,7 @@ oHeaderBar = function (name) {
 	this.h = pBrw.headerBarHeight - (globalProperties.CoverGridNoText ? 0 : this.white_space);
 	this.tooltipActivated = false;
 	this.setSize = function (x, y, w, h) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log(`called oHeaderBar.setSize (${x}, ${y}, ${w}, ${h})`);
 		}
 		//console.log(`called oHeaderBar.setSize ( )`);
@@ -3785,7 +3717,7 @@ oHeaderBar = function (name) {
 		if (!this.hide_filters_bt) this.setHideButton();
 	};
 	this.setHideButton = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log("called oHeaderBar.setHideButton ( )");
 		}
 		this.hscr_btn_w = 18;
@@ -3867,8 +3799,8 @@ oHeaderBar = function (name) {
 		}
 	};
 	this.setButtons = function () {
-		if (globalProperties.logFunctions) {
-			console.log("called oShowList.setButtons ( )");
+		if (globalProperties.logFns_oHeaderBar) {
+			console.log("called oHeaderBar.setButtons ( )");
 		}
 		var gb;
 
@@ -4043,14 +3975,14 @@ oHeaderBar = function (name) {
 	};
 	this.setButtons();
 	this.onColorsChanged = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log("called oHeaderBar.onColorsChanged ( )");
 		}
 		this.setButtons();
 		this.setHideButton();
 	};
 	this.draw = function (gr) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			//	console.log("called oHeaderBar.draw ( )");
 		}
 		//console.log(`called oHeaderBar.draw ( )`);
@@ -4194,7 +4126,7 @@ oHeaderBar = function (name) {
 		}
 	};
 	this.setDisplayedInfo = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log("called oHeaderBar.setDisplayedInfo ( )");
 		}
 		this.timeTxt = "";
@@ -4262,7 +4194,7 @@ oHeaderBar = function (name) {
 		update_headerbar = false;
 	};
 	this.on_mouse = function (event, x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			//	console.log("called oHeaderBar.on_mouse ( )");
 		}
 		this.ishover = x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
@@ -4343,7 +4275,7 @@ oHeaderBar = function (name) {
 		}
 	};
 	this.append_sort_menu = function (basemenu, actions) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log(`called oHeaderBar.append_sort_menu (${basemenu}, actions)`);
 		}
 		try {
@@ -4400,7 +4332,7 @@ oHeaderBar = function (name) {
 				SortMenu.CheckMenuItem(3009, pBrw.currentSorting == globalProperties.TFsorting_default);
 
 				actions[2999] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[2999] ( )");
 					}
 					globalProperties.TFsorting = "";
@@ -4409,7 +4341,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(4, true);
 				};
 				actions[3000] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3000] ( )");
 					}
 					globalProperties.TFsorting = sort_by_album_artist + "#1";
@@ -4418,7 +4350,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(5, true);
 				};
 				actions[3001] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3001] ( )");
 					}
 					globalProperties.TFsorting = sort_by_title + "#1";
@@ -4427,7 +4359,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(6, true);
 				};
 				actions[3002] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3002] ( )");
 					}
 					globalProperties.TFsorting = sort_by_tracknumber + "#1";
@@ -4436,7 +4368,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(7, true);
 				};
 				actions[3003] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3003] ( )");
 					}
 					globalProperties.TFsorting = sort_by_date + "#1";
@@ -4445,7 +4377,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(8, true);
 				};
 				actions[3004] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3004] ( )");
 					}
 					globalProperties.TFsorting = sort_by_date_added + "#1";
@@ -4454,7 +4386,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(9, true);
 				};
 				actions[3005] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3005] ( )");
 					}
 					globalProperties.TFsorting = sort_by_rating + "#1";
@@ -4463,7 +4395,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(9, true);
 				};
 				actions[3006] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3006] ( )");
 					}
 					try {
@@ -4483,7 +4415,7 @@ oHeaderBar = function (name) {
 					} catch (e) {}
 				};
 				actions[3007] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3007] ( )");
 					}
 					pBrw.dont_sort_on_next_populate = true;
@@ -4492,7 +4424,7 @@ oHeaderBar = function (name) {
 					pBrw.populate("randomize", true);
 				};
 				actions[3008] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3008] ( )");
 					}
 					globalProperties.SortDescending = !globalProperties.SortDescending;
@@ -4501,7 +4433,7 @@ oHeaderBar = function (name) {
 					pBrw.populate(11, true);
 				};
 				actions[3009] = function () {
-					if (globalProperties.logFunctions) {
+					if (globalProperties.logFns_oHeaderBar) {
 						console.log("called actions[3009] ( )");
 					}
 					if (globalProperties.TFsorting_default != globalProperties.TFsorting) {
@@ -4519,7 +4451,7 @@ oHeaderBar = function (name) {
 		} catch (e) {}
 	};
 	this.append_group_menu = function (basemenu, actions) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log(`called oHeaderBar.append_group_menu (${basemenu}, actions)`);
 		}
 		var GroupMenu = window.CreatePopupMenu(); //Custom Entries
@@ -4542,7 +4474,7 @@ oHeaderBar = function (name) {
 		GroupMenu.CheckMenuRadioItem(4000, 4001, checked_item);
 
 		actions[4000] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[4000] ( )");
 			}
 			globalProperties.TFgrouping = "";
@@ -4552,7 +4484,7 @@ oHeaderBar = function (name) {
 			pBrw.populate(5, false);
 		};
 		actions[4001] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[4001] ( )");
 			}
 			try {
@@ -4567,7 +4499,7 @@ oHeaderBar = function (name) {
 			} catch (e) {}
 		};
 		actions[4002] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[4002] ( )");
 			}
 			globalProperties.SingleMultiDisc = !globalProperties.SingleMultiDisc;
@@ -4577,7 +4509,7 @@ oHeaderBar = function (name) {
 		};
 	};
 	this.append_properties_menu = function (basemenu, actions) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log(`called oHeaderBar.append_properties_menu (${basemenu}, actions)`);
 		}
 		basemenu.AppendMenuSeparator();
@@ -4586,26 +4518,26 @@ oHeaderBar = function (name) {
 		basemenu.AppendMenuSeparator();
 		basemenu.AppendMenuItem(MF_STRING, 801, "Tracks properties");
 		actions[801] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[801] ( )");
 			}
 			fb.RunContextCommandWithMetadb("properties", plman.GetPlaylistItems(pBrw.getSourcePlaylist()), 0);
 		};
 		actions[802] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[802] ( )");
 			}
 			pBrw.focus_on_nowplaying(fb.GetNowPlaying());
 		};
 		actions[803] = function () {
-			if (globalProperties.logFunctions) {
+			if (globalProperties.logFns_oHeaderBar) {
 				console.log("called actions[803] ( )");
 			}
 			apply_playlist(plman.GetPlaylistItems(pBrw.SourcePlaylistIdx), true, false, false);
 		};
 	};
 	this.draw_header_menu = function (x, y, right_align) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oHeaderBar) {
 			console.log(`called oHeaderBar.draw_header_menu (${x}, ${y}, ${right_align})`);
 		}
 		var basemenu = window.CreatePopupMenu();
@@ -4678,13 +4610,15 @@ oHeaderBar = function (name) {
 };
 
 function draw_settings_menu(x, y, right_align, sort_group) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_settings_menu) {
 		console.log(`called draw_settings_menu (${x}, ${y}, ${right_align}, ${sort_group})`);
 	}
 	var _menu = window.CreatePopupMenu();
 	var _menu2 = window.CreatePopupMenu();
 	var _menu2A = window.CreatePopupMenu();
 	var _menuDebug = window.CreatePopupMenu();
+	var _menuLogFns = window.CreatePopupMenu();
+	var _menuLogCallbacks = window.CreatePopupMenu();
 	var _menuGroupDisplay = window.CreatePopupMenu();
 	var _menuCoverShadow = window.CreatePopupMenu();
 	var _menuFilters = window.CreatePopupMenu();
@@ -4896,20 +4830,86 @@ function draw_settings_menu(x, y, right_align, sort_group) {
 	_menu.AppendMenuSeparator();
 	_menu.AppendMenuItem(MF_STRING, 9, "Refresh images cache");
 
-	_menuDebug.AppendMenuItem(MF_STRING, 150, "Log function calls to console");
-	_menuDebug.CheckMenuItem(150, globalProperties.logFunctions);
+	//_menuDebug.AppendMenuItem(MF_STRING, 150, "Log function calls to console");
+	//_menuDebug.CheckMenuItem(150, globalProperties.logFns);
+	_menuLogFns.AppendMenuItem(MF_STRING, 150, "All");
+	_menuLogFns.CheckMenuItem(150,
+		globalProperties.logFns_Misc
+		&& globalProperties.logFns_Callbacks
+		&& globalProperties.logFns_oBrowser
+		&& globalProperties.logFns_oHeaderBar
+		&& globalProperties.logFns_oInputBox
+		&& globalProperties.logFns_oPlaylistHistory
+		&& globalProperties.logFns_oPlaylistItem
+		&& globalProperties.logFns_oPlaylistManager
+		&& globalProperties.logFns_oRow
+		&& globalProperties.logFns_oScrollbar
+		&& globalProperties.logFns_oShowList
+		&& globalProperties.logFns_Timers
+		&& globalProperties.logFns_PlaylistPanel
+		&& globalProperties.logFns_oCursor
+		&& globalProperties.logFns_oFileSystObject
+		&& globalProperties.logFns_oGenreCache
+		&& globalProperties.logFns_oImageCache
+		&& globalProperties.logFns_oPanelSetting
+		&& globalProperties.logFns_RGB
+		&& globalProperties.logFns_settings_menu
+		&& globalProperties.logFns_var_cache);
+
+	_menuLogFns.AppendMenuItem(MF_STRING, 160, "Callbacks");
+	_menuLogFns.CheckMenuItem(160, globalProperties.logFns_Callbacks);
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 260, "All");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 261, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 262, "_playlist");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 263, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 264, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 265, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 266, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 267, "PlaylistPanel");
+	//_menuLogCallbacks.AppendMenuItem(MF_STRING, 268, "PlaylistPanel");
+	_menuLogFns.AppendMenuItem(MF_STRING, 161, "Input Box / Filter Box");
+	_menuLogFns.CheckMenuItem(161, globalProperties.logFns_oInputBox);
+	_menuLogFns.AppendMenuItem(MF_STRING, 162, "Browser");
+	_menuLogFns.CheckMenuItem(162, globalProperties.logFns_oBrowser);
+	_menuLogFns.AppendMenuItem(MF_STRING, 163, "PlaylistPanel (on_notify_data)");
+	_menuLogFns.CheckMenuItem(163, globalProperties.logFns_PlaylistPanel);
+	_menuLogFns.AppendMenuItem(MF_STRING, 164, "Playlist History");
+	_menuLogFns.CheckMenuItem(164, globalProperties.logFns_oPlaylistHistory);
+	_menuLogFns.AppendMenuItem(MF_STRING, 165, "Timers");
+	_menuLogFns.CheckMenuItem(165, globalProperties.logFns_Timers);
+	_menuLogFns.AppendMenuItem(MF_STRING, 166, "Playlist Manager");
+	_menuLogFns.CheckMenuItem(166, globalProperties.logFns_oPlaylistManager);
+	_menuLogFns.AppendMenuItem(MF_STRING, 167, "Playlist Items");
+	_menuLogFns.CheckMenuItem(167, globalProperties.logFns_oPlaylistItem);
+	_menuLogFns.AppendMenuItem(MF_STRING, 168, "Rows / Columns");
+	_menuLogFns.CheckMenuItem(168, globalProperties.logFns_oRow);
+	_menuLogFns.AppendMenuItem(MF_STRING, 169, "Tracklists");
+	_menuLogFns.CheckMenuItem(169, globalProperties.logFns_oShowList);
+	_menuLogFns.AppendMenuItem(MF_STRING, 170, "Header Bar");
+	_menuLogFns.CheckMenuItem(170, globalProperties.logFns_oHeaderBar);
+	_menuLogFns.AppendMenuItem(MF_STRING, 171, "Scrollbar");
+	_menuLogFns.CheckMenuItem(171, globalProperties.logFns_oScrollbar);
+	_menuLogFns.AppendMenuItem(MF_STRING, 172, "Cursor");
+	_menuLogFns.CheckMenuItem(172, globalProperties.logFns_oCursor);
+	_menuLogFns.AppendMenuItem(MF_STRING, 173, "FileSystObject");
+	_menuLogFns.CheckMenuItem(173, globalProperties.logFns_oFileSystObject);
+	_menuLogFns.AppendMenuItem(MF_STRING, 174, "Genre Cache");
+	_menuLogFns.CheckMenuItem(174, globalProperties.logFns_oGenreCache);
+	_menuLogFns.AppendMenuItem(MF_STRING, 175, "Image Cache");
+	_menuLogFns.CheckMenuItem(175, globalProperties.logFns_oImageCache);
+	_menuLogFns.AppendMenuItem(MF_STRING, 176, "PanelSetting");
+	_menuLogFns.CheckMenuItem(176, globalProperties.logFns_oPanelSetting);
+	_menuLogFns.AppendMenuItem(MF_STRING, 177, "RGB / Color");
+	_menuLogFns.CheckMenuItem(177, globalProperties.logFns_RGB);
+	_menuLogFns.AppendMenuItem(MF_STRING, 178, "settings_menu");
+	_menuLogFns.CheckMenuItem(178, globalProperties.logFns_settings_menu);
+	_menuLogFns.AppendMenuItem(MF_STRING, 179, "var_cache");
+	_menuLogFns.CheckMenuItem(179, globalProperties.logFns_var_cache);
+	_menuLogFns.AppendMenuItem(MF_STRING, 180, "Other/Misc Functions");
+	_menuLogFns.CheckMenuItem(180, globalProperties.logFns_Misc);
+	_menuLogFns.AppendTo(_menuDebug, MF_STRING, "Log function calls to console");
 	_menuDebug.AppendMenuItem(MF_STRING, 151, "Draw outlines around object areas");
 	_menuDebug.CheckMenuItem(151, globalProperties.drawDebugRects);
-	//_menuDebug.AppendMenuItem(MF_STRING, 152, "Stretch");
-	//_menuDebug.CheckMenuItem(152, globalProperties.wallpaperdisplay == 2);
-	//_menuDebug.AppendMenuItem(MF_STRING, 153, "Stretch");
-	//_menuDebug.CheckMenuItem(153, globalProperties.wallpaperdisplay == 2);
-	//_menuDebug.AppendMenuItem(MF_STRING, 154, "Stretch");
-	//_menuDebug.CheckMenuItem(154, globalProperties.wallpaperdisplay == 2);
-	//_menuDebug.AppendMenuItem(MF_STRING, 155, "Stretch");
-	//_menuDebug.CheckMenuItem(155, globalProperties.wallpaperdisplay == 2);
-	//_menuDebug.AppendMenuItem(MF_STRING, 156, "Stretch");
-	//_menuDebug.CheckMenuItem(156, globalProperties.wallpaperdisplay == 2);
 	_menuDebug.AppendTo(_menu, MF_STRING, "Debug Settings");
 
 	idx = 0;
@@ -5360,23 +5360,137 @@ function draw_settings_menu(x, y, right_align, sort_group) {
 			pBrw.repaint();
 			break;
 		case idx == 150:
-			globalProperties.logFunctions = !globalProperties.logFunctions;
-			window.SetProperty("PL_DEBUG spam console with function calls", globalProperties.logFunctions);
+			globalProperties.logFns_oCursor = !globalProperties.logFns_oCursor;
+			window.SetProperty("PL_DEBUG logFns_oCursor", globalProperties.logFns_oCursor);
+			globalProperties.logFns_oFileSystObject = !globalProperties.logFns_oFileSystObject;
+			window.SetProperty("PL_DEBUG logFns_oFileSystObject", globalProperties.logFns_oFileSystObject);
+			globalProperties.logFns_oGenreCache = !globalProperties.logFns_oGenreCache;
+			window.SetProperty("PL_DEBUG logFns_oGenreCache", globalProperties.logFns_oGenreCache);
+			globalProperties.logFns_oImageCache = !globalProperties.logFns_oImageCache;
+			window.SetProperty("PL_DEBUG logFns_oImageCache", globalProperties.logFns_oImageCache);
+			globalProperties.logFns_oPanelSetting = !globalProperties.logFns_oPanelSetting;
+			window.SetProperty("PL_DEBUG logFns_oPanelSetting", globalProperties.logFns_oPanelSetting);
+			globalProperties.logFns_RGB = !globalProperties.logFns_RGB;
+			window.SetProperty("PL_DEBUG logFns_RGB", globalProperties.logFns_RGB);
+			globalProperties.logFns_settings_menu = !globalProperties.logFns_settings_menu;
+			window.SetProperty("PL_DEBUG logFns_settings_menu", globalProperties.logFns_settings_menu);
+			globalProperties.logFns_var_cache = !globalProperties.logFns_var_cache;
+			window.SetProperty("PL_DEBUG logFns_var_cache", globalProperties.logFns_var_cache);
+			globalProperties.logFns_Callbacks = !globalProperties.logFns_Callbacks;
+			window.SetProperty("PL_DEBUG logFns_Callbacks", globalProperties.logFns_Callbacks);
+			globalProperties.logFns_oInputBox = !globalProperties.logFns_oInputBox;
+			window.SetProperty("PL_DEBUG logFns_oInputBox", globalProperties.logFns_oInputBox);
+			globalProperties.logFns_oBrowser = !globalProperties.logFns_oBrowser;
+			window.SetProperty("PL_DEBUG logFns_oBrowser", globalProperties.logFns_oBrowser);
+			globalProperties.logFns_PlaylistPanel = !globalProperties.logFns_PlaylistPanel;
+			window.SetProperty("PL_DEBUG logFns_PlaylistPanel", globalProperties.logFns_PlaylistPanel);
+			globalProperties.logFns_oPlaylistHistory = !globalProperties.logFns_oPlaylistHistory;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistHistory", globalProperties.logFns_oPlaylistHistory);
+			globalProperties.logFns_Timers = !globalProperties.logFns_Timers;
+			window.SetProperty("PL_DEBUG logFns_Timers", globalProperties.logFns_Timers);
+			globalProperties.logFns_oPlaylistManager = !globalProperties.logFns_oPlaylistManager;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistManager", globalProperties.logFns_oPlaylistManager);
+			globalProperties.logFns_oPlaylistItem = !globalProperties.logFns_oPlaylistItem;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistItem", globalProperties.logFns_oPlaylistItem);
+			globalProperties.logFns_oRow = !globalProperties.logFns_oRow;
+			window.SetProperty("PL_DEBUG logFns_oRow", globalProperties.logFns_oRow);
+			globalProperties.logFns_oShowList = !globalProperties.logFns_oShowList;
+			window.SetProperty("PL_DEBUG logFns_oShowList", globalProperties.logFns_oShowList);
+			globalProperties.logFns_oHeaderBar = !globalProperties.logFns_oHeaderBar;
+			window.SetProperty("PL_DEBUG logFns_oHeaderBar", globalProperties.logFns_oHeaderBar);
+			globalProperties.logFns_oScrollbar = !globalProperties.logFns_oScrollbar;
+			window.SetProperty("PL_DEBUG logFns_oScrollbar", globalProperties.logFns_oScrollbar);
+			globalProperties.logFns_Misc = !globalProperties.logFns_Misc;
+			window.SetProperty("PL_DEBUG logFns_Misc", globalProperties.logFns_Misc);
 			break;
 		case idx == 151:
 			globalProperties.drawDebugRects = !globalProperties.drawDebugRects;
 			window.SetProperty("PL_DEBUG draw object area rects", globalProperties.drawDebugRects);
 			pBrw.repaint();
 			break;
-		case idx == 152:
+		case idx == 160:
+			globalProperties.logFns_Callbacks = !globalProperties.logFns_Callbacks;
+			window.SetProperty("PL_DEBUG logFns_Callbacks", globalProperties.logFns_Callbacks);
 			break;
-		case idx == 153:
+		case idx == 161:
+			globalProperties.logFns_oInputBox = !globalProperties.logFns_oInputBox;
+			window.SetProperty("PL_DEBUG logFns_oInputBox", globalProperties.logFns_oInputBox);
 			break;
-		case idx == 154:
+		case idx == 162:
+			globalProperties.logFns_oBrowser = !globalProperties.logFns_oBrowser;
+			window.SetProperty("PL_DEBUG logFns_oBrowser", globalProperties.logFns_oBrowser);
 			break;
-		case idx == 155:
+		case idx == 163:
+			globalProperties.logFns_PlaylistPanel = !globalProperties.logFns_PlaylistPanel;
+			window.SetProperty("PL_DEBUG logFns_PlaylistPanel", globalProperties.logFns_PlaylistPanel);
 			break;
-		case idx == 156:
+		case idx == 164:
+			globalProperties.logFns_oPlaylistHistory = !globalProperties.logFns_oPlaylistHistory;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistHistory", globalProperties.logFns_oPlaylistHistory);
+			break;
+		case idx == 165:
+			globalProperties.logFns_Timers = !globalProperties.logFns_Timers;
+			window.SetProperty("PL_DEBUG logFns_Timers", globalProperties.logFns_Timers);
+			break;
+		case idx == 166:
+			globalProperties.logFns_oPlaylistManager = !globalProperties.logFns_oPlaylistManager;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistManager", globalProperties.logFns_oPlaylistManager);
+			break;
+		case idx == 167:
+			globalProperties.logFns_oPlaylistItem = !globalProperties.logFns_oPlaylistItem;
+			window.SetProperty("PL_DEBUG logFns_oPlaylistItem", globalProperties.logFns_oPlaylistItem);
+			break;
+		case idx == 168:
+			globalProperties.logFns_oRow = !globalProperties.logFns_oRow;
+			window.SetProperty("PL_DEBUG logFns_oRow", globalProperties.logFns_oRow);
+			break;
+		case idx == 169:
+			globalProperties.logFns_oShowList = !globalProperties.logFns_oShowList;
+			window.SetProperty("PL_DEBUG logFns_oShowList", globalProperties.logFns_oShowList);
+			break;
+		case idx == 170:
+			globalProperties.logFns_oHeaderBar = !globalProperties.logFns_oHeaderBar;
+			window.SetProperty("PL_DEBUG logFns_oHeaderBar", globalProperties.logFns_oHeaderBar);
+			break;
+		case idx == 171:
+			globalProperties.logFns_oScrollbar = !globalProperties.logFns_oScrollbar;
+			window.SetProperty("PL_DEBUG logFns_oScrollbar", globalProperties.logFns_oScrollbar);
+			break;
+		case idx == 172:
+			globalProperties.logFns_oCursor = !globalProperties.logFns_oCursor;
+			window.SetProperty("PL_DEBUG logFns_oCursor", globalProperties.logFns_oCursor);
+			break;
+		case idx == 173:
+			globalProperties.logFns_oFileSystObject = !globalProperties.logFns_oFileSystObject;
+			window.SetProperty("PL_DEBUG logFns_oFileSystObject", globalProperties.logFns_oFileSystObject);
+			break;
+		case idx == 174:
+			globalProperties.logFns_oGenreCache = !globalProperties.logFns_oGenreCache;
+			window.SetProperty("PL_DEBUG logFns_oGenreCache", globalProperties.logFns_oGenreCache);
+			break;
+		case idx == 175:
+			globalProperties.logFns_oImageCache = !globalProperties.logFns_oImageCache;
+			window.SetProperty("PL_DEBUG logFns_oImageCache", globalProperties.logFns_oImageCache);
+			break;
+		case idx == 176:
+			globalProperties.logFns_oPanelSetting = !globalProperties.logFns_oPanelSetting;
+			window.SetProperty("PL_DEBUG logFns_oPanelSetting", globalProperties.logFns_oPanelSetting);
+			break;
+		case idx == 177:
+			globalProperties.logFns_RGB = !globalProperties.logFns_RGB;
+			window.SetProperty("PL_DEBUG logFns_RGB", globalProperties.logFns_RGB);
+			break;
+		case idx == 178:
+			globalProperties.logFns_settings_menu = !globalProperties.logFns_settings_menu;
+			window.SetProperty("PL_DEBUG logFns_settings_menu", globalProperties.logFns_settings_menu);
+			break;
+		case idx == 179:
+			globalProperties.logFns_var_cache = !globalProperties.logFns_var_cache;
+			window.SetProperty("PL_DEBUG logFns_var_cache", globalProperties.logFns_var_cache);
+			break;
+		case idx == 180:
+			globalProperties.logFns_Misc = !globalProperties.logFns_Misc;
+			window.SetProperty("PL_DEBUG logFns_Misc", globalProperties.logFns_Misc);
 			break;
 		case idx == 200:
 			toggleWallpaper();
@@ -5458,8 +5572,9 @@ function draw_settings_menu(x, y, right_align, sort_group) {
 	_additionalInfos = undefined;
 }
 
+globalProperties.logFns_oScrollbar = window.GetProperty("PL_DEBUG logFns_oScrollbar", false);
 oScrollbar = function (parentObjectName) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oScrollbar) {
 		console.log(`called oScrollbar (${parentObjectName})`);
 	}
 	this.parentObjName = parentObjectName;
@@ -5467,7 +5582,7 @@ oScrollbar = function (parentObjectName) {
 	this.cursorHeight = 0;
 	this.buttons = Array(null, null, null);
 	this.draw = function (gr, x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//	console.log("called oScrollbar.draw ( )");
 		}
 		// draw background and buttons up & down
@@ -5482,7 +5597,7 @@ oScrollbar = function (parentObjectName) {
 		//console.log(this.h);
 	};
 	this.get_h_tot = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.get_h_tot ( )");
 		}
 		if (g_showlist.idx > -1) {
@@ -5504,14 +5619,14 @@ oScrollbar = function (parentObjectName) {
 		}
 	};
 	this.get_h_vis = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.get_h_vis ( )");
 		}
 		return pBrw.totalRowsVis * pBrw.rowHeight;
 		//return window.Height-pBrw.headerBarHeight -pBrw.y;
 	};
 	this.check_scroll = function (scroll_to_check) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oShowList.check_scroll ( )");
 		}
 		h_vis = this.get_h_vis();
@@ -5525,7 +5640,7 @@ oScrollbar = function (parentObjectName) {
 		return scroll_to_check;
 	};
 	this.setCursor = function (h_vis, h_tot, offset) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.setCursor ( )");
 		}
 		if (!adjW || !adjH || adjH < 100) {
@@ -5560,7 +5675,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.setCursorButton = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.setCursorButton ( )");
 		}
 		try {
@@ -5635,7 +5750,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.setButtons = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.setButtons ( )");
 		}
 		// normal scroll_up Image
@@ -5735,7 +5850,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.setSize = function (x, y, whover, h, wnormal) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//console.log("called oScrollbar.setSize ( )");
 		}
 		this.x = x;
@@ -5751,7 +5866,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.cursorCheck = function (event, x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//	console.log("called oScrollbar.cursorCheck ( )");
 		}
 		this.ishover =
@@ -5805,7 +5920,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.check = function (event, x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//	console.log("called oScrollbar.check ( )");
 		}
 		//console.log(event, x, y);
@@ -5862,7 +5977,7 @@ oScrollbar = function (parentObjectName) {
 	};
 
 	this.repaint = function () {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_oScrollbar) {
 			//	console.log("called oScrollbar.repaint ( )");
 		}
 		eval(this.parentObjName + ".repaint()");
@@ -5871,7 +5986,7 @@ oScrollbar = function (parentObjectName) {
 
 // ===================================================== Filter Toggle Button =============================================
 function toggleLibraryFilterState() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oPanelSetting) {
 		console.log(`called toggleLibraryFilterState ( )`);
 	}
 	libraryfilter_state.toggleValue();
@@ -5889,7 +6004,7 @@ function toggleLibraryFilterState() {
 
 //var gTime_covers_all = null;
 function populate_with_library_covers(start_items, str_comp_items) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_oImageCache) {
 		console.log(`called populate_with_library_covers (${start_items}, ${str_comp_items})`);
 	}
 	if (start_items == 0) {
@@ -5957,7 +6072,7 @@ function populate_with_library_covers(start_items, str_comp_items) {
 }
 
 function ClearCoversTimers() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Timers) {
 		console.log(`called ClearCoversTimers ( )`);
 	}
 	for (let i = 0; i < populate_covers_timer.length; i++) {
@@ -5971,7 +6086,7 @@ function ClearCoversTimers() {
 }
 
 function createCoverShadowStack(cover_width, cover_height, color, radius, circleMode) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(
 			`called createCoverShadowStack (${cover_width}, ${cover_height}, ${color}, ${radius}, ${circleMode})`
 		);
@@ -5990,7 +6105,7 @@ function createCoverShadowStack(cover_width, cover_height, color, radius, circle
 
 // ===================================================== // Wallpaper =====================================================
 function toggleWallpaper(wallpaper_state) {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Misc) {
 		console.log(`called toggleWallpaper (${wallpaper_state})`);
 	}
 	wallpaper_state = typeof wallpaper_state !== "undefined" ? wallpaper_state : !globalProperties.showwallpaper;
@@ -6007,7 +6122,7 @@ function toggleWallpaper(wallpaper_state) {
 //=================================================// Fonts & Colors
 
 function get_colors() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_RGB) {
 		console.log(`called get_colors ( )`);
 	}
 	get_colors_global();
@@ -6221,7 +6336,7 @@ function get_colors() {
 }
 
 function on_font_changed() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Callbacks) {
 		console.log(`called on_font_changed ( )`);
 	}
 	createForkFonts();
@@ -6233,7 +6348,7 @@ function on_font_changed() {
 }
 
 function on_colours_changed() {
-	if (globalProperties.logFunctions) {
+	if (globalProperties.logFns_Callbacks) {
 		console.log(`called on_colours_changed ( )`);
 	}
 	get_colors();
@@ -6262,7 +6377,9 @@ function _playlist(x, y) {
 		this.h = h;
 		this.w = w;
 		//console.log(`playlist:   this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}`);
-
+		if (globalProperties.logFns_Callbacks) {
+			console.log(`called _playlist.on_size ( this.h: ${this.h} this.w: ${this.w} this.x: ${this.x} this.y: ${this.y}, adjW: ${adjW})`);
+		}
 		pl_is_activated = window.IsVisible && displayPlaylist;
 		if (window.IsVisible || first_on_size) {
 			// set wallpaper
@@ -6306,7 +6423,7 @@ function _playlist(x, y) {
 	};
 
 	this.set_update_function = (string) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Misc) {
 			console.log(`called _playlist.set_update_function (${string})`);
 		}
 		if (string == "") Update_Required_function = string;
@@ -6315,6 +6432,10 @@ function _playlist(x, y) {
 	};
 
 	this.on_paint = (gr) => {
+		if (globalProperties.logFns_Callbacks) {
+			//console.log(`called _playlist.on_mouse_move (${x}, ${y}, ${m}`);
+			//console.log(`g_dragA: ${g_dragA}, g_dragR: ${g_dragR}, g_dragC: ${g_dragC}`);
+		}
 		if (trace_on_paint) {
 			var profiler_part = fb.CreateProfiler();
 		}
@@ -6399,7 +6520,7 @@ function _playlist(x, y) {
 		}
 
 		if (globalProperties.DragToPlaylist) {
-			paint_scrollbar = !g_plmanager.isOpened || g_plmanager.side == "left";
+			paint_scrollbar = !g_plmanager.isOpened;
 		} else paint_scrollbar = true;
 
 		if (paint_scrollbar && g_scrollbar.isVisible) {
@@ -6413,7 +6534,7 @@ function _playlist(x, y) {
 
 	//=================================================// Mouse Callbacks =================================================
 	this.on_mouse_lbtn_down = (x, y, m) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_mouse_lbtn_down (${x}, ${y}, ${m})`);
 		}
 		if (g_cursor.x != x || g_cursor.y != y) on_mouse_move(x, y, m);
@@ -6485,8 +6606,8 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_lbtn_up_delayed = (x, y) => {
-		if (globalProperties.logFunctions) {
-			console.log("called _playlist.on_mouse_lbtn_up_delayed ( )");
+		if (globalProperties.logFns_Callbacks) {
+		console.log(`called _playlist.on_mouse_lbtn_up_delayed (${x}, ${y})`);
 		}
 		var changed_showlist = false;
 		if (!g_drag_up_action && !doubleClick) {
@@ -6568,7 +6689,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_lbtn_up = (x, y, m) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_mouse_lbtn_up (${x}, ${y}, ${m})`);
 		}
 		g_drag_up_action = g_dragA || g_dragR;
@@ -6670,7 +6791,7 @@ function _playlist(x, y) {
 				}
 			}
 		}
-		pBrw.stopResizing();
+		//pBrw.stopResizing();
 		g_showlist.drag_showlist_hscrollbar = false;
 		// check scrollbar
 		if (globalProperties.showscrollbar && g_scrollbar && g_scrollbar.isVisible) {
@@ -6692,7 +6813,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_lbtn_dblclk = (x, y, mask) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_mouse_lbtn_dblclk (${x}, ${y}, ${mask})`);
 		}
 		doubleClick = true;
@@ -6731,7 +6852,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_rbtn_up = (x, y) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_mouse_rbtn_up (${x}, ${y})`);
 		}
 		var track_clicked = false;
@@ -6998,7 +7119,6 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_move = (x, y, m) => {
-		//console.log(x, y, m);
 		if (x == g_cursor.x && y == g_cursor.y) return;
 		g_cursor.onMouse("move", x, y, m);
 
@@ -7026,6 +7146,22 @@ function _playlist(x, y) {
 			g_avoid_on_playlist_switch = true;
 			var items = pBrw.groups[pBrw.groups_draw[pBrw.clicked_id]].pl;
 			pBrw.external_dragging = true;
+			var options = {
+				show_text: false,
+				use_album_art: false,
+				use_theming: false,
+				custom_image: createDragImg(
+					pBrw.groups[pBrw.groups_draw[pBrw.clicked_id]].cover_img,
+					80,
+					pBrw.groups[pBrw.groups_draw[pBrw.clicked_id]].pl.Count
+				),
+			};
+			var effect = fb.DoDragDrop(
+				window.ID,
+				items,
+				drop_effect.copy | drop_effect.move | drop_effect.link,
+				options
+			);
 			// nothing happens here until the mouse button is released
 			pBrw.external_dragging = false;
 			pBrw.stopDragging();
@@ -7043,6 +7179,18 @@ function _playlist(x, y) {
 				var drag_img = createDragImg(pBrw.groups[g_showlist.idx].cover_img, 80, items.Count);
 			else drag_img = createDragText("Dragging", items.Count + " tracks", 220);
 			pBrw.external_dragging = true;
+			var options = {
+				show_text: false,
+				use_album_art: false,
+				use_theming: false,
+				custom_image: drag_img,
+			};
+			var effect = fb.DoDragDrop(
+				window.ID,
+				items,
+				drop_effect.copy | drop_effect.move | drop_effect.link,
+				options
+			);
 			// nothing happens here until the mouse button is released
 			pBrw.external_dragging = false;
 			pBrw.stopDragging();
@@ -7051,7 +7199,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_wheel = (delta) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_mouse_wheel (${delta})`);
 		}
 		let intern_step = delta;
@@ -7139,7 +7287,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_mouse_leave = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_mouse_leave ( )");
 		}
 		g_cursor.onMouse("leave");
@@ -7165,21 +7313,21 @@ function _playlist(x, y) {
 	};
 
 	this.mouse_in_this = function (x, y) {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.mouse_in_this (${x}, ${y})`);
 		}
 		return x >= this.x && x < this.x + this.w && y >= this.y && y < this.y + this.h;
 	};
 	//=================================================// Playback Callbacks =================================================
 	this.on_playback_pause = (state) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playback_pause (${state})`);
 		}
 		// if(window.IsVisible) pBrw.repaint();
 	};
 
 	this.on_playback_stop = (reason) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playback_stop (${reason})`);
 		}
 		g_seconds = 0;
@@ -7206,7 +7354,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playback_new_track = (metadb) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playback_new_track (${metadb})`);
 		}
 		g_showlist.CheckIfPlaying();
@@ -7264,7 +7412,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playback_time = (time) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playback_time (${time})`);
 		}
 		g_seconds = time;
@@ -7283,7 +7431,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playback_seek = (time) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playback_seek (${time})`);
 		}
 		g_seconds = time;
@@ -7303,7 +7451,7 @@ function _playlist(x, y) {
 
 	//=================================================// Playlist Callbacks
 	this.on_playlist_switch = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_playlist_switch ( )");
 		}
 		if (pBrw.followActivePlaylist) {
@@ -7331,7 +7479,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlist_items_reordered = (pl) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playlist_items_reordered (${pl})`);
 		}
 		source_playlist_idx = pBrw.calculateSourcePlaylist();
@@ -7344,7 +7492,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlists_changed = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_playlists_changed ( )");
 		}
 		//console.log(`g_avoid_on_playlists_changed: ${g_avoid_on_playlists_changed}`)
@@ -7367,7 +7515,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlist_items_selection_change = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_playlist_items_selection_change ( )");
 		}
 		if (window.IsVisible) pBrw.repaint();
@@ -7375,7 +7523,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlist_items_added = (pl) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playlist_items_added (${pl})`);
 		}
 		source_playlist_idx = pBrw.calculateSourcePlaylist();
@@ -7403,7 +7551,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlist_items_removed = (pl) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_playlist_items_removed (${pl})`);
 		}
 		source_playlist_idx = pBrw.calculateSourcePlaylist();
@@ -7430,7 +7578,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_playlist_item_ensure_visible = (playlist_idx, playlistItemIndex) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			//console.log("called _playlist.on_playlist_item_ensure_visible ( )");
 		}
 		//scroll += pBrw.totalRowsVis * pBrw.rowHeight;
@@ -7438,7 +7586,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_library_items_added = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_library_items_added ( )");
 		}
 		if (LibraryItems_counter < 1) {
@@ -7452,7 +7600,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_metadb_changed = (metadbs, fromhook) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_metadb_changed (${metadbs}, ${fromhook})`);
 		}
 		if (window.IsVisible) {
@@ -7520,14 +7668,14 @@ function _playlist(x, y) {
 	};
 
 	this.on_drag_enter = (action, x, y, mask) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_drag_enter (${action}, ${x}, ${y}, ${mask})`);
 		}
 		action.Effect = 0;
 	};
 
 	this.on_drag_leave = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_drag_leave ( )");
 		}
 		if (globalProperties.DragToPlaylist) {
@@ -7544,7 +7692,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_drag_drop = (action, x, y, mask) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_drag_drop (${action}, ${x}, ${y}, ${mask})`);
 		}
 		/*
@@ -7560,8 +7708,8 @@ function _playlist(x, y) {
 	};
 
 	this.on_drag_over = (action, x, y, mask) => {
-		if (globalProperties.logFunctions) {
-			console.log(`called _playlist.on_drag_over (${action}, ${x}, ${y}, ${mask})`);
+		if (globalProperties.logFns_Callbacks) {
+		//	console.log(`called _playlist.on_drag_over (${action}, ${x}, ${y}, ${mask})`);
 		}
 		if (!(g_dragA || g_dragR)) {
 			action.Effect = 0;
@@ -7578,7 +7726,7 @@ function _playlist(x, y) {
 
 	// ===================================================== Cover Images =====================================================
 	this.on_get_album_art_done = (metadb, art_id, image, image_path) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Misc) {
 			console.log(`called this.on_get_album_art_done (${metadb}, ${art_id}, ${image}, ${image_path})`);
 		}
 		var i = art_id - 5;
@@ -7645,7 +7793,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_notify_data = (name, info) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Misc) {
 			console.log(`called _playlist.on_notify_data (${name}, ${info})`);
 		}
 		switch (name) {
@@ -7931,7 +8079,7 @@ function _playlist(x, y) {
 	//=================================================// Keyboard Callbacks
 
 	this.on_char = (code) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_char (${code})`);
 		}
 		// inputBox
@@ -7941,7 +8089,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_key_up = (vkey) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_key_up (${vkey})`);
 		}
 		// inputBox
@@ -7951,7 +8099,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_key_down = (vkey) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_key_down (${vkey})`);
 		}
 		var mask = GetKeyboardMask();
@@ -8110,14 +8258,14 @@ function _playlist(x, y) {
 	};
 
 	this.on_focus = (is_focused) => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log(`called _playlist.on_focus (${is_focused})`);
 		}
 		g_filterbox.on_focus(is_focused);
 	};
 
 	this.on_item_focus_change = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_item_focus_change ( )");
 		}
 		if (fb.GetNowPlaying() && fb.GetFocusItem(true) && fb.GetFocusItem(true).RawPath == fb.GetNowPlaying().RawPath)
@@ -8126,7 +8274,7 @@ function _playlist(x, y) {
 	};
 
 	this.on_init = () => {
-		if (globalProperties.logFunctions) {
+		if (globalProperties.logFns_Callbacks) {
 			console.log("called _playlist.on_init ( )");
 		}
 		createForkFonts();
@@ -8167,6 +8315,6 @@ function _playlist(x, y) {
 let playlist;
 
 function initPlaylist() {
-	playlist = new PlaylistPanel(0, 0);
+	playlist = new PlaylistPanel(Math.round(adjW * 0.5), 69 + scaleForDisplay(16) + 2);
 	playlist.initialize();
 }

@@ -212,30 +212,6 @@ const settingsSchema = new ConfigurationObjectSchema(
 	"General settings for the theme."
 );
 
-const transportDefaults = {
-	displayBelowArtwork: true,
-	enableTransportControls: true,
-	showRandom: true,
-	showVolume: true,
-	showReload: false,
-};
-
-const transportComments = {
-	displayBelowArtwork: "Should the transport controls be placed below the artwork. Disabled by default.",
-	enableTransportControls:
-		"Should transport controls be displayed. If false, all other transport settings are ignored.",
-	showRandom: "Show the randomize button",
-	showVolume: "Show the volume control",
-	showReload: "Show the reload theme button",
-};
-
-const transportSchema = new ConfigurationObjectSchema(
-	"transport",
-	ConfigurationObjectType.Object,
-	undefined,
-	"Transport controls settings"
-);
-
 const lastfmDefaults = {
 	username: "",
 	sk: "",

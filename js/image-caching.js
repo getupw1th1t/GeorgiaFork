@@ -10,8 +10,8 @@ class ArtCache {
         /** @private @type {string[]} */
         this.cacheIndexes = [];
         /** @private */ this.cacheMaxSize = maxCacheSize;
-        /** @private */ this.imgMaxWidth = scaleForDisplay(1440);   // these are the maximum width and height an image can be displayed in Georgia
-        /** @private */ this.imgMaxHeight = scaleForDisplay(872);
+        /** @public */ this.imgMaxWidth = scaleForDisplay(1440);   // these are the maximum width and height an image can be displayed in Georgia
+        /** @public */ this.imgMaxHeight = scaleForDisplay(872);
     }
 
     /**

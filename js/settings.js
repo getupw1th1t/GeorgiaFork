@@ -5,8 +5,6 @@ let settings = {};
 /** @type {*} */
 let globals = {};
 /** @type {*} */
-let transport = {};
-/** @type {*} */
 let lfm = {};
 /** @type {MetadataGridEntry[]} */
 let metadataGrid;
@@ -60,8 +58,6 @@ pref.add_properties({
 	use_vinyl_nums: ['Use vinyl style numbering (e.g. A1)', true], // true: if the tags specified in tf.vinyl_side and tf.vinyl_tracknum are set, then we'll show vinyl style track numbers (i.e. "B2." instead of "04.")
 	startPlaylist: ['Display playlist on startup', false], // true: show the playlist window when the theme starts up
 	show_progress_bar: ['Show Progress Bar', true], // true: show progress bar, otherwise hide it (useful is using another panel for this)
-	transport_buttons_size: ['Transport: Button size', 32], // size in pixels of the buttons
-	transport_buttons_spacing: ['Transport: Button spacing', 5], // size in pixels of the spacing between buttons
 	showTitleInGrid: ['Display song title in info grid', true], // false: don't show title at top of info grid, and move album title above timeline
 
 	show_timeline_tooltips: ['Show timeline tooltips', true], // true: show tooltips when hovering over the timeline that show information on plays
@@ -135,7 +131,6 @@ if (!config.fileExists) {
 	config.addConfigurationObject(gridSchema, defaultMetadataGrid);	// we don't assign an object here because these aren't key/value pairs and thus can't use the get/setters
 	config.addConfigurationObject(imgPathSchema, imgPathDefaults);
 	config.addConfigurationObject(lyricFilenamesSchema, lyricFilenamesDefaults);
-	config.addConfigurationObject(transportSchema, transportDefaults);
 	lfm = config.addConfigurationObject(lastfmSchema, lastfmDefaults);
 	console.log('> Writing', configPath);
 	config.writeConfiguration();
@@ -147,7 +142,6 @@ if (config.fileExists) {
 	 * for the objects so that the file gets automatically written when a setting is changed.
 	 **/
 	settings = config.addConfigurationObject(settingsSchema, Object.assign({}, settingsDefaults, prefs.settings), settingsComments);
-	transport = config.addConfigurationObject(transportSchema, Object.assign({}, transportDefaults, prefs.transport), transportComments);
 	lfm = config.addConfigurationObject(lastfmSchema, Object.assign({}, lastfmDefaults, prefs.lfm));
 	tf = config.addConfigurationObject(titleFormatSchema, Object.assign({}, defaultTitleFormatStrings, prefs.title_format_strings), titleFormatComments);
 	prefs.metadataGrid.forEach(entry => {
@@ -248,7 +242,6 @@ function migrateCheck(version, storedVersion) {
 				config.addConfigurationObject(lyricFilenamesSchema, lyricFilenamesDefaults);
 			case '2.0.0-beta4':
 				settings.extraTrackInfo = settingsDefaults.extraTrackInfo;
-				config.addConfigurationObject(transportSchema, transportDefaults);
 
 			case '2.0.0':
 			case '2.0.1':
