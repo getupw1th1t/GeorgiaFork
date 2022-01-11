@@ -325,7 +325,7 @@ class ContextFoobarMenu extends ContextBaseObject {
     constructor (metadb_handles_arg) {
         super('');
 
-        /** @private {IContextMenuManager} */
+        /** @private {ContextMenuManager} */
         this.cm = fb.CreateContextMenuManager();
 
         this.metadb_handles = metadb_handles_arg;

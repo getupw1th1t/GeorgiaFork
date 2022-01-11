@@ -6289,11 +6289,11 @@ function ArtImageCache(max_cache_size_arg) {
 Header.art_cache = new ArtImageCache(200);
 
 /** @type {PlaylistPanel} */
-let playlist;
-function initPlaylist() {
-	playlist = new PlaylistPanel(0, 0);
-	playlist.initialize();
-}
+//let playlist;
+//function initPlaylist() {
+//	playlist = new PlaylistPanel(0, 0);
+//	playlist.initialize();
+//}
 
 // Call reinitialize(); only when needed
 var needs_reinit = false;

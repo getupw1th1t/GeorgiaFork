@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 let _exports = (() => {
 
 	/** Used as the size to enable large array optimizations. */

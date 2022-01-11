@@ -1,5 +1,3 @@
-"use strict";
-
 include(fb.ProfilePath + "scripts\\utils\\spotifyhelpers.js");
 include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
 

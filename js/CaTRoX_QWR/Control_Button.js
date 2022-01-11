@@ -216,8 +216,8 @@ function btnActionHandler(btn) {
 					plman.RemovePlaylistSelection(pl, true);
 					plman.InsertPlaylistItems(pl, 1, handles);
 					plman.EnsurePlaylistItemVisible(pl, 0);
-					if (displayPlaylist) {
-						playlist.on_playback_new_track(fb.GetNowPlaying()); // used to scroll item into view
+					if (displayBrowser) {
+						graphic_browser.on_playback_new_track(fb.GetNowPlaying()); // used to scroll item into view
 					}
 				}
 			} else {
@@ -321,8 +321,8 @@ function btnActionHandler(btn) {
 				initLibraryPanel();
 				setLibrarySize();
 			}
-			if (displayPlaylist) {
-				displayPlaylist = false;
+			if (displayBrowser) {
+				displayBrowser = false;
 			} else {
 				ResizeArtwork(false);
 			}
@@ -332,9 +332,9 @@ function btnActionHandler(btn) {
 			window.Repaint();
 			break;
 		case "Playlist":
-			displayPlaylist = !displayPlaylist;
-			if (displayPlaylist) {
-				playlist.on_size(ww, wh);
+			displayBrowser = !displayBrowser;
+			if (displayBrowser) {
+				graphic_browser.on_size(ww, wh);
 			}
 			if (displayLibrary) {
 				displayLibrary = false;
@@ -342,7 +342,7 @@ function btnActionHandler(btn) {
 				ResizeArtwork(false);
 			}
 			setupRotationTimer(); // clear or start cdRotation if required
-			btn.enable = displayPlaylist;
+			btn.enable = displayBrowser;
 			btns.library.enable = false;
 			window.Repaint();
 			break;
@@ -460,10 +460,8 @@ function onMainMenu(x, y, name) {
 // =================================================== //
 
 function refreshPlayButton() {
-	if (transport.enableTransportControls) {
-		btns.play.img = !fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause;
-		btns.play.repaint();
-	}
+	btns.play.img = !fb.IsPlaying || fb.IsPaused ? btnImg.Play : btnImg.Pause;
+	btns.play.repaint();
 }
 
 // =================================================== //

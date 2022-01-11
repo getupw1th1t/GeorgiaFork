@@ -45,10 +45,10 @@ const fileList = [
 	"js\\configuration.js", // reads/write from config file. The actual configuration values are specified in globals.js
 	"js\\helpers.js",
 	"js\\CaTRoX_QWR\\Common.js",
+	"js\\fork_helpers.js",
 	"js\\defaults.js", // used in settings.js
 	"js\\hyperlinks.js", // used in settings.js
 	"js\\settings.js", // must be below hyperlinks.js and Common.js
-	"js\\fork_helpers.js",
 	"js\\lastfm.js",
 	"js\\CaTRoX_QWR\\Utility_LinkedList.js",
 	"js\\CaTRoX_QWR\\Control_ContextMenu.js",
