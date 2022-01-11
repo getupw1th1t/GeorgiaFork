@@ -4538,6 +4538,11 @@ function draw_settings_menu(x, y, right_align, sort_group) {
 
     const _filterMenu = new Menu('Filter field')
     _filterMenu.addToggleItem('Show', globalProperties, 'showFilterBox', () => {
+        if (libraryfilter_state.isActive()) {
+            globalProperties.showFilterBox_filter_active = globalProperties.showFilterBox;
+        } else {
+            globalProperties.showFilterBox_filter_inactive = globalProperties.showFilterBox;
+        }
         pBrw.showFilterBox = globalProperties.showFilterBox
         g_headerbar.RightTextLength = -1
         g_filterbox.on_init()

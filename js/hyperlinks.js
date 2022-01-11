@@ -265,12 +265,15 @@ class PlHyperlink extends Hyperlink {
                     query = `Artist HAS ${this.text} OR ARTISTFILTER HAS ${this.text}`;
                     break;
                 case 'genre':
-                    let subgenList = findChildren(genreJSON, 'name', this.text).join(' OR genre IS ');
-                    let relatedgenList = findRelated(genreJSON, 'name', this.text).join(' OR genre IS ');
-                    console.log(subgenList);
+                    let cleanedText = this.text.removeAccents().toLowerCase();
+                    let subgenList = findChildren(genreJSON, 'name', cleanedText).join(' OR genre IS ');
+                    let relatedgen = findRelated(genreJSON, 'name', cleanedText);
+                    let relatedgenList = relatedgen.length > 80 ? subgenList : relatedgen.join(' OR genre IS ');
+                  // if (relatedgenList.length > 80) relatedgenList = subgenList
                     subQuery = subgenList ? this.type + ' IS ' + this.text + ' OR genre IS ' + subgenList : this.type + ' IS ' + this.text;
+                    //console.log(subQuery);
                     relatedQuery = relatedgenList ? this.type + ' IS ' + this.text + ' OR genre IS ' + relatedgenList : this.type + ' IS ' + this.text;
-                    console.log(relatedQuery);
+                    //console.log(relatedQuery);
                     query = this.type + ' IS ' + this.text;
                     break;
                 default:
